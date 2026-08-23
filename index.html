@@ -2,36 +2,61 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Bean Growth Game</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link rel="stylesheet" href="style.css">
+  <title>Bean Growth</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
 
 <body>
 
   <div class="app">
 
-    <!-- ヘッダー -->
+    <!-- =========================
+         ヘッダー
+    ========================== -->
+
     <header class="app-header">
+
       <div>
-        <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
-        <h1>Bean Growth</h1>
+        <p class="app-subtitle">
+          CONTINUE. GROW. CLIMB.
+        </p>
+
+        <h1>
+          Bean Growth
+        </h1>
       </div>
 
       <div class="header-bean">
         🌱
       </div>
+
     </header>
 
 
-    <!-- ホーム画面 -->
-    <main id="homeScreen" class="screen active">
+    <!-- =========================
+         ホーム
+    ========================== -->
+
+    <main
+      id="homeScreen"
+      class="screen active"
+    >
 
       <section class="hero-card">
 
-        <p class="hero-label">あなたの挑戦</p>
+        <p class="hero-label">
+          あなたの挑戦
+        </p>
 
         <h2>
           継続して、<br>
@@ -40,7 +65,7 @@
 
         <p class="hero-description">
           成功した日は1m成長。<br>
-          失敗が続けば、育てた高さを失います。
+          高さを積み上げ、地球を越えて宇宙を目指します。
         </p>
 
       </section>
@@ -49,17 +74,24 @@
       <section class="section">
 
         <div class="section-header">
+
           <div>
-            <p class="section-label">YOUR BEANS</p>
-            <h2>育てる豆の木</h2>
+            <p class="section-label">
+              YOUR BEANS
+            </p>
+
+            <h2>
+              育てる豆の木
+            </h2>
           </div>
+
         </div>
 
 
-        <div id="habitList" class="habit-list">
-
-          <!-- JavaScriptで生成 -->
-
+        <div
+          id="habitList"
+          class="habit-list"
+        >
         </div>
 
       </section>
@@ -67,28 +99,61 @@
 
       <section class="rule-card">
 
-        <h3>基本ルール</h3>
+        <h3>
+          基本ルール
+        </h3>
 
         <div class="rule-list">
 
           <div class="rule-item">
-            <span class="rule-number success-rule">+1m</span>
-            <span>今日も継続できた</span>
+
+            <span class="rule-number success-rule">
+              +1m
+            </span>
+
+            <span>
+              今日も継続できた
+            </span>
+
           </div>
 
-          <div class="rule-item">
-            <span class="rule-number fail-rule">−20%</span>
-            <span>1回目の連続失敗</span>
-          </div>
 
           <div class="rule-item">
-            <span class="rule-number fail-rule">×0.5</span>
-            <span>2回連続失敗</span>
+
+            <span class="rule-number fail-rule">
+              −20%
+            </span>
+
+            <span>
+              1回目の連続失敗
+            </span>
+
           </div>
 
+
           <div class="rule-item">
-            <span class="rule-number danger-rule">0m</span>
-            <span>3回連続失敗</span>
+
+            <span class="rule-number fail-rule">
+              ×0.5
+            </span>
+
+            <span>
+              2回連続失敗
+            </span>
+
+          </div>
+
+
+          <div class="rule-item">
+
+            <span class="rule-number danger-rule">
+              0m
+            </span>
+
+            <span>
+              3回連続失敗
+            </span>
+
           </div>
 
         </div>
@@ -99,19 +164,37 @@
 
 
 
-    <!-- 個別ゲーム画面 -->
-    <main id="gameScreen" class="screen">
+    <!-- =========================
+         個別ゲーム画面
+    ========================== -->
 
-      <button id="backButton" class="back-button" type="button">
+    <main
+      id="gameScreen"
+      class="screen"
+    >
+
+      <button
+        id="backButton"
+        class="back-button"
+        type="button"
+      >
         ← 戻る
       </button>
 
 
       <section class="game-title-area">
 
-        <div id="gameIcon" class="game-icon">🌱</div>
+        <div
+          id="gameIcon"
+          class="game-icon"
+        >
+          🌱
+        </div>
 
-        <p id="gameEnglishName" class="game-english-name">
+        <p
+          id="gameEnglishName"
+          class="game-english-name"
+        >
           CHALLENGE
         </p>
 
@@ -122,7 +205,10 @@
       </section>
 
 
-      <!-- 高さ -->
+      <!-- =========================
+           現在の高さ
+      ========================== -->
+
       <section class="height-card">
 
         <p class="height-label">
@@ -130,47 +216,284 @@
         </p>
 
         <div class="height-display">
-          <span id="currentHeight">0</span>
-          <span class="height-unit">m</span>
+
+          <span id="currentHeight">
+            0
+          </span>
+
+          <span class="height-unit">
+            m
+          </span>
+
         </div>
+
 
         <div class="tree-visual">
 
-          <div class="sky-decoration cloud cloud-one">
+          <div class="cloud cloud-one">
             ☁
           </div>
 
-          <div class="sky-decoration cloud cloud-two">
+          <div class="cloud cloud-two">
             ☁
           </div>
+
 
           <div class="tree">
+
             <div class="tree-top">
               🌿
             </div>
 
-            <div id="treeStem" class="tree-stem"></div>
+            <div
+              id="treeStem"
+              class="tree-stem"
+            >
+            </div>
 
             <div class="ground">
-              <span>🌱</span>
+              <span>
+                🌱
+              </span>
             </div>
+
           </div>
 
         </div>
 
-        <p id="growthMessage" class="growth-message">
+
+        <p
+          id="growthMessage"
+          class="growth-message"
+        >
           最初の1mを目指そう。
         </p>
 
       </section>
 
 
-      <!-- 今日の判定 -->
+
+      <!-- =========================
+           Version 2.0
+           高さ比較
+      ========================== -->
+
+      <section class="world-section">
+
+        <div class="section-header">
+
+          <div>
+
+            <p class="section-label">
+              HEIGHT JOURNEY
+            </p>
+
+            <h2>
+              今どこまで来た？
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <!-- 到達済み -->
+
+        <div
+          id="currentMilestoneCard"
+          class="milestone-card reached-card"
+        >
+
+          <div class="milestone-card-top">
+
+            <span
+              id="currentMilestoneIcon"
+              class="milestone-big-icon"
+            >
+              🌍
+            </span>
+
+            <div class="milestone-main">
+
+              <p class="milestone-small-label">
+                到達済み
+              </p>
+
+              <h3 id="currentMilestoneName">
+                地表
+              </h3>
+
+              <p
+                id="currentMilestoneHeight"
+                class="milestone-height"
+              >
+                0m
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <p
+            id="currentMilestoneDescription"
+            class="milestone-description"
+          >
+          </p>
+
+
+          <button
+            id="currentMilestoneDetailButton"
+            class="detail-button"
+            type="button"
+          >
+            詳しく見る
+          </button>
+
+        </div>
+
+
+        <!-- 次の目標 -->
+
+        <div
+          id="nextMilestoneCard"
+          class="milestone-card next-card"
+        >
+
+          <div class="next-label">
+            NEXT TARGET
+          </div>
+
+
+          <div class="milestone-card-top">
+
+            <span
+              id="nextMilestoneIcon"
+              class="milestone-big-icon"
+            >
+              🎯
+            </span>
+
+            <div class="milestone-main">
+
+              <p class="milestone-small-label">
+                次の目標
+              </p>
+
+              <h3 id="nextMilestoneName">
+              </h3>
+
+              <p
+                id="nextMilestoneHeight"
+                class="milestone-height"
+              >
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="distance-box">
+
+            <span class="distance-label">
+              あと
+            </span>
+
+            <strong id="distanceToNext">
+              1m
+            </strong>
+
+          </div>
+
+
+          <div class="progress-track">
+
+            <div
+              id="milestoneProgressBar"
+              class="progress-bar"
+            >
+            </div>
+
+          </div>
+
+
+          <p
+            id="progressText"
+            class="progress-text"
+          >
+          </p>
+
+
+          <button
+            id="nextMilestoneDetailButton"
+            class="detail-button"
+            type="button"
+          >
+            この目標を知る
+          </button>
+
+        </div>
+
+
+
+        <!-- 到達記録 -->
+
+        <div class="achievement-card">
+
+          <div class="achievement-header">
+
+            <div>
+
+              <p class="section-label">
+                ACHIEVEMENTS
+              </p>
+
+              <h3>
+                到達記録
+              </h3>
+
+            </div>
+
+
+            <span
+              id="achievementCount"
+              class="achievement-count"
+            >
+              0
+            </span>
+
+          </div>
+
+
+          <div
+            id="achievementList"
+            class="achievement-list"
+          >
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- =========================
+           今日の入力
+      ========================== -->
+
       <section class="today-card">
 
-        <p class="today-date" id="todayDate"></p>
+        <p
+          class="today-date"
+          id="todayDate"
+        >
+        </p>
 
-        <h3>今日は継続できましたか？</h3>
+        <h3>
+          今日は継続できましたか？
+        </h3>
+
 
         <div id="todayPending">
 
@@ -179,12 +502,23 @@
             class="action-button success-button"
             type="button"
           >
-            <span class="action-icon">🌱</span>
+
+            <span class="action-icon">
+              🌱
+            </span>
 
             <span class="action-text">
-              <strong>今日も継続できた</strong>
-              <small>豆の木が 1m 成長</small>
+
+              <strong>
+                今日も継続できた
+              </strong>
+
+              <small>
+                豆の木が 1m 成長
+              </small>
+
             </span>
+
           </button>
 
 
@@ -193,22 +527,38 @@
             class="action-button fail-button"
             type="button"
           >
-            <span class="action-icon">↘</span>
+
+            <span class="action-icon">
+              ↘
+            </span>
 
             <span class="action-text">
-              <strong>今日は失敗した</strong>
+
+              <strong>
+                今日は失敗した
+              </strong>
+
               <small id="failButtonDescription">
                 連続失敗に応じて高さが減少
               </small>
+
             </span>
+
           </button>
 
         </div>
 
 
-        <div id="todayCompleted" class="today-completed hidden">
 
-          <div id="todayResultIcon" class="today-result-icon">
+        <div
+          id="todayCompleted"
+          class="today-completed hidden"
+        >
+
+          <div
+            id="todayResultIcon"
+            class="today-result-icon"
+          >
             ✓
           </div>
 
@@ -232,49 +582,101 @@
       </section>
 
 
-      <!-- ステータス -->
+
+      <!-- =========================
+           ステータス
+      ========================== -->
+
       <section class="stats-section">
 
         <div class="section-header">
+
           <div>
+
             <p class="section-label">
               STATUS
             </p>
 
-            <h2>成長記録</h2>
+            <h2>
+              成長記録
+            </h2>
+
           </div>
+
         </div>
 
 
         <div class="stats-grid">
 
           <div class="stat-card">
-            <span class="stat-icon">🔥</span>
-            <span id="currentStreak" class="stat-value">0</span>
-            <span class="stat-unit">日</span>
+
+            <span class="stat-icon">
+              🔥
+            </span>
+
+            <span
+              id="currentStreak"
+              class="stat-value"
+            >
+              0
+            </span>
+
+            <span class="stat-unit">
+              日
+            </span>
+
             <span class="stat-label">
               連続成功
             </span>
+
           </div>
 
 
           <div class="stat-card">
-            <span class="stat-icon">🏆</span>
-            <span id="totalSuccess" class="stat-value">0</span>
-            <span class="stat-unit">日</span>
+
+            <span class="stat-icon">
+              🏆
+            </span>
+
+            <span
+              id="totalSuccess"
+              class="stat-value"
+            >
+              0
+            </span>
+
+            <span class="stat-unit">
+              日
+            </span>
+
             <span class="stat-label">
               累計成功
             </span>
+
           </div>
 
 
           <div class="stat-card">
-            <span class="stat-icon">⚠️</span>
-            <span id="consecutiveFailures" class="stat-value">0</span>
-            <span class="stat-unit">回</span>
+
+            <span class="stat-icon">
+              ⚠️
+            </span>
+
+            <span
+              id="consecutiveFailures"
+              class="stat-value"
+            >
+              0
+            </span>
+
+            <span class="stat-unit">
+              回
+            </span>
+
             <span class="stat-label">
               連続失敗
             </span>
+
           </div>
 
         </div>
@@ -282,10 +684,15 @@
       </section>
 
 
-      <!-- 次回失敗時のリスク -->
+
+      <!-- =========================
+           リスク
+      ========================== -->
+
       <section class="risk-card">
 
         <div>
+
           <p class="risk-label">
             NEXT FAILURE RISK
           </p>
@@ -293,13 +700,22 @@
           <h3>
             次に失敗した場合
           </h3>
+
         </div>
 
-        <div id="nextFailureResult" class="risk-result">
+
+        <div
+          id="nextFailureResult"
+          class="risk-result"
+        >
           0m → 0m
         </div>
 
-        <p id="riskDescription" class="risk-description">
+
+        <p
+          id="riskDescription"
+          class="risk-description"
+        >
         </p>
 
       </section>
@@ -309,17 +725,34 @@
   </div>
 
 
-  <!-- 通知 -->
-  <div id="toast" class="toast">
+
+  <!-- =========================
+       Toast
+  ========================== -->
+
+  <div
+    id="toast"
+    class="toast"
+  >
   </div>
 
 
-  <!-- 確認モーダル -->
-  <div id="modalOverlay" class="modal-overlay hidden">
+
+  <!-- =========================
+       確認モーダル
+  ========================== -->
+
+  <div
+    id="modalOverlay"
+    class="modal-overlay hidden"
+  >
 
     <div class="modal">
 
-      <div id="modalIcon" class="modal-icon">
+      <div
+        id="modalIcon"
+        class="modal-icon"
+      >
         ⚠️
       </div>
 
@@ -329,6 +762,7 @@
 
       <p id="modalDescription">
       </p>
+
 
       <div class="modal-buttons">
 
@@ -353,6 +787,65 @@
     </div>
 
   </div>
+
+
+
+  <!-- =========================
+       目標詳細モーダル
+  ========================== -->
+
+  <div
+    id="milestoneModalOverlay"
+    class="modal-overlay hidden"
+  >
+
+    <div class="modal milestone-modal">
+
+      <div
+        id="milestoneModalIcon"
+        class="milestone-modal-icon"
+      >
+        🌍
+      </div>
+
+
+      <p
+        id="milestoneModalCategory"
+        class="modal-category"
+      >
+      </p>
+
+
+      <h2 id="milestoneModalName">
+      </h2>
+
+
+      <div
+        id="milestoneModalHeight"
+        class="modal-height"
+      >
+      </div>
+
+
+      <p
+        id="milestoneModalDescription"
+        class="milestone-full-description"
+      >
+      </p>
+
+
+      <button
+        id="milestoneModalClose"
+        class="milestone-close-button"
+        type="button"
+      >
+        閉じる
+      </button>
+
+    </div>
+
+  </div>
+
 
 
   <script src="script.js"></script>
