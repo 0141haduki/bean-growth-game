@@ -2,495 +2,393 @@
 
 
 /* =========================================================
-   Bean Growth
-   Version 2.0
+   BEAN GROWTH
+   VERSION 3.0
 ========================================================= */
-
 
 const STORAGE_KEY =
   "beanGrowthGame_v1";
 
 
+/*
+  Version 3.0 provisional event rules
+
+  毎月1日・15日
+  → 特別成長日
+
+  その他の日
+  → 8%でゲリラ成長日
+*/
+
+const SPECIAL_DAYS_OF_MONTH =
+  [1, 15];
+
+const GUERRILLA_RATE =
+  0.08;
+
+
+
 /* =========================================================
-   習慣
+   HABITS
 ========================================================= */
 
 const HABITS = {
 
   noMasturbation: {
 
-    id:
-      "noMasturbation",
-
-    name:
-      "オナ禁",
-
-    englishName:
-      "NO MASTURBATION",
-
-    icon:
-      "🌱"
+    id: "noMasturbation",
+    name: "オナ禁",
+    englishName: "NO MASTURBATION",
+    icon: "🌱"
 
   },
-
 
   noAlcohol: {
 
-    id:
-      "noAlcohol",
-
-    name:
-      "禁酒",
-
-    englishName:
-      "NO ALCOHOL",
-
-    icon:
-      "🍺"
+    id: "noAlcohol",
+    name: "禁酒",
+    englishName: "NO ALCOHOL",
+    icon: "🍺"
 
   },
 
-
   noSmoking: {
 
-    id:
-      "noSmoking",
-
-    name:
-      "禁煙",
-
-    englishName:
-      "NO SMOKING",
-
-    icon:
-      "🚭"
+    id: "noSmoking",
+    name: "禁煙",
+    englishName: "NO SMOKING",
+    icon: "🚭"
 
   }
 
 };
 
 
-/* =========================================================
-   VERSION 2
-   高さ比較データ
 
-   height はすべてメートル
+/* =========================================================
+   MILESTONES
 ========================================================= */
 
 const MILESTONES = [
 
   {
     height: 0,
-
     name: "地表",
-
     icon: "🌍",
-
     category: "EARTH",
 
     shortDescription:
       "すべての豆の木はここから始まります。",
 
     description:
-      "地球の地表、0m地点です。小さな豆の種が、ここから空に向かって成長していきます。継続する1日ごとに、あなたの豆の木は1mずつ上へ伸びていきます。"
+      "地球の地表、0m地点です。小さな豆の種がここから空へ向かって成長していきます。"
   },
-
 
   {
     height: 1,
-
-    name: "1メートル",
-
+    name: "最初の1メートル",
     icon: "🌱",
-
     category: "FIRST STEP",
 
     shortDescription:
-      "最初の1m。豆の木の成長が始まりました。",
+      "最初の成長を達成しました。",
 
     description:
-      "最初の成功によって豆の木が地表から1mまで成長した地点です。巨大な目標も、すべて最初の1mから始まります。"
+      "最初の1mです。どれほど巨大な豆の木でも、始まりはこの1mです。"
   },
-
 
   {
     height: 2,
-
     name: "成人の身長",
-
     icon: "🧍",
-
     category: "HUMAN",
 
     shortDescription:
-      "人間と同じくらいの高さになりました。",
+      "人間と同じくらいの高さです。",
 
     description:
-      "成人の身長をおよそ2mとして比較しています。まだ小さな豆の木ですが、人間を見下ろせる程度まで成長しました。"
+      "成人の身長を約2mとして比較しています。豆の木は人間を見下ろすほどになりました。"
   },
-
 
   {
     height: 5,
-
     name: "キリン",
-
     icon: "🦒",
-
     category: "ANIMAL",
 
     shortDescription:
       "地上で最も背の高い動物級です。",
 
     description:
-      "成体のキリンは個体差がありますが、およそ4〜6mほどの高さになります。5mまで育った豆の木は、地上で最も背の高い動物と同じ規模です。"
+      "成体のキリンはおよそ4〜6mほどになります。5mの豆の木はキリンと同じ規模です。"
   },
-
 
   {
     height: 10,
-
     name: "電柱",
-
     icon: "⚡",
-
     category: "STRUCTURE",
 
     shortDescription:
-      "街中の電柱を見上げる高さです。",
+      "街中の電柱ほどの高さです。",
 
     description:
-      "一般的な電柱にはさまざまな長さがありますが、およそ10m前後のものがあります。10mに到達すると、日常生活で見かける構造物としてもかなり高い存在になります。"
+      "一般的な電柱にはさまざまな大きさがありますが、約10m前後のものがあります。"
   },
-
 
   {
     height: 20,
-
-    name: "6階建ての建物",
-
+    name: "6階建て級",
     icon: "🏢",
-
     category: "BUILDING",
 
     shortDescription:
-      "中規模の建物を超える高さです。",
+      "中規模の建物級です。",
 
     description:
-      "建物の階高を約3m前後と考えると、20mはおおむね6階建て前後の建物に相当する高さです。"
+      "階高をおよそ3m前後として考えると、20mは6階建て前後の建物に相当します。"
   },
-
 
   {
     height: 30,
-
     name: "シロナガスクジラ",
-
     icon: "🐋",
-
     category: "ANIMAL",
 
     shortDescription:
-      "地球最大級の動物の全長に到達。",
+      "世界最大級の動物の全長です。",
 
     description:
-      "シロナガスクジラは最大級の個体では全長30m前後になります。豆の木を横に倒せば、巨大なクジラと同じほどの長さです。"
+      "シロナガスクジラは最大級では全長30m前後になります。"
   },
-
 
   {
     height: 50,
-
     name: "15階建て級",
-
     icon: "🏙️",
-
     category: "BUILDING",
 
     shortDescription:
-      "高層建築が見えてくる高さです。",
+      "中高層建築級の高さです。",
 
     description:
-      "50mになると、一般的な中高層マンションなどに匹敵する高さになります。地上から見上げる豆の木としてはかなり巨大です。"
+      "50mになると、中高層マンションなどと比較できるほどの高さになります。"
   },
-
 
   {
     height: 100,
-
     name: "100メートル",
-
     icon: "🌳",
-
     category: "GIANT",
 
     shortDescription:
-      "ついに3桁。巨大な豆の木です。",
+      "ついに3桁へ到達。",
 
     description:
-      "100mは30階前後の建築物に近い規模です。人間の身長のおよそ50倍。ここから豆の木は巨大構造物の領域へ入っていきます。"
+      "100mは人間の身長のおよそ50倍。巨大構造物の領域へ入ります。"
   },
 
-
   {
-    height: 150,
-
-    name: "ピラミッド級",
-
+    height: 146.6,
+    name: "ギザの大ピラミッド",
     icon: "🔺",
-
     category: "LANDMARK",
 
     shortDescription:
-      "ギザの大ピラミッド級の高さです。",
+      "古代の巨大建造物級です。",
 
     description:
-      "ギザの大ピラミッドは建設当初約146.6mでした。150mの豆の木は、古代世界を代表する巨大建造物に匹敵します。"
+      "ギザの大ピラミッドは建設当初約146.6mだったとされています。"
   },
-
 
   {
     height: 333,
-
     name: "東京タワー",
-
     icon: "🗼",
-
     category: "LANDMARK",
 
     shortDescription:
-      "東京タワーの高さ333mに到達。",
+      "東京タワーの333mに到達。",
 
     description:
-      "東京タワーの高さは333mです。地表から333日分を単純に積み上げるだけでも、東京の象徴的な建造物と同じ高さになります。"
+      "東京タワーの高さは333mです。日本を代表する塔と同じ高さです。"
   },
-
 
   {
     height: 634,
-
     name: "東京スカイツリー",
-
     icon: "📡",
-
     category: "LANDMARK",
 
     shortDescription:
-      "高さ634m、日本最大級の塔を突破。",
+      "高さ634mを突破。",
 
     description:
-      "東京スカイツリーの高さは634mです。東京タワーのおよそ1.9倍。豆の木がこの地点まで育てば、地上の巨大建造物を次々に超えていきます。"
+      "東京スカイツリーの高さは634mです。"
   },
-
 
   {
     height: 828,
-
     name: "ブルジュ・ハリファ",
-
     icon: "🏙️",
-
     category: "BUILDING",
 
     shortDescription:
-      "超高層建築物の領域です。",
+      "超高層建築物級です。",
 
     description:
-      "ドバイのブルジュ・ハリファは828m。世界でも特に高い超高層建築物として知られています。"
+      "ドバイのブルジュ・ハリファは828mです。"
   },
-
 
   {
     height: 1000,
-
     name: "1キロメートル",
-
     icon: "☁️",
-
     category: "SKY",
 
     shortDescription:
-      "ついに高さ1kmに到達。",
+      "高さ1kmへ到達しました。",
 
     description:
-      "1,000mは1kmです。人間が地表から見上げる尺度から、空そのものを意識する高さへ入ります。"
+      "1,000mは1kmです。ここから空のスケールへ入っていきます。"
   },
-
 
   {
     height: 3776,
-
     name: "富士山",
-
     icon: "🗻",
-
     category: "MOUNTAIN",
 
     shortDescription:
-      "日本最高峰の高さを突破。",
+      "日本最高峰を突破。",
 
     description:
-      "富士山の標高は3,776mです。豆の木の先端が富士山頂と同じ高度まで到達したことになります。"
+      "富士山の標高は3,776mです。"
   },
-
 
   {
     height: 8849,
-
     name: "エベレスト",
-
     icon: "🏔️",
-
     category: "MOUNTAIN",
 
     shortDescription:
-      "地球最高峰級の高さです。",
+      "地球最高峰級です。",
 
     description:
-      "エベレストの標高は約8,849mです。地球上の山として最高地点にあたる領域です。"
+      "エベレストの標高は約8,849mです。"
   },
-
 
   {
     height: 10000,
-
     name: "旅客機の巡航高度",
-
     icon: "✈️",
-
     category: "AVIATION",
 
     shortDescription:
-      "旅客機が飛ぶ高さに到達。",
+      "旅客機が飛ぶ空へ到達。",
 
     description:
-      "大型旅客機は一般に高度約10km前後を巡航します。豆の木の先端が、飛行機が飛び交う空まで伸びています。"
+      "大型旅客機はおおむね高度10km前後を巡航します。"
   },
-
 
   {
     height: 12000,
-
     name: "成層圏の入口付近",
-
     icon: "🌤️",
-
     category: "ATMOSPHERE",
 
     shortDescription:
-      "大気のさらに上層へ進みます。",
+      "大気上層へ進みます。",
 
     description:
-      "対流圏界面の高度は緯度や季節によって変化しますが、おおむね10〜17km付近です。12kmは成層圏に近づく領域として設定しています。"
+      "対流圏界面は場所や季節によって変化します。12kmはその境界付近を示す目安です。"
   },
-
 
   {
     height: 20000,
-
     name: "成層圏",
-
     icon: "☀️",
-
     category: "ATMOSPHERE",
 
     shortDescription:
-      "通常の人間生活から大きく離れた高度です。",
+      "通常の航空機を大きく超えました。",
 
     description:
-      "高度20kmでは空気は非常に薄く、一般的な旅客機の巡航高度を大きく超えています。"
+      "高度20kmでは空気は非常に薄くなります。"
   },
-
 
   {
     height: 50000,
-
     name: "成層圏上部",
-
     icon: "🌌",
-
     category: "ATMOSPHERE",
 
     shortDescription:
       "宇宙が近づいてきました。",
 
     description:
-      "高度約50kmは成層圏の上端付近です。その上には中間圏が広がっています。"
+      "高度約50kmは成層圏の上端付近です。"
   },
-
 
   {
     height: 100000,
-
     name: "宇宙の入口",
-
     icon: "🚀",
-
     category: "SPACE",
 
     shortDescription:
-      "カーマン・ライン、100kmに到達。",
+      "カーマン・ラインへ到達。",
 
     description:
-      "高度100kmはカーマン・ラインと呼ばれ、宇宙空間の境界として広く用いられる目安です。ここから先は本格的に宇宙の世界です。"
+      "高度100kmはカーマン・ラインと呼ばれ、宇宙の境界として広く使われる目安です。"
   },
-
 
   {
     height: 400000,
-
     name: "ISS軌道級",
-
     icon: "🛰️",
-
     category: "SPACE",
 
     shortDescription:
-      "国際宇宙ステーション級の高度です。",
+      "国際宇宙ステーション級です。",
 
     description:
-      "国際宇宙ステーションは高度およそ400km前後を周回しています。軌道高度は時間とともに変化するため、ゲームでは400kmを目安とします。"
+      "ISSは高度約400km前後を周回しています。"
   },
-
 
   {
     height: 35786000,
-
     name: "静止軌道",
-
     icon: "📡",
-
     category: "ORBIT",
 
     shortDescription:
-      "静止衛星が使う軌道高度です。",
+      "静止衛星の軌道高度です。",
 
     description:
-      "赤道上空約35,786kmには静止軌道があります。この軌道を地球の自転方向に周回する衛星は、地上からほぼ同じ場所に見えます。"
+      "赤道上空約35,786kmには静止軌道があります。"
   },
-
 
   {
     height: 384400000,
-
     name: "月",
-
     icon: "🌕",
-
     category: "MOON",
 
     shortDescription:
-      "地球から月までの平均距離級です。",
+      "地球から月までの距離級です。",
 
     description:
-      "地球と月の平均距離は約38万4,400kmです。ここまで到達すれば、豆の木は地球から月へ届く規模になります。"
+      "地球と月の平均距離は約38万4,400kmです。"
   }
 
 ];
 
 
+
 /* =========================================================
-   初期データ
+   INITIAL DATA
 ========================================================= */
 
 function createInitialHabitData() {
@@ -520,7 +418,7 @@ function createInitialData() {
 
   return {
 
-    version: "2.0",
+    version: "3.0",
 
     habits: {
 
@@ -540,19 +438,20 @@ function createInitialData() {
 }
 
 
+
 /* =========================================================
-   保存データ読み込み
+   STORAGE
 ========================================================= */
 
 function loadData() {
 
-  const savedData =
+  const saved =
     localStorage.getItem(
       STORAGE_KEY
     );
 
 
-  if (!savedData) {
+  if (!saved) {
 
     return createInitialData();
 
@@ -561,20 +460,16 @@ function loadData() {
 
   try {
 
-    const parsed =
-      JSON.parse(savedData);
-
     return mergeWithInitialData(
-      parsed
+      JSON.parse(saved)
     );
 
   } catch (error) {
 
     console.error(
-      "保存データの読み込みに失敗しました。",
+      "保存データの読み込み失敗",
       error
     );
-
 
     return createInitialData();
 
@@ -583,12 +478,8 @@ function loadData() {
 }
 
 
-/* =========================================================
-   データ互換
-========================================================= */
-
 function mergeWithInitialData(
-  savedData
+  saved
 ) {
 
   const initial =
@@ -599,10 +490,10 @@ function mergeWithInitialData(
 
     ...initial,
 
-    ...savedData,
+    ...saved,
 
     version:
-      "2.0",
+      "3.0",
 
     habits: {
       ...initial.habits
@@ -614,7 +505,7 @@ function mergeWithInitialData(
   Object.keys(
     HABITS
   ).forEach(
-    (habitId) => {
+    habitId => {
 
       merged.habits[
         habitId
@@ -625,7 +516,7 @@ function mergeWithInitialData(
         ],
 
         ...(
-          savedData.habits?.[
+          saved.habits?.[
             habitId
           ] || {}
         )
@@ -640,10 +531,6 @@ function mergeWithInitialData(
 
 }
 
-
-/* =========================================================
-   保存
-========================================================= */
 
 function saveData() {
 
@@ -660,50 +547,45 @@ function saveData() {
 }
 
 
+
 /* =========================================================
-   日付
+   DATE
 ========================================================= */
 
 function getTodayKey() {
 
-  const now =
+  const date =
     new Date();
 
 
-  const year =
-    now.getFullYear();
+  const y =
+    date.getFullYear();
 
 
-  const month =
+  const m =
     String(
-      now.getMonth() + 1
+      date.getMonth() + 1
     ).padStart(
       2,
       "0"
     );
 
 
-  const day =
+  const d =
     String(
-      now.getDate()
+      date.getDate()
     ).padStart(
       2,
       "0"
     );
 
 
-  return (
-    `${year}-${month}-${day}`
-  );
+  return `${y}-${m}-${d}`;
 
 }
 
 
 function getTodayDisplay() {
-
-  const now =
-    new Date();
-
 
   return new Intl.DateTimeFormat(
 
@@ -711,29 +593,26 @@ function getTodayDisplay() {
 
     {
 
-      year:
-        "numeric",
+      year: "numeric",
 
-      month:
-        "long",
+      month: "long",
 
-      day:
-        "numeric",
+      day: "numeric",
 
-      weekday:
-        "short"
+      weekday: "short"
 
     }
 
   ).format(
-    now
+    new Date()
   );
 
 }
 
 
+
 /* =========================================================
-   状態
+   APP STATE
 ========================================================= */
 
 let appData =
@@ -748,347 +627,44 @@ let pendingAction =
   null;
 
 
-let selectedMilestone =
+/* Developer sandbox */
+
+let developerMode =
+  false;
+
+
+let developerData =
   null;
 
 
+let developerOriginalData =
+  null;
+
+
+let developerForcedEvent =
+  "auto";
+
+
+
 /* =========================================================
-   DOM
+   DOM SHORTCUT
 ========================================================= */
 
-const homeScreen =
-  document.getElementById(
-    "homeScreen"
-  );
+const $ =
+  id =>
+    document.getElementById(id);
 
-
-const gameScreen =
-  document.getElementById(
-    "gameScreen"
-  );
-
-
-const habitList =
-  document.getElementById(
-    "habitList"
-  );
-
-
-const backButton =
-  document.getElementById(
-    "backButton"
-  );
-
-
-const gameIcon =
-  document.getElementById(
-    "gameIcon"
-  );
-
-
-const gameEnglishName =
-  document.getElementById(
-    "gameEnglishName"
-  );
-
-
-const gameTitle =
-  document.getElementById(
-    "gameTitle"
-  );
-
-
-const currentHeight =
-  document.getElementById(
-    "currentHeight"
-  );
-
-
-const treeStem =
-  document.getElementById(
-    "treeStem"
-  );
-
-
-const growthMessage =
-  document.getElementById(
-    "growthMessage"
-  );
-
-
-const todayDate =
-  document.getElementById(
-    "todayDate"
-  );
-
-
-const todayPending =
-  document.getElementById(
-    "todayPending"
-  );
-
-
-const todayCompleted =
-  document.getElementById(
-    "todayCompleted"
-  );
-
-
-const successButton =
-  document.getElementById(
-    "successButton"
-  );
-
-
-const failButton =
-  document.getElementById(
-    "failButton"
-  );
-
-
-const failButtonDescription =
-  document.getElementById(
-    "failButtonDescription"
-  );
-
-
-const undoButton =
-  document.getElementById(
-    "undoButton"
-  );
-
-
-const todayResultIcon =
-  document.getElementById(
-    "todayResultIcon"
-  );
-
-
-const todayResultTitle =
-  document.getElementById(
-    "todayResultTitle"
-  );
-
-
-const todayResultDescription =
-  document.getElementById(
-    "todayResultDescription"
-  );
-
-
-const currentStreak =
-  document.getElementById(
-    "currentStreak"
-  );
-
-
-const totalSuccess =
-  document.getElementById(
-    "totalSuccess"
-  );
-
-
-const consecutiveFailures =
-  document.getElementById(
-    "consecutiveFailures"
-  );
-
-
-const nextFailureResult =
-  document.getElementById(
-    "nextFailureResult"
-  );
-
-
-const riskDescription =
-  document.getElementById(
-    "riskDescription"
-  );
-
-
-const toast =
-  document.getElementById(
-    "toast"
-  );
-
-
-const modalOverlay =
-  document.getElementById(
-    "modalOverlay"
-  );
-
-
-const modalIcon =
-  document.getElementById(
-    "modalIcon"
-  );
-
-
-const modalTitle =
-  document.getElementById(
-    "modalTitle"
-  );
-
-
-const modalDescription =
-  document.getElementById(
-    "modalDescription"
-  );
-
-
-const modalCancelButton =
-  document.getElementById(
-    "modalCancelButton"
-  );
-
-
-const modalConfirmButton =
-  document.getElementById(
-    "modalConfirmButton"
-  );
 
 
 /* =========================================================
-   VERSION 2 DOM
-========================================================= */
-
-const currentMilestoneIcon =
-  document.getElementById(
-    "currentMilestoneIcon"
-  );
-
-
-const currentMilestoneName =
-  document.getElementById(
-    "currentMilestoneName"
-  );
-
-
-const currentMilestoneHeight =
-  document.getElementById(
-    "currentMilestoneHeight"
-  );
-
-
-const currentMilestoneDescription =
-  document.getElementById(
-    "currentMilestoneDescription"
-  );
-
-
-const currentMilestoneDetailButton =
-  document.getElementById(
-    "currentMilestoneDetailButton"
-  );
-
-
-const nextMilestoneCard =
-  document.getElementById(
-    "nextMilestoneCard"
-  );
-
-
-const nextMilestoneIcon =
-  document.getElementById(
-    "nextMilestoneIcon"
-  );
-
-
-const nextMilestoneName =
-  document.getElementById(
-    "nextMilestoneName"
-  );
-
-
-const nextMilestoneHeight =
-  document.getElementById(
-    "nextMilestoneHeight"
-  );
-
-
-const distanceToNext =
-  document.getElementById(
-    "distanceToNext"
-  );
-
-
-const milestoneProgressBar =
-  document.getElementById(
-    "milestoneProgressBar"
-  );
-
-
-const progressText =
-  document.getElementById(
-    "progressText"
-  );
-
-
-const nextMilestoneDetailButton =
-  document.getElementById(
-    "nextMilestoneDetailButton"
-  );
-
-
-const achievementCount =
-  document.getElementById(
-    "achievementCount"
-  );
-
-
-const achievementList =
-  document.getElementById(
-    "achievementList"
-  );
-
-
-const milestoneModalOverlay =
-  document.getElementById(
-    "milestoneModalOverlay"
-  );
-
-
-const milestoneModalIcon =
-  document.getElementById(
-    "milestoneModalIcon"
-  );
-
-
-const milestoneModalCategory =
-  document.getElementById(
-    "milestoneModalCategory"
-  );
-
-
-const milestoneModalName =
-  document.getElementById(
-    "milestoneModalName"
-  );
-
-
-const milestoneModalHeight =
-  document.getElementById(
-    "milestoneModalHeight"
-  );
-
-
-const milestoneModalDescription =
-  document.getElementById(
-    "milestoneModalDescription"
-  );
-
-
-const milestoneModalClose =
-  document.getElementById(
-    "milestoneModalClose"
-  );
-
-
-/* =========================================================
-   ホーム
+   HOME
 ========================================================= */
 
 function renderHome() {
+
+  const habitList =
+    $("habitList");
+
 
   habitList.innerHTML =
     "";
@@ -1097,7 +673,7 @@ function renderHome() {
   Object.values(
     HABITS
   ).forEach(
-    (habit) => {
+    habit => {
 
       const data =
         appData.habits[
@@ -1119,7 +695,7 @@ function renderHome() {
         "habit-card";
 
 
-      let todayText =
+      let status =
         "今日は未記録";
 
 
@@ -1128,26 +704,13 @@ function renderHome() {
         getTodayKey()
       ) {
 
-        if (
+        status =
           data.lastActionType ===
           "success"
-        ) {
-
-          todayText =
-            "今日は成功済み";
-
-        }
-
-
-        if (
-          data.lastActionType ===
-          "failure"
-        ) {
-
-          todayText =
+            ?
+            "今日は成功済み"
+            :
             "今日は失敗を記録";
-
-        }
 
       }
 
@@ -1155,59 +718,38 @@ function renderHome() {
       button.innerHTML = `
 
         <span class="habit-icon">
-
           ${habit.icon}
-
         </span>
-
 
         <span class="habit-content">
 
           <span class="habit-name">
-
             ${habit.name}
-
           </span>
-
 
           <span class="habit-meta">
-
-            連続 ${data.currentStreak}日
-            ・
-            ${todayText}
-
+            連続 ${data.currentStreak}日 ・ ${status}
           </span>
 
         </span>
 
-
         <span class="habit-height">
-
-          ${formatNumber(
-            data.height
-          )}m
-
+          ${formatHeight(data.height)}
         </span>
 
-
         <span class="habit-arrow">
-
           ›
-
         </span>
 
       `;
 
 
       button.addEventListener(
-
         "click",
-
         () =>
           openHabit(
             habit.id
           )
-
       );
 
 
@@ -1221,8 +763,9 @@ function renderHome() {
 }
 
 
+
 /* =========================================================
-   個別画面
+   OPEN / CLOSE GAME
 ========================================================= */
 
 function openHabit(
@@ -1233,68 +776,89 @@ function openHabit(
     habitId;
 
 
-  homeScreen.classList.remove(
-    "active"
-  );
+  $("homeScreen")
+    .classList
+    .remove("active");
 
 
-  gameScreen.classList.add(
-    "active"
-  );
-
-
-  window.scrollTo({
-
-    top: 0,
-
-    behavior:
-      "instant"
-
-  });
+  $("gameScreen")
+    .classList
+    .add("active");
 
 
   renderGame();
 
+
+  window.scrollTo(
+    0,
+    0
+  );
+
 }
 
 
-/* =========================================================
-   戻る
-========================================================= */
-
 function goHome() {
+
+  if (
+    developerMode
+  ) {
+
+    exitDeveloperMode();
+
+  }
+
 
   currentHabitId =
     null;
 
 
-  gameScreen.classList.remove(
-    "active"
-  );
+  $("gameScreen")
+    .classList
+    .remove("active");
 
 
-  homeScreen.classList.add(
-    "active"
-  );
+  $("homeScreen")
+    .classList
+    .add("active");
 
 
   renderHome();
 
 
-  window.scrollTo({
-
-    top: 0,
-
-    behavior:
-      "instant"
-
-  });
+  window.scrollTo(
+    0,
+    0
+  );
 
 }
 
 
+
 /* =========================================================
-   ゲーム画面
+   ACTIVE DATA
+========================================================= */
+
+function getActiveData() {
+
+  if (
+    developerMode
+  ) {
+
+    return developerData;
+
+  }
+
+
+  return appData.habits[
+    currentHabitId
+  ];
+
+}
+
+
+
+/* =========================================================
+   GAME RENDER
 ========================================================= */
 
 function renderGame() {
@@ -1315,68 +879,68 @@ function renderGame() {
 
 
   const data =
-    appData.habits[
-      currentHabitId
-    ];
+    getActiveData();
 
 
-  gameIcon.textContent =
+  $("gameIcon").textContent =
     habit.icon;
 
 
-  gameEnglishName.textContent =
+  $("gameEnglishName").textContent =
     habit.englishName;
 
 
-  gameTitle.textContent =
+  $("gameTitle").textContent =
     habit.name;
 
 
-  currentHeight.textContent =
+  $("currentHeight").textContent =
     formatNumber(
       data.height
     );
 
 
-  currentStreak.textContent =
+  $("currentStreak").textContent =
     formatNumber(
       data.currentStreak
     );
 
 
-  totalSuccess.textContent =
+  $("totalSuccess").textContent =
     formatNumber(
       data.totalSuccess
     );
 
 
-  consecutiveFailures.textContent =
+  $("consecutiveFailures").textContent =
     data.consecutiveFailures;
 
 
-  todayDate.textContent =
+  $("todayDate").textContent =
     getTodayDisplay();
 
+
+  renderDeveloperState();
 
   renderTree(
     data.height
   );
 
-
   renderGrowthMessage(
     data.height
   );
 
+  renderEvent(
+    data
+  );
 
   renderMilestones(
     data.height
   );
 
-
   renderTodayStatus(
     data
   );
-
 
   renderFailureRisk(
     data
@@ -1385,8 +949,9 @@ function renderGame() {
 }
 
 
+
 /* =========================================================
-   木の表示
+   TREE
 ========================================================= */
 
 function renderTree(
@@ -1408,14 +973,15 @@ function renderTree(
     );
 
 
-  treeStem.style.height =
+  $("treeStem").style.height =
     `${visualHeight}px`;
 
 }
 
 
+
 /* =========================================================
-   高さメッセージ
+   GROWTH MESSAGE
 ========================================================= */
 
 function renderGrowthMessage(
@@ -1436,8 +1002,8 @@ function renderGrowthMessage(
 
   if (!next) {
 
-    growthMessage.textContent =
-      "月まで到達。豆の木は地球を大きく離れました。";
+    $("growthMessage").textContent =
+      "月まで到達。豆の木は地球を離れました。";
 
     return;
 
@@ -1448,7 +1014,7 @@ function renderGrowthMessage(
     height === 0
   ) {
 
-    growthMessage.textContent =
+    $("growthMessage").textContent =
       "地表からスタート。最初の1mを目指そう。";
 
     return;
@@ -1456,573 +1022,496 @@ function renderGrowthMessage(
   }
 
 
-  growthMessage.textContent =
+  $("growthMessage").textContent =
     `${current.name}を突破。次は${next.name}。`;
 
 }
 
 
+
 /* =========================================================
-   VERSION 2
-   現在の到達地点
+   EVENT SYSTEM
 ========================================================= */
 
-function findCurrentMilestone(
-  height
+function getEventForToday() {
+
+  /*
+    開発者モードで
+    強制指定されている場合
+  */
+
+  if (
+    developerMode &&
+    developerForcedEvent !==
+    "auto"
+  ) {
+
+    return eventFromType(
+      developerForcedEvent
+    );
+
+  }
+
+
+  const today =
+    new Date();
+
+
+  const day =
+    today.getDate();
+
+
+  /*
+    特別成長日
+  */
+
+  if (
+    SPECIAL_DAYS_OF_MONTH
+      .includes(day)
+  ) {
+
+    return eventFromType(
+      "special"
+    );
+
+  }
+
+
+  /*
+    ゲリラ抽選
+
+    Math.random()を使うと
+    更新のたび結果が変わるため、
+    日付から固定値を作る。
+  */
+
+  const seed =
+    hashString(
+      getTodayKey()
+    );
+
+
+  const value =
+    seededRandom(
+      seed
+    );
+
+
+  if (
+    value <
+    GUERRILLA_RATE
+  ) {
+
+    return eventFromType(
+      "guerrilla"
+    );
+
+  }
+
+
+  return eventFromType(
+    "normal"
+  );
+
+}
+
+
+
+/* =========================================================
+   EVENT TYPES
+========================================================= */
+
+function eventFromType(
+  type
 ) {
 
-  let current =
-    MILESTONES[0];
+  switch (type) {
+
+    case "special":
+
+      return {
+
+        type:
+          "special",
+
+        special:
+          true,
+
+        guerrilla:
+          false,
+
+        icon:
+          "✨",
+
+        title:
+          "特別成長日",
+
+        reward:
+          "+10m",
+
+        description:
+          "今日継続できれば、豆の木が一気に10m成長します。"
+
+      };
+
+
+    case "guerrilla":
+
+      return {
+
+        type:
+          "guerrilla",
+
+        special:
+          false,
+
+        guerrilla:
+          true,
+
+        icon:
+          "⚡",
+
+        title:
+          "ゲリラ成長日",
+
+        reward:
+          "×1.1",
+
+        description:
+          "今日継続できれば、現在の高さが1.1倍になります。"
+
+      };
+
+
+    case "both":
+
+      return {
+
+        type:
+          "both",
+
+        special:
+          true,
+
+        guerrilla:
+          true,
+
+        icon:
+          "🔥",
+
+        title:
+          "超成長日",
+
+        reward:
+          "+10m → ×1.1",
+
+        description:
+          "10m成長したあと、さらに高さが1.1倍になります。"
+
+      };
+
+
+    default:
+
+      return {
+
+        type:
+          "normal",
+
+        special:
+          false,
+
+        guerrilla:
+          false,
+
+        icon:
+          "🌱",
+
+        title:
+          "通常成長日",
+
+        reward:
+          "+1m",
+
+        description:
+          "今日継続できれば、豆の木が1m成長します。"
+
+      };
+
+  }
+
+}
+
+
+
+/* =========================================================
+   DETERMINISTIC RANDOM
+========================================================= */
+
+function hashString(
+  text
+) {
+
+  let hash =
+    2166136261;
 
 
   for (
-    const milestone
-    of MILESTONES
+    let i = 0;
+    i < text.length;
+    i++
   ) {
 
-    if (
-      height >=
-      milestone.height
-    ) {
+    hash ^=
+      text.charCodeAt(i);
 
-      current =
-        milestone;
 
-    } else {
-
-      break;
-
-    }
+    hash =
+      Math.imul(
+        hash,
+        16777619
+      );
 
   }
 
 
-  return current;
+  return hash >>> 0;
 
 }
 
 
-/* =========================================================
-   次の目標
-========================================================= */
-
-function findNextMilestone(
-  height
+function seededRandom(
+  seed
 ) {
+
+  let x =
+    seed;
+
+
+  x ^= x << 13;
+  x ^= x >>> 17;
+  x ^= x << 5;
+
 
   return (
-    MILESTONES.find(
-      milestone =>
-        milestone.height >
-        height
-    )
-    ||
-    null
+    (x >>> 0)
+    /
+    4294967296
   );
 
 }
 
 
+
 /* =========================================================
-   マイルストーン表示
+   EVENT DISPLAY
 ========================================================= */
 
-function renderMilestones(
-  height
+function renderEvent(
+  data
 ) {
 
-  const current =
-    findCurrentMilestone(
-      height
+  const event =
+    getEventForToday();
+
+
+  const card =
+    $("eventCard");
+
+
+  card.classList.remove(
+
+    "special-event",
+
+    "guerrilla-event",
+
+    "both-event"
+
+  );
+
+
+  if (
+    event.type ===
+    "special"
+  ) {
+
+    card.classList.add(
+      "special-event"
+    );
+
+  }
+
+
+  if (
+    event.type ===
+    "guerrilla"
+  ) {
+
+    card.classList.add(
+      "guerrilla-event"
+    );
+
+  }
+
+
+  if (
+    event.type ===
+    "both"
+  ) {
+
+    card.classList.add(
+      "both-event"
+    );
+
+  }
+
+
+  $("eventIcon").textContent =
+    event.icon;
+
+
+  $("eventTitle").textContent =
+    event.title;
+
+
+  $("eventDescription").textContent =
+    event.description;
+
+
+  $("eventReward").textContent =
+    event.reward;
+
+
+  const result =
+    calculateSuccessResult(
+      data.height,
+      event
     );
 
 
-  const next =
-    findNextMilestone(
-      height
-    );
+  $("successButtonDescription").textContent =
+    `${formatHeight(data.height)} → ${formatHeight(result.newHeight)}`;
+
+}
 
 
-  currentMilestoneIcon.textContent =
-    current.icon;
+
+/* =========================================================
+   SUCCESS CALCULATION
+========================================================= */
+
+function calculateSuccessResult(
+  height,
+  event
+) {
+
+  let newHeight =
+    height;
 
 
-  currentMilestoneName.textContent =
-    current.name;
+  /*
+    通常
+  */
+
+  if (
+    !event.special &&
+    !event.guerrilla
+  ) {
+
+    newHeight =
+      height + 1;
+
+  }
 
 
-  currentMilestoneHeight.textContent =
-    formatHeight(
-      current.height
-    );
+  /*
+    特別
+  */
+
+  if (
+    event.special &&
+    !event.guerrilla
+  ) {
+
+    newHeight =
+      height + 10;
+
+  }
 
 
-  currentMilestoneDescription.textContent =
-    current.shortDescription;
+  /*
+    ゲリラ
+  */
 
+  if (
+    !event.special &&
+    event.guerrilla
+  ) {
 
-  currentMilestoneDetailButton.onclick =
-    () =>
-      openMilestoneModal(
-        current
+    newHeight =
+      roundToOneDecimal(
+        height * 1.1
       );
 
-
-  if (!next) {
-
-    nextMilestoneCard.classList.add(
-      "hidden"
-    );
-
-  } else {
-
-    nextMilestoneCard.classList.remove(
-      "hidden"
-    );
+  }
 
 
-    nextMilestoneIcon.textContent =
-      next.icon;
+  /*
+    特別 + ゲリラ
+  */
 
+  if (
+    event.special &&
+    event.guerrilla
+  ) {
 
-    nextMilestoneName.textContent =
-      next.name;
-
-
-    nextMilestoneHeight.textContent =
-      formatHeight(
-        next.height
-      );
-
-
-    const distance =
-      next.height -
-      height;
-
-
-    distanceToNext.textContent =
-      formatHeight(
-        distance
-      );
-
-
-    const previousHeight =
-      current.height;
-
-
-    const interval =
-      next.height -
-      previousHeight;
-
-
-    let progress =
-      0;
-
-
-    if (
-      interval > 0
-    ) {
-
-      progress =
-
-        (
-          (
-            height -
-            previousHeight
-          )
-          /
-          interval
-        )
+    newHeight =
+      roundToOneDecimal(
+        (height + 10)
         *
-        100;
-
-    }
-
-
-    progress =
-      Math.max(
-        0,
-        Math.min(
-          100,
-          progress
-        )
+        1.1
       );
 
-
-    milestoneProgressBar.style.width =
-      `${progress}%`;
-
-
-    progressText.textContent =
-      `${current.name}から${next.name}まで ${progress.toFixed(1)}%`;
-
-
-    nextMilestoneDetailButton.onclick =
-      () =>
-        openMilestoneModal(
-          next
-        );
-
   }
 
 
-  renderAchievements(
-    height
-  );
+  return {
+
+    newHeight:
+      roundToOneDecimal(
+        newHeight
+      ),
+
+    gained:
+      roundToOneDecimal(
+        newHeight - height
+      )
+
+  };
 
 }
 
 
-/* =========================================================
-   到達済み一覧
-========================================================= */
-
-function renderAchievements(
-  height
-) {
-
-  const reached =
-    MILESTONES.filter(
-      milestone =>
-        milestone.height > 0 &&
-        milestone.height <=
-        height
-    );
-
-
-  achievementCount.textContent =
-    reached.length;
-
-
-  achievementList.innerHTML =
-    "";
-
-
-  if (
-    reached.length === 0
-  ) {
-
-    const empty =
-      document.createElement(
-        "div"
-      );
-
-
-    empty.className =
-      "achievement-item";
-
-
-    empty.innerHTML = `
-
-      <span class="achievement-icon">
-
-        🌱
-
-      </span>
-
-      <span class="achievement-name">
-
-        まだ未到達
-
-      </span>
-
-      <span class="achievement-height">
-
-        最初の1mへ
-
-      </span>
-
-    `;
-
-
-    achievementList.appendChild(
-      empty
-    );
-
-
-    return;
-
-  }
-
-
-  reached
-    .slice()
-    .reverse()
-    .forEach(
-      milestone => {
-
-        const item =
-          document.createElement(
-            "button"
-          );
-
-
-        item.type =
-          "button";
-
-
-        item.className =
-          "achievement-item";
-
-
-        item.innerHTML = `
-
-          <span class="achievement-icon">
-
-            ${milestone.icon}
-
-          </span>
-
-          <span class="achievement-name">
-
-            ${milestone.name}
-
-          </span>
-
-          <span class="achievement-height">
-
-            ${formatHeight(
-              milestone.height
-            )}
-
-          </span>
-
-        `;
-
-
-        item.addEventListener(
-
-          "click",
-
-          () =>
-            openMilestoneModal(
-              milestone
-            )
-
-        );
-
-
-        achievementList.appendChild(
-          item
-        );
-
-      }
-    );
-
-}
-
 
 /* =========================================================
-   マイルストーン詳細
-========================================================= */
-
-function openMilestoneModal(
-  milestone
-) {
-
-  selectedMilestone =
-    milestone;
-
-
-  milestoneModalIcon.textContent =
-    milestone.icon;
-
-
-  milestoneModalCategory.textContent =
-    milestone.category;
-
-
-  milestoneModalName.textContent =
-    milestone.name;
-
-
-  milestoneModalHeight.textContent =
-    formatHeight(
-      milestone.height
-    );
-
-
-  milestoneModalDescription.textContent =
-    milestone.description;
-
-
-  milestoneModalOverlay.classList.remove(
-    "hidden"
-  );
-
-}
-
-
-/* =========================================================
-   マイルストーンを閉じる
-========================================================= */
-
-function closeMilestoneModal() {
-
-  milestoneModalOverlay.classList.add(
-    "hidden"
-  );
-
-
-  selectedMilestone =
-    null;
-
-}
-
-
-/* =========================================================
-   今日の状態
-========================================================= */
-
-function renderTodayStatus(
-  data
-) {
-
-  const today =
-    getTodayKey();
-
-
-  if (
-    data.lastActionDate !==
-    today
-  ) {
-
-    todayPending.classList.remove(
-      "hidden"
-    );
-
-
-    todayCompleted.classList.add(
-      "hidden"
-    );
-
-
-    updateFailureButton(
-      data
-    );
-
-
-    return;
-
-  }
-
-
-  todayPending.classList.add(
-    "hidden"
-  );
-
-
-  todayCompleted.classList.remove(
-    "hidden"
-  );
-
-
-  if (
-    data.lastActionType ===
-    "success"
-  ) {
-
-    todayResultIcon.textContent =
-      "✓";
-
-
-    todayResultIcon.style.background =
-      "var(--green-pale)";
-
-
-    todayResultIcon.style.color =
-      "var(--green-dark)";
-
-
-    todayResultTitle.textContent =
-      "今日も継続成功";
-
-
-    todayResultDescription.textContent =
-      `豆の木が1m成長し、${formatHeight(data.height)}になりました。`;
-
-  }
-
-
-  if (
-    data.lastActionType ===
-    "failure"
-  ) {
-
-    todayResultIcon.textContent =
-      "↘";
-
-
-    todayResultIcon.style.background =
-      "var(--red-light)";
-
-
-    todayResultIcon.style.color =
-      "var(--red)";
-
-
-    todayResultTitle.textContent =
-      "失敗を記録しました";
-
-
-    todayResultDescription.textContent =
-      `現在の高さは${formatHeight(data.height)}です。明日の成功で連続失敗を止められます。`;
-
-  }
-
-}
-
-
-/* =========================================================
-   失敗ボタン
-========================================================= */
-
-function updateFailureButton(
-  data
-) {
-
-  const nextFailureNumber =
-    data.consecutiveFailures
-    +
-    1;
-
-
-  if (
-    nextFailureNumber ===
-    1
-  ) {
-
-    failButtonDescription.textContent =
-      "現在の高さの1/5を失う";
-
-  } else if (
-    nextFailureNumber ===
-    2
-  ) {
-
-    failButtonDescription.textContent =
-      "現在の高さが半分になる";
-
-  } else {
-
-    failButtonDescription.textContent =
-      "豆の木が0mに戻る";
-
-  }
-
-}
-
-
-/* =========================================================
-   成功
+   RECORD SUCCESS
 ========================================================= */
 
 function recordSuccess() {
 
+  if (
+    developerMode
+  ) {
+
+    simulateDeveloperSuccess();
+
+    return;
+
+  }
+
+
   const data =
-    appData.habits[
-      currentHabitId
-    ];
+    getActiveData();
 
 
   if (
@@ -2039,29 +1528,33 @@ function recordSuccess() {
   }
 
 
-  const beforeHeight =
-    data.height;
-
-
-  const oldNext =
-    findNextMilestone(
-      beforeHeight
-    );
-
-
   const snapshot =
     createSnapshot(
       data
     );
 
 
-  data.height += 1;
+  const event =
+    getEventForToday();
 
 
-  data.currentStreak += 1;
+  const result =
+    calculateSuccessResult(
+      data.height,
+      event
+    );
 
 
-  data.totalSuccess += 1;
+  data.height =
+    result.newHeight;
+
+
+  data.currentStreak +=
+    1;
+
+
+  data.totalSuccess +=
+    1;
 
 
   data.consecutiveFailures =
@@ -2084,6 +1577,9 @@ function recordSuccess() {
     type:
       "success",
 
+    eventType:
+      event.type,
+
     before:
       snapshot,
 
@@ -2100,41 +1596,36 @@ function recordSuccess() {
 
   renderGame();
 
-
   renderHome();
 
 
-  if (
-    oldNext &&
-    data.height >=
-    oldNext.height
-  ) {
-
-    showToast(
-      `🎉 ${oldNext.name}に到達！`
-    );
-
-  } else {
-
-    showToast(
-      "🌱 成功！ 豆の木が1m成長しました。"
-    );
-
-  }
+  showToast(
+    `🌱 成功！ ${formatHeight(result.gained)}成長しました。`
+  );
 
 }
 
 
+
 /* =========================================================
-   失敗確認
+   FAILURE
 ========================================================= */
 
 function requestFailure() {
 
+  if (
+    developerMode
+  ) {
+
+    simulateDeveloperFailure();
+
+    return;
+
+  }
+
+
   const data =
-    appData.habits[
-      currentHabitId
-    ];
+    getActiveData();
 
 
   if (
@@ -2151,7 +1642,7 @@ function requestFailure() {
   }
 
 
-  const prediction =
+  const result =
     calculateFailureResult(
 
       data.height,
@@ -2165,24 +1656,20 @@ function requestFailure() {
     "failure";
 
 
-  modalIcon.textContent =
+  $("modalIcon").textContent =
     "⚠️";
 
 
-  modalTitle.textContent =
+  $("modalTitle").textContent =
     "失敗を記録しますか？";
 
 
-  modalDescription.textContent =
-    `${formatHeight(data.height)} → ${formatHeight(prediction.newHeight)}になります。`;
+  $("modalDescription").textContent =
+    `${formatHeight(data.height)} → ${formatHeight(result.newHeight)}になります。`;
 
 
-  modalConfirmButton.textContent =
+  $("modalConfirmButton").textContent =
     "失敗を記録";
-
-
-  modalConfirmButton.style.background =
-    "var(--red)";
 
 
   openModal();
@@ -2190,34 +1677,10 @@ function requestFailure() {
 }
 
 
-/* =========================================================
-   失敗
-========================================================= */
-
 function recordFailure() {
 
   const data =
-    appData.habits[
-      currentHabitId
-    ];
-
-
-  if (
-    data.lastActionDate ===
-    getTodayKey()
-  ) {
-
-    closeModal();
-
-
-    showToast(
-      "今日はすでに記録されています。"
-    );
-
-
-    return;
-
-  }
+    getActiveData();
 
 
   const snapshot =
@@ -2245,14 +1708,11 @@ function recordFailure() {
 
 
   data.consecutiveFailures =
-
     Math.min(
 
       3,
 
-      data.consecutiveFailures
-      +
-      1
+      data.consecutiveFailures + 1
 
     );
 
@@ -2292,7 +1752,6 @@ function recordFailure() {
 
   renderGame();
 
-
   renderHome();
 
 
@@ -2303,24 +1762,26 @@ function recordFailure() {
 }
 
 
+
 /* =========================================================
-   失敗計算
+   FAILURE CALCULATION
 ========================================================= */
 
 function calculateFailureResult(
   height,
-  currentFailures
+  failures
 ) {
 
-  const failureNumber =
-    currentFailures
-    +
-    1;
+  const number =
+    failures + 1;
 
+
+  /*
+    1回目
+  */
 
   if (
-    failureNumber ===
-    1
+    number === 1
   ) {
 
     const loss =
@@ -2330,13 +1791,11 @@ function calculateFailureResult(
 
 
     const newHeight =
-
-      Math.max(
-
-        0,
-
-        height - loss
-
+      roundToOneDecimal(
+        Math.max(
+          0,
+          height - loss
+        )
       );
 
 
@@ -2354,27 +1813,28 @@ function calculateFailureResult(
   }
 
 
+  /*
+    2回目
+  */
+
   if (
-    failureNumber ===
-    2
+    number === 2
   ) {
 
     const newHeight =
-      Math.floor(
+      floorToOneDecimal(
         height / 2
       );
-
-
-    const loss =
-      height -
-      newHeight;
 
 
     return {
 
       newHeight,
 
-      loss,
+      loss:
+        roundToOneDecimal(
+          height - newHeight
+        ),
 
       message:
         "2回連続失敗。高さが半分になりました。"
@@ -2384,13 +1844,15 @@ function calculateFailureResult(
   }
 
 
+  /*
+    3回目
+  */
+
   return {
 
-    newHeight:
-      0,
+    newHeight: 0,
 
-    loss:
-      height,
+    loss: height,
 
     message:
       "3回連続失敗。豆の木は0mに戻りました。"
@@ -2400,8 +1862,9 @@ function calculateFailureResult(
 }
 
 
+
 /* =========================================================
-   次回リスク
+   FAILURE RISK
 ========================================================= */
 
 function renderFailureRisk(
@@ -2418,65 +1881,216 @@ function renderFailureRisk(
     );
 
 
-  nextFailureResult.textContent =
+  $("nextFailureResult").textContent =
     `${formatHeight(data.height)} → ${formatHeight(result.newHeight)}`;
 
 
-  const nextFailureNumber =
-    data.consecutiveFailures
-    +
-    1;
+  const next =
+    data.consecutiveFailures + 1;
 
 
   if (
-    nextFailureNumber ===
-    1
+    next === 1
   ) {
 
-    riskDescription.textContent =
-      `現在の高さの1/5（${formatHeight(result.loss)}）が削られます。1/5の端数は切り捨てです。`;
+    $("riskDescription").textContent =
+      `現在の高さの1/5を計算し、端数を切り捨てた${formatHeight(result.loss)}が削られます。`;
 
+  } else if (
+    next === 2
+  ) {
 
-    return;
+    $("riskDescription").textContent =
+      "連続2回目の失敗。残っている高さが半分になります。";
+
+  } else {
+
+    $("riskDescription").textContent =
+      "連続3回目の失敗。豆の木は0mまで戻ります。";
 
   }
 
 
-  if (
-    nextFailureNumber ===
-    2
-  ) {
-
-    riskDescription.textContent =
-      "連続2回目の失敗となり、残っている高さが半分になります。";
-
-
-    return;
-
-  }
-
-
-  riskDescription.textContent =
-    "連続3回目の失敗となり、豆の木は地表の0mまで戻ります。";
+  updateFailureButton(
+    data
+  );
 
 }
 
 
+function updateFailureButton(
+  data
+) {
+
+  const next =
+    data.consecutiveFailures + 1;
+
+
+  if (
+    next === 1
+  ) {
+
+    $("failButtonDescription").textContent =
+      "現在の高さの1/5を失う";
+
+  } else if (
+    next === 2
+  ) {
+
+    $("failButtonDescription").textContent =
+      "現在の高さが半分になる";
+
+  } else {
+
+    $("failButtonDescription").textContent =
+      "豆の木が0mに戻る";
+
+  }
+
+}
+
+
+
 /* =========================================================
-   取り消し確認
+   TODAY STATUS
 ========================================================= */
 
-function requestUndo() {
+function renderTodayStatus(
+  data
+) {
 
-  const data =
-    appData.habits[
-      currentHabitId
-    ];
+  /*
+    Developer modeでは
+    通常ボタンを表示したまま何度でもテスト
+  */
+
+  if (
+    developerMode
+  ) {
+
+    $("todayPending")
+      .classList
+      .remove("hidden");
+
+
+    $("todayCompleted")
+      .classList
+      .add("hidden");
+
+
+    return;
+
+  }
 
 
   if (
     data.lastActionDate !==
     getTodayKey()
+  ) {
+
+    $("todayPending")
+      .classList
+      .remove("hidden");
+
+
+    $("todayCompleted")
+      .classList
+      .add("hidden");
+
+
+    return;
+
+  }
+
+
+  $("todayPending")
+    .classList
+    .add("hidden");
+
+
+  $("todayCompleted")
+    .classList
+    .remove("hidden");
+
+
+  if (
+    data.lastActionType ===
+    "success"
+  ) {
+
+    $("todayResultIcon").textContent =
+      "✓";
+
+
+    $("todayResultIcon").style.background =
+      "var(--green-pale)";
+
+
+    $("todayResultIcon").style.color =
+      "var(--green-dark)";
+
+
+    $("todayResultTitle").textContent =
+      "今日も継続成功";
+
+
+    $("todayResultDescription").textContent =
+      `現在の高さは${formatHeight(data.height)}です。`;
+
+  } else {
+
+    $("todayResultIcon").textContent =
+      "↘";
+
+
+    $("todayResultIcon").style.background =
+      "var(--red-light)";
+
+
+    $("todayResultIcon").style.color =
+      "var(--red)";
+
+
+    $("todayResultTitle").textContent =
+      "失敗を記録しました";
+
+
+    $("todayResultDescription").textContent =
+      `現在の高さは${formatHeight(data.height)}です。`;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   UNDO
+========================================================= */
+
+function requestUndo() {
+
+  if (
+    developerMode
+  ) {
+
+    return;
+
+  }
+
+
+  const data =
+    getActiveData();
+
+
+  const index =
+    findTodayHistoryIndex(
+      data
+    );
+
+
+  if (
+    index === -1
   ) {
 
     return;
@@ -2488,24 +2102,20 @@ function requestUndo() {
     "undo";
 
 
-  modalIcon.textContent =
+  $("modalIcon").textContent =
     "↩";
 
 
-  modalTitle.textContent =
+  $("modalTitle").textContent =
     "今日の記録を取り消しますか？";
 
 
-  modalDescription.textContent =
-    "今日の操作をする直前の状態に戻します。";
+  $("modalDescription").textContent =
+    "今日の操作直前の状態へ戻します。";
 
 
-  modalConfirmButton.textContent =
+  $("modalConfirmButton").textContent =
     "取り消す";
-
-
-  modalConfirmButton.style.background =
-    "var(--green-dark)";
 
 
   openModal();
@@ -2513,94 +2123,44 @@ function requestUndo() {
 }
 
 
-/* =========================================================
-   取り消し
-========================================================= */
-
 function undoTodayAction() {
 
   const data =
-    appData.habits[
-      currentHabitId
-    ];
+    getActiveData();
 
 
-  if (
-    data.lastActionDate !==
-    getTodayKey()
-  ) {
-
-    closeModal();
-
-    return;
-
-  }
-
-
-  const lastHistoryIndex =
+  const index =
     findTodayHistoryIndex(
       data
     );
 
 
   if (
-    lastHistoryIndex ===
-    -1
+    index === -1
   ) {
 
     closeModal();
-
-
-    showToast(
-      "取り消せる記録がありません。"
-    );
-
 
     return;
 
   }
 
 
-  const record =
-    data.history[
-      lastHistoryIndex
-    ];
-
-
   const before =
-    record.before;
+    data.history[
+      index
+    ].before;
 
 
-  data.height =
-    before.height;
-
-
-  data.currentStreak =
-    before.currentStreak;
-
-
-  data.totalSuccess =
-    before.totalSuccess;
-
-
-  data.consecutiveFailures =
-    before.consecutiveFailures;
-
-
-  data.lastActionDate =
-    before.lastActionDate;
-
-
-  data.lastActionType =
-    before.lastActionType;
+  restoreSnapshot(
+    data,
+    before
+  );
 
 
   data.history.splice(
-
-    lastHistoryIndex,
-
+    index,
     1
-
   );
 
 
@@ -2612,7 +2172,6 @@ function undoTodayAction() {
 
   renderGame();
 
-
   renderHome();
 
 
@@ -2622,10 +2181,6 @@ function undoTodayAction() {
 
 }
 
-
-/* =========================================================
-   今日の履歴
-========================================================= */
 
 function findTodayHistoryIndex(
   data
@@ -2659,8 +2214,793 @@ function findTodayHistoryIndex(
 }
 
 
+
 /* =========================================================
-   Snapshot
+   MILESTONES
+========================================================= */
+
+function findCurrentMilestone(
+  height
+) {
+
+  let current =
+    MILESTONES[0];
+
+
+  for (
+    const item
+    of MILESTONES
+  ) {
+
+    if (
+      height >=
+      item.height
+    ) {
+
+      current =
+        item;
+
+    } else {
+
+      break;
+
+    }
+
+  }
+
+
+  return current;
+
+}
+
+
+function findNextMilestone(
+  height
+) {
+
+  return (
+    MILESTONES.find(
+      item =>
+        item.height >
+        height
+    )
+    ||
+    null
+  );
+
+}
+
+
+function renderMilestones(
+  height
+) {
+
+  const current =
+    findCurrentMilestone(
+      height
+    );
+
+
+  const next =
+    findNextMilestone(
+      height
+    );
+
+
+  $("currentMilestoneIcon").textContent =
+    current.icon;
+
+
+  $("currentMilestoneName").textContent =
+    current.name;
+
+
+  $("currentMilestoneHeight").textContent =
+    formatHeight(
+      current.height
+    );
+
+
+  $("currentMilestoneDescription").textContent =
+    current.shortDescription;
+
+
+  $("currentMilestoneDetailButton").onclick =
+    () =>
+      openMilestoneModal(
+        current
+      );
+
+
+  if (!next) {
+
+    $("nextMilestoneCard")
+      .classList
+      .add("hidden");
+
+  } else {
+
+    $("nextMilestoneCard")
+      .classList
+      .remove("hidden");
+
+
+    $("nextMilestoneIcon").textContent =
+      next.icon;
+
+
+    $("nextMilestoneName").textContent =
+      next.name;
+
+
+    $("nextMilestoneHeight").textContent =
+      formatHeight(
+        next.height
+      );
+
+
+    const distance =
+      roundToOneDecimal(
+        next.height -
+        height
+      );
+
+
+    $("distanceToNext").textContent =
+      formatHeight(
+        distance
+      );
+
+
+    const interval =
+      next.height -
+      current.height;
+
+
+    let progress =
+      0;
+
+
+    if (
+      interval > 0
+    ) {
+
+      progress =
+        (
+          (
+            height -
+            current.height
+          )
+          /
+          interval
+        )
+        *
+        100;
+
+    }
+
+
+    progress =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          progress
+        )
+      );
+
+
+    $("milestoneProgressBar")
+      .style
+      .width =
+        `${progress}%`;
+
+
+    $("progressText").textContent =
+      `${current.name} → ${next.name}　${progress.toFixed(1)}%`;
+
+
+    $("nextMilestoneDetailButton").onclick =
+      () =>
+        openMilestoneModal(
+          next
+        );
+
+  }
+
+
+  renderAchievements(
+    height
+  );
+
+}
+
+
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+
+function renderAchievements(
+  height
+) {
+
+  const reached =
+    MILESTONES.filter(
+
+      item =>
+        item.height > 0
+        &&
+        item.height <= height
+
+    );
+
+
+  $("achievementCount").textContent =
+    reached.length;
+
+
+  $("achievementList").innerHTML =
+    "";
+
+
+  if (
+    reached.length === 0
+  ) {
+
+    const item =
+      document.createElement(
+        "div"
+      );
+
+
+    item.className =
+      "achievement-item";
+
+
+    item.innerHTML = `
+
+      <span class="achievement-icon">
+        🌱
+      </span>
+
+      <span class="achievement-name">
+        まだ未到達
+      </span>
+
+      <span class="achievement-height">
+        最初の1mへ
+      </span>
+
+    `;
+
+
+    $("achievementList")
+      .appendChild(
+        item
+      );
+
+
+    return;
+
+  }
+
+
+  reached
+    .slice()
+    .reverse()
+    .forEach(
+      milestone => {
+
+        const button =
+          document.createElement(
+            "button"
+          );
+
+
+        button.type =
+          "button";
+
+
+        button.className =
+          "achievement-item";
+
+
+        button.innerHTML = `
+
+          <span class="achievement-icon">
+            ${milestone.icon}
+          </span>
+
+          <span class="achievement-name">
+            ${milestone.name}
+          </span>
+
+          <span class="achievement-height">
+            ${formatHeight(milestone.height)}
+          </span>
+
+        `;
+
+
+        button.addEventListener(
+          "click",
+          () =>
+            openMilestoneModal(
+              milestone
+            )
+        );
+
+
+        $("achievementList")
+          .appendChild(
+            button
+          );
+
+      }
+    );
+
+}
+
+
+
+/* =========================================================
+   MILESTONE MODAL
+========================================================= */
+
+function openMilestoneModal(
+  item
+) {
+
+  $("milestoneModalIcon").textContent =
+    item.icon;
+
+
+  $("milestoneModalCategory").textContent =
+    item.category;
+
+
+  $("milestoneModalName").textContent =
+    item.name;
+
+
+  $("milestoneModalHeight").textContent =
+    formatHeight(
+      item.height
+    );
+
+
+  $("milestoneModalDescription").textContent =
+    item.description;
+
+
+  $("milestoneModalOverlay")
+    .classList
+    .remove("hidden");
+
+}
+
+
+function closeMilestoneModal() {
+
+  $("milestoneModalOverlay")
+    .classList
+    .add("hidden");
+
+}
+
+
+
+/* =========================================================
+   DEVELOPER MODE
+========================================================= */
+
+function openDeveloperSelector() {
+
+  $("developerModalOverlay")
+    .classList
+    .remove("hidden");
+
+}
+
+
+function closeDeveloperSelector() {
+
+  $("developerModalOverlay")
+    .classList
+    .add("hidden");
+
+}
+
+
+function startDeveloperMode(
+  habitId
+) {
+
+  currentHabitId =
+    habitId;
+
+
+  developerMode =
+    true;
+
+
+  developerOriginalData =
+    deepClone(
+      appData.habits[
+        habitId
+      ]
+    );
+
+
+  developerData =
+    deepClone(
+      developerOriginalData
+    );
+
+
+  developerForcedEvent =
+    "auto";
+
+
+  $("developerEventSelect").value =
+    "auto";
+
+
+  closeDeveloperSelector();
+
+
+  $("homeScreen")
+    .classList
+    .remove("active");
+
+
+  $("gameScreen")
+    .classList
+    .add("active");
+
+
+  renderGame();
+
+
+  window.scrollTo(
+    0,
+    0
+  );
+
+}
+
+
+function exitDeveloperMode() {
+
+  developerMode =
+    false;
+
+
+  developerData =
+    null;
+
+
+  developerOriginalData =
+    null;
+
+
+  developerForcedEvent =
+    "auto";
+
+
+  $("developerPanel")
+    .classList
+    .add("hidden");
+
+
+  $("developerIndicator")
+    .classList
+    .add("hidden");
+
+
+  if (
+    currentHabitId
+  ) {
+
+    renderGame();
+
+  }
+
+}
+
+
+function renderDeveloperState() {
+
+  if (
+    developerMode
+  ) {
+
+    $("developerIndicator")
+      .classList
+      .remove("hidden");
+
+
+    $("developerPanel")
+      .classList
+      .remove("hidden");
+
+  } else {
+
+    $("developerIndicator")
+      .classList
+      .add("hidden");
+
+
+    $("developerPanel")
+      .classList
+      .add("hidden");
+
+  }
+
+}
+
+
+
+/* =========================================================
+   DEVELOPER HEIGHT
+========================================================= */
+
+function developerAddHeight(
+  amount
+) {
+
+  if (
+    !developerMode
+  ) {
+
+    return;
+
+  }
+
+
+  developerData.height =
+    roundToOneDecimal(
+
+      developerData.height
+      +
+      amount
+
+    );
+
+
+  renderGame();
+
+}
+
+
+function developerSetHeight() {
+
+  if (
+    !developerMode
+  ) {
+
+    return;
+
+  }
+
+
+  const input =
+    Number(
+      $("developerHeightInput")
+        .value
+    );
+
+
+  if (
+    !Number.isFinite(input)
+    ||
+    input < 0
+  ) {
+
+    showToast(
+      "0以上の高さを入力してください。"
+    );
+
+    return;
+
+  }
+
+
+  developerData.height =
+    roundToOneDecimal(
+      input
+    );
+
+
+  renderGame();
+
+
+  showToast(
+    `テスト高度を${formatHeight(input)}に設定しました。`
+  );
+
+}
+
+
+
+/* =========================================================
+   DEVELOPER FAILURE STATE
+========================================================= */
+
+function developerSetFailureCount(
+  count
+) {
+
+  if (
+    !developerMode
+  ) {
+
+    return;
+
+  }
+
+
+  developerData.consecutiveFailures =
+    count;
+
+
+  if (
+    count > 0
+  ) {
+
+    developerData.currentStreak =
+      0;
+
+  }
+
+
+  renderGame();
+
+}
+
+
+
+/* =========================================================
+   DEVELOPER SUCCESS
+========================================================= */
+
+function simulateDeveloperSuccess() {
+
+  const event =
+    getEventForToday();
+
+
+  const result =
+    calculateSuccessResult(
+
+      developerData.height,
+
+      event
+
+    );
+
+
+  developerData.height =
+    result.newHeight;
+
+
+  developerData.currentStreak +=
+    1;
+
+
+  developerData.totalSuccess +=
+    1;
+
+
+  developerData.consecutiveFailures =
+    0;
+
+
+  renderGame();
+
+
+  showToast(
+    `🧪 成功テスト：${formatHeight(result.gained)}成長`
+  );
+
+}
+
+
+
+/* =========================================================
+   DEVELOPER FAILURE
+========================================================= */
+
+function simulateDeveloperFailure() {
+
+  const result =
+    calculateFailureResult(
+
+      developerData.height,
+
+      developerData.consecutiveFailures
+
+    );
+
+
+  developerData.height =
+    result.newHeight;
+
+
+  developerData.currentStreak =
+    0;
+
+
+  developerData.consecutiveFailures =
+    Math.min(
+
+      3,
+
+      developerData.consecutiveFailures
+      +
+      1
+
+    );
+
+
+  renderGame();
+
+
+  showToast(
+    `🧪 ${result.message}`
+  );
+
+}
+
+
+
+/* =========================================================
+   DEVELOPER RESET
+========================================================= */
+
+function resetDeveloperData() {
+
+  if (
+    !developerMode
+  ) {
+
+    return;
+
+  }
+
+
+  developerData =
+    deepClone(
+      developerOriginalData
+    );
+
+
+  developerForcedEvent =
+    "auto";
+
+
+  $("developerEventSelect").value =
+    "auto";
+
+
+  $("developerHeightInput").value =
+    "";
+
+
+  renderGame();
+
+
+  showToast(
+    "テストデータを元に戻しました。"
+  );
+
+}
+
+
+
+/* =========================================================
+   SNAPSHOT
 ========================================================= */
 
 function createSnapshot(
@@ -2692,9 +3032,76 @@ function createSnapshot(
 }
 
 
+function restoreSnapshot(
+  data,
+  snapshot
+) {
+
+  data.height =
+    snapshot.height;
+
+
+  data.currentStreak =
+    snapshot.currentStreak;
+
+
+  data.totalSuccess =
+    snapshot.totalSuccess;
+
+
+  data.consecutiveFailures =
+    snapshot.consecutiveFailures;
+
+
+  data.lastActionDate =
+    snapshot.lastActionDate;
+
+
+  data.lastActionType =
+    snapshot.lastActionType;
+
+}
+
+
+
 /* =========================================================
-   数字
+   UTILITIES
 ========================================================= */
+
+function deepClone(
+  object
+) {
+
+  return JSON.parse(
+    JSON.stringify(
+      object
+    )
+  );
+
+}
+
+
+function roundToOneDecimal(
+  value
+) {
+
+  return Math.round(
+    value * 10
+  ) / 10;
+
+}
+
+
+function floorToOneDecimal(
+  value
+) {
+
+  return Math.floor(
+    value * 10
+  ) / 10;
+
+}
+
 
 function formatNumber(
   number
@@ -2703,82 +3110,63 @@ function formatNumber(
   return Number(
     number
   ).toLocaleString(
-    "ja-JP"
+
+    "ja-JP",
+
+    {
+
+      maximumFractionDigits:
+        1
+
+    }
+
   );
 
 }
 
-
-/* =========================================================
-   高さ表記
-========================================================= */
 
 function formatHeight(
   meters
 ) {
 
+  const value =
+    Number(
+      meters
+    );
+
+
   if (
-    meters <
-    1000
+    value < 1000
   ) {
 
     return (
-      `${formatNumber(meters)}m`
+      `${formatNumber(value)}m`
     );
 
   }
 
 
   if (
-    meters <
-    1000000
+    value < 1000000
   ) {
 
-    const km =
-      meters / 1000;
-
-
-    if (
-      Number.isInteger(
-        km
-      )
-    ) {
-
-      return (
-        `${formatNumber(km)}km`
-      );
-
-    }
-
-
     return (
-      `${km.toLocaleString(
-        "ja-JP",
-        {
-          maximumFractionDigits:
-            3
-        }
-      )}km`
+      `${formatNumber(value / 1000)}km`
     );
 
   }
-
-
-  const km =
-    Math.round(
-      meters / 1000
-    );
 
 
   return (
-    `${formatNumber(km)}km`
+    `${formatNumber(value / 1000)}km`
   );
 
 }
 
 
+
 /* =========================================================
-   Toast
+   TOAST
 ========================================================= */
 
 let toastTimer =
@@ -2789,13 +3177,13 @@ function showToast(
   message
 ) {
 
-  toast.textContent =
+  $("toast").textContent =
     message;
 
 
-  toast.classList.add(
-    "show"
-  );
+  $("toast")
+    .classList
+    .add("show");
 
 
   if (
@@ -2811,40 +3199,38 @@ function showToast(
 
   toastTimer =
     setTimeout(
-
       () => {
 
-        toast.classList.remove(
-          "show"
-        );
+        $("toast")
+          .classList
+          .remove("show");
 
       },
-
-      2600
-
+      2400
     );
 
 }
 
 
+
 /* =========================================================
-   Confirmation modal
+   CONFIRMATION MODAL
 ========================================================= */
 
 function openModal() {
 
-  modalOverlay.classList.remove(
-    "hidden"
-  );
+  $("modalOverlay")
+    .classList
+    .remove("hidden");
 
 }
 
 
 function closeModal() {
 
-  modalOverlay.classList.add(
-    "hidden"
-  );
+  $("modalOverlay")
+    .classList
+    .add("hidden");
 
 
   pendingAction =
@@ -2853,138 +3239,283 @@ function closeModal() {
 }
 
 
+
 /* =========================================================
-   Events
+   EVENTS
 ========================================================= */
 
-backButton.addEventListener(
-
-  "click",
-
-  goHome
-
-);
+$("backButton")
+  .addEventListener(
+    "click",
+    goHome
+  );
 
 
-successButton.addEventListener(
-
-  "click",
-
-  recordSuccess
-
-);
+$("successButton")
+  .addEventListener(
+    "click",
+    recordSuccess
+  );
 
 
-failButton.addEventListener(
-
-  "click",
-
-  requestFailure
-
-);
+$("failButton")
+  .addEventListener(
+    "click",
+    requestFailure
+  );
 
 
-undoButton.addEventListener(
-
-  "click",
-
-  requestUndo
-
-);
+$("undoButton")
+  .addEventListener(
+    "click",
+    requestUndo
+  );
 
 
-modalCancelButton.addEventListener(
 
-  "click",
+/* confirmation modal */
 
-  closeModal
-
-);
-
-
-modalConfirmButton.addEventListener(
-
-  "click",
-
-  () => {
-
-    if (
-      pendingAction ===
-      "failure"
-    ) {
-
-      recordFailure();
-
-      return;
-
-    }
+$("modalCancelButton")
+  .addEventListener(
+    "click",
+    closeModal
+  );
 
 
-    if (
-      pendingAction ===
-      "undo"
-    ) {
+$("modalConfirmButton")
+  .addEventListener(
+    "click",
+    () => {
 
-      undoTodayAction();
+      if (
+        pendingAction ===
+        "failure"
+      ) {
+
+        recordFailure();
+
+      } else if (
+        pendingAction ===
+        "undo"
+      ) {
+
+        undoTodayAction();
+
+      }
 
     }
-
-  }
-
-);
+  );
 
 
-modalOverlay.addEventListener(
+$("modalOverlay")
+  .addEventListener(
+    "click",
+    event => {
 
-  "click",
+      if (
+        event.target ===
+        $("modalOverlay")
+      ) {
 
-  event => {
+        closeModal();
 
-    if (
-      event.target ===
-      modalOverlay
-    ) {
-
-      closeModal();
+      }
 
     }
-
-  }
-
-);
+  );
 
 
-milestoneModalClose.addEventListener(
 
-  "click",
+/* milestone modal */
 
-  closeMilestoneModal
+$("milestoneModalClose")
+  .addEventListener(
+    "click",
+    closeMilestoneModal
+  );
 
-);
 
+$("milestoneModalOverlay")
+  .addEventListener(
+    "click",
+    event => {
 
-milestoneModalOverlay.addEventListener(
+      if (
+        event.target ===
+        $("milestoneModalOverlay")
+      ) {
 
-  "click",
+        closeMilestoneModal();
 
-  event => {
-
-    if (
-      event.target ===
-      milestoneModalOverlay
-    ) {
-
-      closeMilestoneModal();
+      }
 
     }
+  );
 
-  }
 
-);
+
+/* developer selector */
+
+$("developerButton")
+  .addEventListener(
+    "click",
+    openDeveloperSelector
+  );
+
+
+$("developerModalClose")
+  .addEventListener(
+    "click",
+    closeDeveloperSelector
+  );
+
+
+document
+  .querySelectorAll(
+    ".developer-habit-button"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          startDeveloperMode(
+            button.dataset
+              .developerHabit
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+
+/* developer height buttons */
+
+document
+  .querySelectorAll(
+    "[data-add-height]"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          developerAddHeight(
+            Number(
+              button.dataset
+                .addHeight
+            )
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+$("developerSetHeightButton")
+  .addEventListener(
+    "click",
+    developerSetHeight
+  );
+
+
+
+/* forced event */
+
+$("developerEventSelect")
+  .addEventListener(
+    "change",
+    event => {
+
+      developerForcedEvent =
+        event.target.value;
+
+
+      renderGame();
+
+    }
+  );
+
+
+
+/* failure counts */
+
+document
+  .querySelectorAll(
+    ".dev-failure-button"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          developerSetFailureCount(
+            Number(
+              button.dataset
+                .failureCount
+            )
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+
+/* developer simulations */
+
+$("developerSuccessButton")
+  .addEventListener(
+    "click",
+    simulateDeveloperSuccess
+  );
+
+
+$("developerFailureButton")
+  .addEventListener(
+    "click",
+    simulateDeveloperFailure
+  );
+
+
+$("developerResetButton")
+  .addEventListener(
+    "click",
+    resetDeveloperData
+  );
+
+
+$("developerExitButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      exitDeveloperMode();
+
+      showToast(
+        "開発者モードを終了しました。"
+      );
+
+    }
+  );
+
 
 
 /* =========================================================
-   起動
+   START
 ========================================================= */
 
 renderHome();

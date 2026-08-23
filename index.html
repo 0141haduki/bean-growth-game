@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
 
@@ -21,7 +22,7 @@
   <div class="app">
 
     <!-- =========================
-         ヘッダー
+         HEADER
     ========================== -->
 
     <header class="app-header">
@@ -36,15 +37,20 @@
         </h1>
       </div>
 
-      <div class="header-bean">
-        🌱
-      </div>
+      <button
+        id="developerButton"
+        class="developer-button"
+        type="button"
+      >
+        ⚙️
+      </button>
 
     </header>
 
 
+
     <!-- =========================
-         ホーム
+         HOME
     ========================== -->
 
     <main
@@ -64,8 +70,8 @@
         </h2>
 
         <p class="hero-description">
-          成功した日は1m成長。<br>
-          高さを積み上げ、地球を越えて宇宙を目指します。
+          成功した日は成長。<br>
+          地上から宇宙、そして月を目指します。
         </p>
 
       </section>
@@ -106,54 +112,62 @@
         <div class="rule-list">
 
           <div class="rule-item">
-
             <span class="rule-number success-rule">
               +1m
             </span>
-
             <span>
-              今日も継続できた
+              通常日の成功
             </span>
-
           </div>
 
 
           <div class="rule-item">
+            <span class="rule-number special-rule">
+              +10m
+            </span>
+            <span>
+              特別成長日の成功
+            </span>
+          </div>
 
+
+          <div class="rule-item">
+            <span class="rule-number guerrilla-rule">
+              ×1.1
+            </span>
+            <span>
+              ゲリラ成長日の成功
+            </span>
+          </div>
+
+
+          <div class="rule-item">
             <span class="rule-number fail-rule">
               −20%
             </span>
-
             <span>
               1回目の連続失敗
             </span>
-
           </div>
 
 
           <div class="rule-item">
-
             <span class="rule-number fail-rule">
               ×0.5
             </span>
-
             <span>
               2回連続失敗
             </span>
-
           </div>
 
 
           <div class="rule-item">
-
             <span class="rule-number danger-rule">
               0m
             </span>
-
             <span>
               3回連続失敗
             </span>
-
           </div>
 
         </div>
@@ -165,7 +179,7 @@
 
 
     <!-- =========================
-         個別ゲーム画面
+         GAME SCREEN
     ========================== -->
 
     <main
@@ -180,6 +194,19 @@
       >
         ← 戻る
       </button>
+
+
+      <!-- Developer indicator -->
+
+      <div
+        id="developerIndicator"
+        class="developer-indicator hidden"
+      >
+        🧪 開発者モード
+        <span>
+          本番データには保存されません
+        </span>
+      </div>
 
 
       <section class="game-title-area">
@@ -199,14 +226,14 @@
         </p>
 
         <h2 id="gameTitle">
-          オナ禁
         </h2>
 
       </section>
 
 
+
       <!-- =========================
-           現在の高さ
+           HEIGHT
       ========================== -->
 
       <section class="height-card">
@@ -266,7 +293,6 @@
           id="growthMessage"
           class="growth-message"
         >
-          最初の1mを目指そう。
         </p>
 
       </section>
@@ -274,8 +300,49 @@
 
 
       <!-- =========================
-           Version 2.0
-           高さ比較
+           EVENT
+      ========================== -->
+
+      <section
+        id="eventCard"
+        class="event-card"
+      >
+
+        <div
+          id="eventIcon"
+          class="event-icon"
+        >
+          🌱
+        </div>
+
+        <div class="event-content">
+
+          <p class="event-label">
+            TODAY'S EVENT
+          </p>
+
+          <h3 id="eventTitle">
+            通常成長日
+          </h3>
+
+          <p id="eventDescription">
+          </p>
+
+        </div>
+
+        <div
+          id="eventReward"
+          class="event-reward"
+        >
+          +1m
+        </div>
+
+      </section>
+
+
+
+      <!-- =========================
+           WORLD JOURNEY
       ========================== -->
 
       <section class="world-section">
@@ -297,12 +364,7 @@
         </div>
 
 
-        <!-- 到達済み -->
-
-        <div
-          id="currentMilestoneCard"
-          class="milestone-card reached-card"
-        >
+        <div class="milestone-card reached-card">
 
           <div class="milestone-card-top">
 
@@ -310,7 +372,6 @@
               id="currentMilestoneIcon"
               class="milestone-big-icon"
             >
-              🌍
             </span>
 
             <div class="milestone-main">
@@ -320,14 +381,12 @@
               </p>
 
               <h3 id="currentMilestoneName">
-                地表
               </h3>
 
               <p
                 id="currentMilestoneHeight"
                 class="milestone-height"
               >
-                0m
               </p>
 
             </div>
@@ -353,7 +412,6 @@
         </div>
 
 
-        <!-- 次の目標 -->
 
         <div
           id="nextMilestoneCard"
@@ -371,7 +429,6 @@
               id="nextMilestoneIcon"
               class="milestone-big-icon"
             >
-              🎯
             </span>
 
             <div class="milestone-main">
@@ -396,12 +453,11 @@
 
           <div class="distance-box">
 
-            <span class="distance-label">
+            <span>
               あと
             </span>
 
             <strong id="distanceToNext">
-              1m
             </strong>
 
           </div>
@@ -437,14 +493,13 @@
 
 
 
-        <!-- 到達記録 -->
+        <!-- Achievements -->
 
         <div class="achievement-card">
 
           <div class="achievement-header">
 
             <div>
-
               <p class="section-label">
                 ACHIEVEMENTS
               </p>
@@ -452,9 +507,7 @@
               <h3>
                 到達記録
               </h3>
-
             </div>
-
 
             <span
               id="achievementCount"
@@ -479,14 +532,17 @@
 
 
       <!-- =========================
-           今日の入力
+           TODAY
       ========================== -->
 
-      <section class="today-card">
+      <section
+        id="todayCard"
+        class="today-card"
+      >
 
         <p
-          class="today-date"
           id="todayDate"
+          class="today-date"
         >
         </p>
 
@@ -513,8 +569,7 @@
                 今日も継続できた
               </strong>
 
-              <small>
-                豆の木が 1m 成長
+              <small id="successButtonDescription">
               </small>
 
             </span>
@@ -539,7 +594,6 @@
               </strong>
 
               <small id="failButtonDescription">
-                連続失敗に応じて高さが減少
               </small>
 
             </span>
@@ -547,7 +601,6 @@
           </button>
 
         </div>
-
 
 
         <div
@@ -559,11 +612,9 @@
             id="todayResultIcon"
             class="today-result-icon"
           >
-            ✓
           </div>
 
           <h3 id="todayResultTitle">
-            今日の記録完了
           </h3>
 
           <p id="todayResultDescription">
@@ -584,7 +635,7 @@
 
 
       <!-- =========================
-           ステータス
+           STATUS
       ========================== -->
 
       <section class="stats-section">
@@ -592,7 +643,6 @@
         <div class="section-header">
 
           <div>
-
             <p class="section-label">
               STATUS
             </p>
@@ -600,7 +650,6 @@
             <h2>
               成長記録
             </h2>
-
           </div>
 
         </div>
@@ -686,31 +735,24 @@
 
 
       <!-- =========================
-           リスク
+           RISK
       ========================== -->
 
       <section class="risk-card">
 
-        <div>
+        <p class="risk-label">
+          NEXT FAILURE RISK
+        </p>
 
-          <p class="risk-label">
-            NEXT FAILURE RISK
-          </p>
-
-          <h3>
-            次に失敗した場合
-          </h3>
-
-        </div>
-
+        <h3>
+          次に失敗した場合
+        </h3>
 
         <div
           id="nextFailureResult"
           class="risk-result"
         >
-          0m → 0m
         </div>
-
 
         <p
           id="riskDescription"
@@ -720,15 +762,233 @@
 
       </section>
 
+
+
+      <!-- =========================
+           DEVELOPER PANEL
+      ========================== -->
+
+      <section
+        id="developerPanel"
+        class="developer-panel hidden"
+      >
+
+        <div class="developer-panel-header">
+
+          <div>
+            <p class="developer-panel-label">
+              DEVELOPER MODE
+            </p>
+
+            <h2>
+              テスト操作
+            </h2>
+          </div>
+
+          <span>
+            🧪
+          </span>
+
+        </div>
+
+
+        <p class="developer-warning">
+          ここで変更した内容は本番データには保存されません。
+        </p>
+
+
+        <h3>
+          高さ変更
+        </h3>
+
+
+        <div class="dev-grid">
+
+          <button
+            class="dev-button"
+            data-add-height="1"
+            type="button"
+          >
+            +1m
+          </button>
+
+          <button
+            class="dev-button"
+            data-add-height="10"
+            type="button"
+          >
+            +10m
+          </button>
+
+          <button
+            class="dev-button"
+            data-add-height="100"
+            type="button"
+          >
+            +100m
+          </button>
+
+          <button
+            class="dev-button"
+            data-add-height="1000"
+            type="button"
+          >
+            +1,000m
+          </button>
+
+          <button
+            class="dev-button"
+            data-add-height="100000"
+            type="button"
+          >
+            +100km
+          </button>
+
+          <button
+            class="dev-button"
+            data-add-height="1000000"
+            type="button"
+          >
+            +1,000km
+          </button>
+
+        </div>
+
+
+        <div class="dev-input-row">
+
+          <input
+            id="developerHeightInput"
+            type="number"
+            min="0"
+            step="0.1"
+            placeholder="高さをmで入力"
+          >
+
+          <button
+            id="developerSetHeightButton"
+            type="button"
+          >
+            設定
+          </button>
+
+        </div>
+
+
+        <h3>
+          イベントを強制
+        </h3>
+
+
+        <select
+          id="developerEventSelect"
+          class="developer-select"
+        >
+          <option value="auto">
+            自動判定
+          </option>
+
+          <option value="normal">
+            通常日
+          </option>
+
+          <option value="special">
+            特別成長日
+          </option>
+
+          <option value="guerrilla">
+            ゲリラ成長日
+          </option>
+
+          <option value="both">
+            特別＋ゲリラ
+          </option>
+        </select>
+
+
+        <h3>
+          失敗状態
+        </h3>
+
+
+        <div class="dev-grid dev-grid-three">
+
+          <button
+            class="dev-failure-button"
+            data-failure-count="0"
+            type="button"
+          >
+            0回
+          </button>
+
+          <button
+            class="dev-failure-button"
+            data-failure-count="1"
+            type="button"
+          >
+            1回
+          </button>
+
+          <button
+            class="dev-failure-button"
+            data-failure-count="2"
+            type="button"
+          >
+            2回
+          </button>
+
+        </div>
+
+
+        <h3>
+          処理テスト
+        </h3>
+
+
+        <button
+          id="developerSuccessButton"
+          class="dev-action-button dev-success"
+          type="button"
+        >
+          🌱 成功を1回シミュレート
+        </button>
+
+
+        <button
+          id="developerFailureButton"
+          class="dev-action-button dev-failure"
+          type="button"
+        >
+          ↘ 失敗を1回シミュレート
+        </button>
+
+
+        <button
+          id="developerResetButton"
+          class="dev-reset-button"
+          type="button"
+        >
+          テストデータを元に戻す
+        </button>
+
+
+        <button
+          id="developerExitButton"
+          class="dev-exit-button"
+          type="button"
+        >
+          開発者モードを終了
+        </button>
+
+      </section>
+
     </main>
 
   </div>
 
 
 
-  <!-- =========================
-       Toast
-  ========================== -->
+  <!-- Toast -->
 
   <div
     id="toast"
@@ -738,9 +998,7 @@
 
 
 
-  <!-- =========================
-       確認モーダル
-  ========================== -->
+  <!-- Confirmation modal -->
 
   <div
     id="modalOverlay"
@@ -753,16 +1011,13 @@
         id="modalIcon"
         class="modal-icon"
       >
-        ⚠️
       </div>
 
       <h2 id="modalTitle">
-        確認
       </h2>
 
       <p id="modalDescription">
       </p>
-
 
       <div class="modal-buttons">
 
@@ -779,7 +1034,7 @@
           class="modal-button modal-confirm"
           type="button"
         >
-          記録する
+          実行
         </button>
 
       </div>
@@ -790,9 +1045,7 @@
 
 
 
-  <!-- =========================
-       目標詳細モーダル
-  ========================== -->
+  <!-- Milestone detail -->
 
   <div
     id="milestoneModalOverlay"
@@ -805,9 +1058,7 @@
         id="milestoneModalIcon"
         class="milestone-modal-icon"
       >
-        🌍
       </div>
-
 
       <p
         id="milestoneModalCategory"
@@ -815,10 +1066,8 @@
       >
       </p>
 
-
       <h2 id="milestoneModalName">
       </h2>
-
 
       <div
         id="milestoneModalHeight"
@@ -826,13 +1075,11 @@
       >
       </div>
 
-
       <p
         id="milestoneModalDescription"
         class="milestone-full-description"
       >
       </p>
-
 
       <button
         id="milestoneModalClose"
@@ -848,7 +1095,74 @@
 
 
 
+  <!-- Developer mode selector -->
+
+  <div
+    id="developerModalOverlay"
+    class="modal-overlay hidden"
+  >
+
+    <div class="modal">
+
+      <div class="modal-icon">
+        🧪
+      </div>
+
+      <h2>
+        開発者モード
+      </h2>
+
+      <p>
+        テストしたい豆の木を選択してください。
+        本番データは変更されません。
+      </p>
+
+
+      <div class="developer-habit-select">
+
+        <button
+          class="developer-habit-button"
+          data-developer-habit="noMasturbation"
+          type="button"
+        >
+          🌱 オナ禁
+        </button>
+
+        <button
+          class="developer-habit-button"
+          data-developer-habit="noAlcohol"
+          type="button"
+        >
+          🍺 禁酒
+        </button>
+
+        <button
+          class="developer-habit-button"
+          data-developer-habit="noSmoking"
+          type="button"
+        >
+          🚭 禁煙
+        </button>
+
+      </div>
+
+
+      <button
+        id="developerModalClose"
+        class="milestone-close-button secondary-close"
+        type="button"
+      >
+        閉じる
+      </button>
+
+    </div>
+
+  </div>
+
+
+
   <script src="script.js"></script>
 
 </body>
+
 </html>

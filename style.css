@@ -1,33 +1,26 @@
 :root {
 
   --background: #f4f1e8;
-
   --surface: #ffffff;
 
-  --surface-soft: #f8f7f2;
-
   --text: #172218;
-
   --text-soft: #667067;
 
   --green-dark: #183f27;
-
   --green: #2f7650;
-
   --green-light: #62a978;
-
   --green-pale: #dceadc;
 
-  --blue: #477a9c;
+  --gold: #c18b28;
+  --gold-light: #f8eccd;
 
-  --blue-light: #e1edf4;
+  --purple: #6753a6;
+  --purple-light: #ebe6fa;
 
   --red: #a4443d;
-
   --red-light: #f5dfdc;
 
   --orange: #a56e22;
-
   --orange-light: #f5ead5;
 
   --border:
@@ -38,10 +31,7 @@
     rgba(24, 50, 31, 0.08);
 
   --radius-large: 28px;
-
   --radius-medium: 20px;
-
-  --radius-small: 14px;
 }
 
 
@@ -62,13 +52,11 @@ body {
   min-height: 100vh;
 
   background:
-
     radial-gradient(
       circle at top left,
       rgba(87, 153, 103, 0.12),
       transparent 35%
     ),
-
     var(--background);
 
   color: var(--text);
@@ -86,59 +74,48 @@ body {
 }
 
 
-button {
+button,
+input,
+select {
   font: inherit;
 }
 
 
-button,
-.habit-card {
+button {
+  -webkit-tap-highlight-color: transparent;
+}
 
-  -webkit-tap-highlight-color:
-    transparent;
+
+button:active {
+  transform: scale(0.985);
 }
 
 
 .app {
 
-  width: min(
-    100%,
-    720px
-  );
+  width: min(100%, 720px);
 
   margin: 0 auto;
 
   padding:
-
-    max(
-      20px,
-      env(safe-area-inset-top)
-    )
-
+    max(20px, env(safe-area-inset-top))
     18px
-
-    max(
-      40px,
-      env(safe-area-inset-bottom)
-    );
+    max(40px, env(safe-area-inset-bottom));
 }
 
 
+
 /* =========================
-   Header
+   HEADER
 ========================= */
 
 .app-header {
 
   display: flex;
-
   align-items: center;
+  justify-content: space-between;
 
-  justify-content:
-    space-between;
-
-  padding:
-    12px 3px 24px;
+  padding: 12px 3px 24px;
 }
 
 
@@ -146,14 +123,14 @@ button,
 .section-label,
 .game-english-name,
 .height-label,
-.risk-label {
+.risk-label,
+.event-label {
 
   margin: 0;
 
   color: var(--green);
 
   font-size: 0.7rem;
-
   font-weight: 800;
 
   letter-spacing: 0.13em;
@@ -165,57 +142,48 @@ button,
   margin: 2px 0 0;
 
   font-size: 1.6rem;
-
-  line-height: 1.1;
 }
 
 
-.header-bean {
+.developer-button {
 
   display: grid;
-
   place-items: center;
 
   width: 52px;
-
   height: 52px;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: 18px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.72
-    );
+    rgba(255,255,255,0.75);
 
-  box-shadow:
-    var(--shadow);
+  cursor: pointer;
 
-  font-size: 1.7rem;
+  box-shadow: var(--shadow);
+
+  font-size: 1.3rem;
 }
 
 
+
 /* =========================
-   Screens
+   SCREEN
 ========================= */
 
 .screen {
   display: none;
 }
 
-
 .screen.active {
   display: block;
 }
 
 
+
 /* =========================
-   Home Hero
+   HERO
 ========================= */
 
 .hero-card {
@@ -224,14 +192,12 @@ button,
 
   overflow: hidden;
 
-  padding:
-    30px 25px;
+  padding: 30px 25px;
 
   border-radius:
     var(--radius-large);
 
   background:
-
     linear-gradient(
       145deg,
       #173d25,
@@ -240,8 +206,7 @@ button,
 
   color: white;
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow);
 }
 
 
@@ -252,27 +217,23 @@ button,
   position: absolute;
 
   right: -12px;
-
   bottom: -24px;
 
   opacity: 0.19;
 
   font-size: 9rem;
 
-  transform:
-    rotate(-18deg);
+  transform: rotate(-18deg);
 }
 
 
 .hero-label {
 
-  margin:
-    0 0 10px;
+  margin: 0 0 10px;
 
   opacity: 0.72;
 
   font-size: 0.82rem;
-
   font-weight: 700;
 }
 
@@ -280,17 +241,12 @@ button,
 .hero-card h2 {
 
   position: relative;
-
   z-index: 1;
 
   margin: 0;
 
   font-size:
-    clamp(
-      1.8rem,
-      7vw,
-      2.5rem
-    );
+    clamp(1.8rem, 7vw, 2.5rem);
 
   line-height: 1.3;
 
@@ -301,11 +257,9 @@ button,
 .hero-description {
 
   position: relative;
-
   z-index: 1;
 
-  margin:
-    20px 0 0;
+  margin: 20px 0 0;
 
   opacity: 0.82;
 
@@ -313,23 +267,24 @@ button,
 }
 
 
+
 /* =========================
-   General sections
+   GENERAL
 ========================= */
 
-.section {
-  margin-top: 34px;
+.section,
+.world-section,
+.stats-section {
+
+  margin-top: 30px;
 }
 
 
 .section-header {
 
   display: flex;
-
+  justify-content: space-between;
   align-items: flex-end;
-
-  justify-content:
-    space-between;
 
   margin-bottom: 15px;
 
@@ -339,15 +294,15 @@ button,
 
 .section-header h2 {
 
-  margin:
-    3px 0 0;
+  margin: 3px 0 0;
 
   font-size: 1.25rem;
 }
 
 
+
 /* =========================
-   Habit cards
+   HABITS
 ========================= */
 
 .habit-list {
@@ -363,59 +318,35 @@ button,
   width: 100%;
 
   display: flex;
-
   align-items: center;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius:
     var(--radius-medium);
 
   padding: 18px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.82
-    );
+    rgba(255,255,255,0.82);
 
   color: var(--text);
 
   text-align: left;
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow);
 
   cursor: pointer;
-
-  transition:
-
-    transform 0.15s ease,
-
-    box-shadow 0.15s ease;
-}
-
-
-.habit-card:active {
-
-  transform:
-    scale(0.985);
 }
 
 
 .habit-icon {
 
   display: grid;
-
   place-items: center;
 
   flex-shrink: 0;
 
   width: 56px;
-
   height: 56px;
 
   border-radius: 18px;
@@ -442,7 +373,6 @@ button,
   display: block;
 
   font-size: 1.05rem;
-
   font-weight: 800;
 }
 
@@ -453,22 +383,19 @@ button,
 
   margin-top: 3px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
-  font-size: 0.78rem;
+  font-size: 0.77rem;
 }
 
 
 .habit-height {
 
-  margin-left: 12px;
+  margin-left: 10px;
 
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
 
-  font-size: 1.15rem;
-
+  font-size: 1.1rem;
   font-weight: 900;
 
   white-space: nowrap;
@@ -477,7 +404,7 @@ button,
 
 .habit-arrow {
 
-  margin-left: 9px;
+  margin-left: 8px;
 
   color: #98a198;
 
@@ -485,8 +412,9 @@ button,
 }
 
 
+
 /* =========================
-   Rules
+   RULES
 ========================= */
 
 .rule-card {
@@ -495,28 +423,18 @@ button,
 
   padding: 22px;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius:
     var(--radius-medium);
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.6
-    );
+    rgba(255,255,255,0.62);
 }
 
 
 .rule-card h3 {
 
-  margin:
-    0 0 17px;
-
-  font-size: 1rem;
+  margin: 0 0 17px;
 }
 
 
@@ -531,15 +449,13 @@ button,
 .rule-item {
 
   display: flex;
-
   align-items: center;
 
   gap: 13px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
-  font-size: 0.86rem;
+  font-size: 0.85rem;
 }
 
 
@@ -547,68 +463,73 @@ button,
 
   min-width: 60px;
 
-  border-radius: 9px;
+  padding: 5px 8px;
 
-  padding:
-    5px 8px;
+  border-radius: 9px;
 
   text-align: center;
 
-  font-size: 0.78rem;
-
+  font-size: 0.77rem;
   font-weight: 900;
 }
 
 
 .success-rule {
 
-  background:
-    var(--green-pale);
+  background: var(--green-pale);
 
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
+}
+
+
+.special-rule {
+
+  background: var(--gold-light);
+
+  color: #876015;
+}
+
+
+.guerrilla-rule {
+
+  background: var(--purple-light);
+
+  color: var(--purple);
 }
 
 
 .fail-rule {
 
-  background:
-    var(--orange-light);
+  background: var(--orange-light);
 
-  color:
-    var(--orange);
+  color: var(--orange);
 }
 
 
 .danger-rule {
 
-  background:
-    var(--red-light);
+  background: var(--red-light);
 
-  color:
-    var(--red);
+  color: var(--red);
 }
 
 
+
 /* =========================
-   Game
+   GAME HEADER
 ========================= */
 
 .back-button {
 
   border: none;
 
-  margin:
-    2px 0 17px;
+  margin: 2px 0 15px;
 
-  padding:
-    8px 5px;
+  padding: 8px 5px;
 
-  background:
-    transparent;
+  background: transparent;
 
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
 
   font-weight: 800;
 
@@ -619,9 +540,7 @@ button,
 .game-title-area {
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
 
   margin-bottom: 20px;
@@ -633,19 +552,16 @@ button,
 .game-icon {
 
   display: grid;
-
   place-items: center;
 
   width: 62px;
-
   height: 62px;
 
   margin-bottom: 11px;
 
   border-radius: 20px;
 
-  background:
-    var(--green-pale);
+  background: var(--green-pale);
 
   font-size: 1.9rem;
 }
@@ -653,32 +569,64 @@ button,
 
 .game-title-area h2 {
 
-  margin:
-    3px 0 0;
+  margin: 3px 0 0;
 
   font-size: 1.7rem;
 }
 
 
+
 /* =========================
-   Height
+   DEVELOPER INDICATOR
+========================= */
+
+.developer-indicator {
+
+  margin-bottom: 16px;
+
+  border: 1px solid
+    rgba(103,83,166,0.25);
+
+  border-radius: 14px;
+
+  padding: 10px 13px;
+
+  background: var(--purple-light);
+
+  color: var(--purple);
+
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+
+.developer-indicator span {
+
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 0.67rem;
+  font-weight: 600;
+}
+
+
+
+/* =========================
+   HEIGHT
 ========================= */
 
 .height-card {
 
   overflow: hidden;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius:
     var(--radius-large);
 
-  padding:
-    25px 20px 19px;
+  padding: 25px 20px 19px;
 
   background:
-
     linear-gradient(
       180deg,
       #e4f2ec 0%,
@@ -688,8 +636,7 @@ button,
 
   text-align: center;
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow);
 }
 
 
@@ -697,20 +644,14 @@ button,
 
   margin-top: 3px;
 
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
 }
 
 
 #currentHeight {
 
   font-size:
-
-    clamp(
-      3.2rem,
-      17vw,
-      5.4rem
-    );
+    clamp(3.2rem, 17vw, 5.4rem);
 
   font-weight: 900;
 
@@ -722,8 +663,7 @@ button,
 
   margin-left: 6px;
 
-  font-size: 1.45rem;
-
+  font-size: 1.4rem;
   font-weight: 800;
 }
 
@@ -736,8 +676,7 @@ button,
 
   height: 180px;
 
-  margin:
-    9px -20px 0;
+  margin: 9px -20px 0;
 }
 
 
@@ -746,15 +685,12 @@ button,
   position: absolute;
 
   left: 50%;
-
   bottom: 0;
 
   width: 100px;
-
   height: 165px;
 
-  transform:
-    translateX(-50%);
+  transform: translateX(-50%);
 }
 
 
@@ -765,13 +701,11 @@ button,
   z-index: 3;
 
   left: 50%;
-
   bottom: 82px;
 
   font-size: 3.2rem;
 
-  transform:
-    translateX(-50%);
+  transform: translateX(-50%);
 }
 
 
@@ -780,29 +714,23 @@ button,
   position: absolute;
 
   left: 50%;
-
   bottom: 25px;
 
   width: 9px;
-
   height: 65px;
 
-  border-radius:
-    8px 8px 0 0;
+  border-radius: 8px 8px 0 0;
 
   background:
-
     linear-gradient(
       90deg,
       #3d7947,
       #65a968
     );
 
-  transform:
-    translateX(-50%);
+  transform: translateX(-50%);
 
-  transition:
-    height 0.4s ease;
+  transition: height 0.4s ease;
 }
 
 
@@ -811,21 +739,16 @@ button,
   position: absolute;
 
   left: 50%;
-
   bottom: 0;
 
   width: 230px;
-
   height: 35px;
 
-  border-radius:
-    50% 50% 0 0;
+  border-radius: 50% 50% 0 0;
 
-  background:
-    #667a44;
+  background: #667a44;
 
-  transform:
-    translateX(-50%);
+  transform: translateX(-50%);
 }
 
 
@@ -834,11 +757,9 @@ button,
   position: absolute;
 
   left: 50%;
-
   top: -20px;
 
-  transform:
-    translateX(-50%);
+  transform: translateX(-50%);
 
   font-size: 1.2rem;
 }
@@ -849,12 +770,7 @@ button,
   position: absolute;
 
   color:
-    rgba(
-      255,
-      255,
-      255,
-      0.75
-    );
+    rgba(255,255,255,0.76);
 
   font-size: 3.5rem;
 }
@@ -863,7 +779,6 @@ button,
 .cloud-one {
 
   top: 12px;
-
   left: 7%;
 }
 
@@ -871,7 +786,6 @@ button,
 .cloud-two {
 
   top: 49px;
-
   right: 7%;
 
   font-size: 2.7rem;
@@ -880,26 +794,128 @@ button,
 
 .growth-message {
 
-  margin:
-    4px 0 0;
+  margin: 4px 0 0;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.82rem;
 }
 
 
+
 /* =========================
-   VERSION 2
-   World journey
+   EVENTS
 ========================= */
 
-.world-section {
+.event-card {
 
-  margin-top: 30px;
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: 17px;
+
+  border: 1px solid var(--border);
+  border-radius: 21px;
+
+  padding: 17px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
 }
 
+
+.event-card.special-event {
+
+  border-color:
+    rgba(193,139,40,0.28);
+
+  background:
+    var(--gold-light);
+}
+
+
+.event-card.guerrilla-event {
+
+  border-color:
+    rgba(103,83,166,0.28);
+
+  background:
+    var(--purple-light);
+}
+
+
+.event-card.both-event {
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-light),
+      var(--purple-light)
+    );
+}
+
+
+.event-icon {
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  width: 53px;
+  height: 53px;
+
+  border-radius: 17px;
+
+  background:
+    rgba(255,255,255,0.68);
+
+  font-size: 1.65rem;
+}
+
+
+.event-content {
+
+  min-width: 0;
+
+  flex: 1;
+}
+
+
+.event-content h3 {
+
+  margin: 2px 0;
+
+  font-size: 1rem;
+}
+
+
+.event-content p:last-child {
+
+  margin: 0;
+
+  color: var(--text-soft);
+
+  font-size: 0.71rem;
+}
+
+
+.event-reward {
+
+  flex-shrink: 0;
+
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+
+
+/* =========================
+   MILESTONES
+========================= */
 
 .milestone-card {
 
@@ -907,28 +923,20 @@ button,
 
   overflow: hidden;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius:
     var(--radius-large);
 
   padding: 21px;
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow);
 }
 
 
 .reached-card {
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.82
-    );
+    rgba(255,255,255,0.82);
 }
 
 
@@ -937,7 +945,6 @@ button,
   margin-top: 13px;
 
   background:
-
     linear-gradient(
       145deg,
       #173d25,
@@ -952,36 +959,26 @@ button,
 
   position: absolute;
 
-  right: 16px;
-
+  right: 15px;
   top: 15px;
 
   border-radius: 30px;
 
-  padding:
-    5px 10px;
+  padding: 5px 10px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.13
-    );
+    rgba(255,255,255,0.13);
 
-  font-size: 0.62rem;
-
+  font-size: 0.61rem;
   font-weight: 900;
 
-  letter-spacing:
-    0.12em;
+  letter-spacing: 0.12em;
 }
 
 
 .milestone-card-top {
 
   display: flex;
-
   align-items: center;
 
   gap: 16px;
@@ -991,13 +988,11 @@ button,
 .milestone-big-icon {
 
   display: grid;
-
   place-items: center;
 
   flex-shrink: 0;
 
   width: 68px;
-
   height: 68px;
 
   border-radius: 21px;
@@ -1009,22 +1004,18 @@ button,
 }
 
 
-.next-card
-.milestone-big-icon {
+.next-card .milestone-big-icon {
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.14
-    );
+    rgba(255,255,255,0.14);
 }
 
 
-.milestone-main {
+.milestone-main h3 {
 
-  min-width: 0;
+  margin: 2px 0 0;
+
+  font-size: 1.28rem;
 }
 
 
@@ -1032,73 +1023,45 @@ button,
 
   margin: 0;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.67rem;
-
   font-weight: 800;
 }
 
 
-.next-card
-.milestone-small-label {
+.next-card .milestone-small-label {
 
   color:
-    rgba(
-      255,
-      255,
-      255,
-      0.65
-    );
-}
-
-
-.milestone-main h3 {
-
-  margin:
-    2px 0 0;
-
-  font-size: 1.28rem;
+    rgba(255,255,255,0.65);
 }
 
 
 .milestone-height {
 
-  margin:
-    1px 0 0;
+  margin: 1px 0 0;
 
-  color:
-    var(--green);
+  color: var(--green);
 
   font-size: 0.88rem;
-
   font-weight: 800;
 }
 
 
-.next-card
-.milestone-height {
+.next-card .milestone-height {
 
   color:
-    rgba(
-      255,
-      255,
-      255,
-      0.68
-    );
+    rgba(255,255,255,0.68);
 }
 
 
 .milestone-description {
 
-  margin:
-    16px 0 0;
+  margin: 16px 0 0;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
-  font-size: 0.83rem;
+  font-size: 0.82rem;
 }
 
 
@@ -1110,33 +1073,23 @@ button,
 
   border-radius: 12px;
 
-  padding:
-    9px 13px;
+  padding: 9px 13px;
 
-  background:
-    var(--green-pale);
+  background: var(--green-pale);
 
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
 
   font-size: 0.76rem;
-
   font-weight: 800;
 
   cursor: pointer;
 }
 
 
-.next-card
-.detail-button {
+.next-card .detail-button {
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.14
-    );
+    rgba(255,255,255,0.14);
 
   color: white;
 }
@@ -1145,7 +1098,6 @@ button,
 .distance-box {
 
   display: flex;
-
   align-items: baseline;
 
   gap: 7px;
@@ -1154,7 +1106,7 @@ button,
 }
 
 
-.distance-label {
+.distance-box span {
 
   opacity: 0.65;
 
@@ -1165,8 +1117,6 @@ button,
 .distance-box strong {
 
   font-size: 1.65rem;
-
-  letter-spacing: -0.03em;
 }
 
 
@@ -1175,7 +1125,6 @@ button,
   overflow: hidden;
 
   width: 100%;
-
   height: 9px;
 
   margin-top: 13px;
@@ -1183,110 +1132,81 @@ button,
   border-radius: 99px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.15
-    );
+    rgba(255,255,255,0.15);
 }
 
 
 .progress-bar {
 
-  width: 0%;
-
+  width: 0;
   height: 100%;
 
   border-radius: 99px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.88
-    );
+    rgba(255,255,255,0.9);
 
-  transition:
-    width 0.4s ease;
+  transition: width 0.3s ease;
 }
 
 
 .progress-text {
 
-  margin:
-    7px 0 0;
+  margin: 7px 0 0;
 
-  opacity: 0.65;
+  opacity: 0.66;
 
   font-size: 0.7rem;
 }
 
 
+
 /* =========================
-   Achievements
+   ACHIEVEMENTS
 ========================= */
 
 .achievement-card {
 
   margin-top: 13px;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius:
     var(--radius-medium);
 
   padding: 19px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.67
-    );
+    rgba(255,255,255,0.68);
 }
 
 
 .achievement-header {
 
   display: flex;
-
   align-items: center;
-
-  justify-content:
-    space-between;
+  justify-content: space-between;
 }
 
 
 .achievement-header h3 {
 
-  margin:
-    3px 0 0;
-
-  font-size: 1rem;
+  margin: 3px 0 0;
 }
 
 
 .achievement-count {
 
   display: grid;
-
   place-items: center;
 
   min-width: 38px;
-
   height: 38px;
 
   border-radius: 14px;
 
-  background:
-    var(--green-pale);
+  background: var(--green-pale);
 
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
 
   font-weight: 900;
 }
@@ -1301,7 +1221,6 @@ button,
   overflow-x: auto;
 
   margin-top: 16px;
-
   padding-bottom: 5px;
 
   scrollbar-width: none;
@@ -1315,19 +1234,20 @@ button,
 
 .achievement-item {
 
-  min-width: 90px;
+  min-width: 92px;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: 16px;
 
-  padding:
-    12px 9px;
+  padding: 12px 9px;
 
   background: white;
 
+  color: var(--text);
+
   text-align: center;
+
+  cursor: pointer;
 }
 
 
@@ -1346,7 +1266,6 @@ button,
   margin-top: 5px;
 
   font-size: 0.68rem;
-
   font-weight: 800;
 }
 
@@ -1357,61 +1276,48 @@ button,
 
   margin-top: 2px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.61rem;
 }
 
 
+
 /* =========================
-   Today
+   TODAY
 ========================= */
 
 .today-card {
 
   margin-top: 28px;
 
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius:
     var(--radius-large);
 
-  padding:
-    24px 18px;
+  padding: 24px 18px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.88
-    );
+    rgba(255,255,255,0.88);
 
-  box-shadow:
-    var(--shadow);
+  box-shadow: var(--shadow);
 }
 
 
 .today-date {
 
-  margin:
-    0 0 2px;
+  margin: 0 0 2px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.78rem;
-
   font-weight: 700;
 }
 
 
 .today-card > h3 {
 
-  margin:
-    0 0 19px;
+  margin: 0 0 19px;
 
   font-size: 1.15rem;
 }
@@ -1422,11 +1328,9 @@ button,
   width: 100%;
 
   display: flex;
-
   align-items: center;
 
   border: none;
-
   border-radius: 18px;
 
   padding: 18px;
@@ -1434,26 +1338,12 @@ button,
   cursor: pointer;
 
   text-align: left;
-
-  transition:
-
-    transform 0.14s ease,
-
-    opacity 0.14s ease;
-}
-
-
-.action-button:active {
-
-  transform:
-    scale(0.985);
 }
 
 
 .success-button {
 
   background:
-
     linear-gradient(
       140deg,
       var(--green-dark),
@@ -1463,14 +1353,8 @@ button,
   color: white;
 
   box-shadow:
-
     0 12px 25px
-    rgba(
-      31,
-      94,
-      55,
-      0.19
-    );
+    rgba(31,94,55,0.19);
 }
 
 
@@ -1478,20 +1362,12 @@ button,
 
   margin-top: 11px;
 
-  border:
-    1px solid
-    rgba(
-      164,
-      68,
-      61,
-      0.13
-    );
+  border: 1px solid
+    rgba(164,68,61,0.13);
 
-  background:
-    var(--red-light);
+  background: var(--red-light);
 
-  color:
-    var(--red);
+  color: var(--red);
 }
 
 
@@ -1508,7 +1384,6 @@ button,
 .action-text {
 
   display: flex;
-
   flex-direction: column;
 }
 
@@ -1523,16 +1398,15 @@ button,
 
   margin-top: 2px;
 
-  opacity: 0.75;
+  opacity: 0.77;
 
-  font-size: 0.75rem;
+  font-size: 0.74rem;
 }
 
 
 .today-completed {
 
-  padding:
-    13px 0 2px;
+  padding: 13px 0 2px;
 
   text-align: center;
 }
@@ -1541,26 +1415,16 @@ button,
 .today-result-icon {
 
   display: grid;
-
   place-items: center;
 
   width: 65px;
-
   height: 65px;
 
-  margin:
-    0 auto 13px;
+  margin: 0 auto 13px;
 
   border-radius: 50%;
 
-  background:
-    var(--green-pale);
-
-  color:
-    var(--green-dark);
-
   font-size: 1.8rem;
-
   font-weight: 900;
 }
 
@@ -1568,20 +1432,16 @@ button,
 .today-completed h3 {
 
   margin: 0;
-
-  font-size: 1.1rem;
 }
 
 
 .today-completed p {
 
-  margin:
-    6px 0 18px;
+  margin: 6px 0 18px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
-  font-size: 0.86rem;
+  font-size: 0.84rem;
 }
 
 
@@ -1589,45 +1449,29 @@ button,
 
   border: none;
 
-  padding:
-    9px 13px;
+  background: transparent;
 
-  background:
-    transparent;
+  color: var(--text-soft);
 
-  color:
-    var(--text-soft);
+  font-size: 0.76rem;
 
-  font-size: 0.78rem;
-
-  font-weight: 700;
-
-  text-decoration:
-    underline;
+  text-decoration: underline;
 
   cursor: pointer;
 }
 
 
+
 /* =========================
-   Stats
+   STATS
 ========================= */
-
-.stats-section {
-
-  margin-top: 30px;
-}
-
 
 .stats-grid {
 
   display: grid;
 
   grid-template-columns:
-    repeat(
-      3,
-      1fr
-    );
+    repeat(3,1fr);
 
   gap: 9px;
 }
@@ -1636,30 +1480,17 @@ button,
 .stat-card {
 
   display: flex;
-
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
 
-  justify-content:
-    center;
-
-  align-items:
-    baseline;
-
-  border:
-    1px solid var(--border);
-
+  border: 1px solid var(--border);
   border-radius: 18px;
 
-  padding:
-    16px 7px;
+  padding: 16px 7px;
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.75
-    );
+    rgba(255,255,255,0.75);
 
   text-align: center;
 }
@@ -1678,7 +1509,6 @@ button,
 .stat-value {
 
   font-size: 1.45rem;
-
   font-weight: 900;
 }
 
@@ -1687,8 +1517,7 @@ button,
 
   margin-left: 2px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.72rem;
 }
@@ -1700,44 +1529,36 @@ button,
 
   margin-top: 4px;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.68rem;
 }
 
 
+
 /* =========================
-   Risk
+   FAILURE RISK
 ========================= */
 
 .risk-card {
 
   margin-top: 17px;
 
-  border:
-    1px solid
-    rgba(
-      165,
-      110,
-      34,
-      0.14
-    );
+  border: 1px solid
+    rgba(165,110,34,0.14);
 
   border-radius:
     var(--radius-medium);
 
   padding: 20px;
 
-  background:
-    var(--orange-light);
+  background: var(--orange-light);
 }
 
 
 .risk-card h3 {
 
-  margin:
-    3px 0 10px;
+  margin: 3px 0 10px;
 
   font-size: 1rem;
 }
@@ -1748,15 +1569,13 @@ button,
   color: #754c15;
 
   font-size: 1.35rem;
-
   font-weight: 900;
 }
 
 
 .risk-description {
 
-  margin:
-    6px 0 0;
+  margin: 6px 0 0;
 
   color: #7c674c;
 
@@ -1764,82 +1583,250 @@ button,
 }
 
 
+
 /* =========================
-   Toast
+   DEVELOPER PANEL
 ========================= */
 
-.toast {
+.developer-panel {
 
-  position: fixed;
+  margin-top: 28px;
 
-  z-index: 1000;
+  border: 2px dashed
+    rgba(103,83,166,0.4);
 
-  left: 50%;
+  border-radius: 24px;
 
-  bottom: 28px;
+  padding: 20px;
 
-  max-width:
-    calc(
-      100% - 36px
-    );
+  background:
+    rgba(235,230,250,0.7);
+}
 
-  border-radius: 14px;
 
-  padding:
-    12px 18px;
+.developer-panel-header {
 
-  background: #172218;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.developer-panel-header h2 {
+
+  margin: 2px 0 0;
+
+  font-size: 1.25rem;
+}
+
+
+.developer-panel-header > span {
+
+  font-size: 2rem;
+}
+
+
+.developer-panel-label {
+
+  margin: 0;
+
+  color: var(--purple);
+
+  font-size: 0.66rem;
+  font-weight: 900;
+
+  letter-spacing: 0.12em;
+}
+
+
+.developer-warning {
+
+  margin: 12px 0 22px;
+
+  color: var(--purple);
+
+  font-size: 0.74rem;
+}
+
+
+.developer-panel h3 {
+
+  margin:
+    22px 0 10px;
+
+  font-size: 0.88rem;
+}
+
+
+.dev-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap: 8px;
+}
+
+
+.dev-grid-three {
+
+  grid-template-columns:
+    repeat(3,1fr);
+}
+
+
+.dev-button,
+.dev-failure-button {
+
+  border: 1px solid
+    rgba(103,83,166,0.2);
+
+  border-radius: 12px;
+
+  padding: 11px 8px;
+
+  background: white;
+
+  color: var(--purple);
+
+  font-size: 0.78rem;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.dev-input-row {
+
+  display: grid;
+
+  grid-template-columns: 1fr auto;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+
+.dev-input-row input {
+
+  min-width: 0;
+
+  border: 1px solid
+    rgba(103,83,166,0.25);
+
+  border-radius: 12px;
+
+  padding: 11px;
+
+  background: white;
+}
+
+
+.dev-input-row button {
+
+  border: none;
+  border-radius: 12px;
+
+  padding: 0 17px;
+
+  background: var(--purple);
 
   color: white;
 
-  box-shadow:
+  font-weight: 800;
 
-    0 12px 30px
-    rgba(
-      0,
-      0,
-      0,
-      0.2
-    );
-
-  opacity: 0;
-
-  pointer-events: none;
-
-  transform:
-    translate(
-      -50%,
-      15px
-    );
-
-  transition:
-
-    opacity 0.2s ease,
-
-    transform 0.2s ease;
-
-  font-size: 0.82rem;
-
-  font-weight: 700;
-
-  text-align: center;
+  cursor: pointer;
 }
 
 
-.toast.show {
+.developer-select {
 
-  opacity: 1;
+  width: 100%;
 
-  transform:
-    translate(
-      -50%,
-      0
-    );
+  border: 1px solid
+    rgba(103,83,166,0.25);
+
+  border-radius: 12px;
+
+  padding: 12px;
+
+  background: white;
 }
+
+
+.dev-action-button {
+
+  width: 100%;
+
+  border: none;
+  border-radius: 14px;
+
+  padding: 13px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.dev-success {
+
+  background: var(--green-dark);
+
+  color: white;
+}
+
+
+.dev-failure {
+
+  margin-top: 8px;
+
+  background: var(--red);
+
+  color: white;
+}
+
+
+.dev-reset-button,
+.dev-exit-button {
+
+  width: 100%;
+
+  margin-top: 12px;
+
+  border: none;
+  border-radius: 13px;
+
+  padding: 12px;
+
+  cursor: pointer;
+
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+
+.dev-reset-button {
+
+  background: white;
+
+  color: var(--purple);
+}
+
+
+.dev-exit-button {
+
+  background: #292332;
+
+  color: white;
+}
+
 
 
 /* =========================
-   Modal
+   MODAL
 ========================= */
 
 .modal-overlay {
@@ -1851,57 +1838,37 @@ button,
   inset: 0;
 
   display: grid;
-
   place-items: center;
 
   padding: 20px;
 
   background:
-    rgba(
-      12,
-      26,
-      16,
-      0.55
-    );
+    rgba(12,26,16,0.55);
 
-  backdrop-filter:
-    blur(5px);
+  backdrop-filter: blur(5px);
 }
 
 
 .modal {
 
-  width:
-    min(
-      100%,
-      420px
-    );
+  width: min(100%,420px);
 
   max-height:
-    calc(
-      100vh - 40px
-    );
+    calc(100vh - 40px);
 
   overflow-y: auto;
 
   border-radius: 26px;
 
-  padding:
-    28px 22px 20px;
+  padding: 28px 22px 20px;
 
   background: white;
 
   text-align: center;
 
   box-shadow:
-
     0 25px 80px
-    rgba(
-      0,
-      0,
-      0,
-      0.22
-    );
+    rgba(0,0,0,0.22);
 }
 
 
@@ -1913,8 +1880,7 @@ button,
 
 .modal h2 {
 
-  margin:
-    10px 0 7px;
+  margin: 10px 0 7px;
 
   font-size: 1.25rem;
 }
@@ -1924,8 +1890,7 @@ button,
 
   margin: 0;
 
-  color:
-    var(--text-soft);
+  color: var(--text-soft);
 
   font-size: 0.87rem;
 }
@@ -1947,11 +1912,9 @@ button,
 .modal-button {
 
   border: none;
-
   border-radius: 14px;
 
-  padding:
-    13px 10px;
+  padding: 13px 10px;
 
   font-weight: 800;
 
@@ -1963,30 +1926,20 @@ button,
 
   background: #eef0ed;
 
-  color:
-    var(--text);
+  color: var(--text);
 }
 
 
 .modal-confirm {
 
-  background:
-    var(--red);
+  background: var(--red);
 
   color: white;
 }
 
 
-/* =========================
-   Milestone modal
-========================= */
 
-.milestone-modal {
-
-  padding:
-    31px 24px 23px;
-}
-
+/* milestone modal */
 
 .milestone-modal-icon {
 
@@ -1996,45 +1949,29 @@ button,
 
 .modal-category {
 
-  margin-top:
-    12px !important;
+  margin-top: 12px !important;
 
-  color:
-    var(--green) !important;
+  color: var(--green) !important;
 
-  font-size:
-    0.68rem !important;
-
+  font-size: 0.68rem !important;
   font-weight: 900;
 
-  letter-spacing:
-    0.13em;
-}
-
-
-.milestone-modal h2 {
-
-  margin-top: 5px;
+  letter-spacing: 0.13em;
 }
 
 
 .modal-height {
 
-  margin-top: 5px;
-
-  color:
-    var(--green-dark);
+  color: var(--green-dark);
 
   font-size: 1.5rem;
-
   font-weight: 900;
 }
 
 
 .milestone-full-description {
 
-  margin-top:
-    18px !important;
+  margin-top: 18px !important;
 
   line-height: 1.8;
 
@@ -2054,8 +1991,7 @@ button,
 
   padding: 13px;
 
-  background:
-    var(--green-dark);
+  background: var(--green-dark);
 
   color: white;
 
@@ -2065,43 +2001,64 @@ button,
 }
 
 
-.hidden {
-  display:
-    none !important;
+.secondary-close {
+
+  background: #e9ece8;
+
+  color: var(--text);
 }
 
 
-/* =========================
-   Larger screens
-========================= */
 
-@media (
-  min-width: 650px
-) {
+/* developer selector */
+
+.developer-habit-select {
+
+  display: grid;
+
+  gap: 9px;
+
+  margin-top: 22px;
+}
+
+
+.developer-habit-button {
+
+  border: 1px solid
+    rgba(103,83,166,0.18);
+
+  border-radius: 14px;
+
+  padding: 13px;
+
+  background: var(--purple-light);
+
+  color: var(--purple);
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+
+.hidden {
+  display: none !important;
+}
+
+
+
+@media (min-width:650px) {
 
   .app {
 
     padding-left: 25px;
-
     padding-right: 25px;
   }
-
-
-  .habit-card {
-
-    padding: 20px;
-  }
-
 
   .tree-visual {
 
     height: 205px;
-  }
-
-
-  .tree {
-
-    height: 190px;
   }
 
 }
