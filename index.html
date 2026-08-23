@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Bean Growth Game</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div>
+        <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
+        <h1>Bean Growth</h1>
+      </div>
+
+      <div class="header-bean">
+        🌱
+      </div>
+    </header>
+
+
+    <!-- ホーム画面 -->
+    <main id="homeScreen" class="screen active">
+
+      <section class="hero-card">
+
+        <p class="hero-label">あなたの挑戦</p>
+
+        <h2>
+          継続して、<br>
+          豆の木を空へ伸ばそう。
+        </h2>
+
+        <p class="hero-description">
+          成功した日は1m成長。<br>
+          失敗が続けば、育てた高さを失います。
+        </p>
+
+      </section>
+
+
+      <section class="section">
+
+        <div class="section-header">
+          <div>
+            <p class="section-label">YOUR BEANS</p>
+            <h2>育てる豆の木</h2>
+          </div>
+        </div>
+
+
+        <div id="habitList" class="habit-list">
+
+          <!-- JavaScriptで生成 -->
+
+        </div>
+
+      </section>
+
+
+      <section class="rule-card">
+
+        <h3>基本ルール</h3>
+
+        <div class="rule-list">
+
+          <div class="rule-item">
+            <span class="rule-number success-rule">+1m</span>
+            <span>今日も継続できた</span>
+          </div>
+
+          <div class="rule-item">
+            <span class="rule-number fail-rule">−20%</span>
+            <span>1回目の連続失敗</span>
+          </div>
+
+          <div class="rule-item">
+            <span class="rule-number fail-rule">×0.5</span>
+            <span>2回連続失敗</span>
+          </div>
+
+          <div class="rule-item">
+            <span class="rule-number danger-rule">0m</span>
+            <span>3回連続失敗</span>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+
+    <!-- 個別ゲーム画面 -->
+    <main id="gameScreen" class="screen">
+
+      <button id="backButton" class="back-button" type="button">
+        ← 戻る
+      </button>
+
+
+      <section class="game-title-area">
+
+        <div id="gameIcon" class="game-icon">🌱</div>
+
+        <p id="gameEnglishName" class="game-english-name">
+          CHALLENGE
+        </p>
+
+        <h2 id="gameTitle">
+          オナ禁
+        </h2>
+
+      </section>
+
+
+      <!-- 高さ -->
+      <section class="height-card">
+
+        <p class="height-label">
+          CURRENT HEIGHT
+        </p>
+
+        <div class="height-display">
+          <span id="currentHeight">0</span>
+          <span class="height-unit">m</span>
+        </div>
+
+        <div class="tree-visual">
+
+          <div class="sky-decoration cloud cloud-one">
+            ☁
+          </div>
+
+          <div class="sky-decoration cloud cloud-two">
+            ☁
+          </div>
+
+          <div class="tree">
+            <div class="tree-top">
+              🌿
+            </div>
+
+            <div id="treeStem" class="tree-stem"></div>
+
+            <div class="ground">
+              <span>🌱</span>
+            </div>
+          </div>
+
+        </div>
+
+        <p id="growthMessage" class="growth-message">
+          最初の1mを目指そう。
+        </p>
+
+      </section>
+
+
+      <!-- 今日の判定 -->
+      <section class="today-card">
+
+        <p class="today-date" id="todayDate"></p>
+
+        <h3>今日は継続できましたか？</h3>
+
+        <div id="todayPending">
+
+          <button
+            id="successButton"
+            class="action-button success-button"
+            type="button"
+          >
+            <span class="action-icon">🌱</span>
+
+            <span class="action-text">
+              <strong>今日も継続できた</strong>
+              <small>豆の木が 1m 成長</small>
+            </span>
+          </button>
+
+
+          <button
+            id="failButton"
+            class="action-button fail-button"
+            type="button"
+          >
+            <span class="action-icon">↘</span>
+
+            <span class="action-text">
+              <strong>今日は失敗した</strong>
+              <small id="failButtonDescription">
+                連続失敗に応じて高さが減少
+              </small>
+            </span>
+          </button>
+
+        </div>
+
+
+        <div id="todayCompleted" class="today-completed hidden">
+
+          <div id="todayResultIcon" class="today-result-icon">
+            ✓
+          </div>
+
+          <h3 id="todayResultTitle">
+            今日の記録完了
+          </h3>
+
+          <p id="todayResultDescription">
+          </p>
+
+          <button
+            id="undoButton"
+            class="undo-button"
+            type="button"
+          >
+            今日の記録を取り消す
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- ステータス -->
+      <section class="stats-section">
+
+        <div class="section-header">
+          <div>
+            <p class="section-label">
+              STATUS
+            </p>
+
+            <h2>成長記録</h2>
+          </div>
+        </div>
+
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <span class="stat-icon">🔥</span>
+            <span id="currentStreak" class="stat-value">0</span>
+            <span class="stat-unit">日</span>
+            <span class="stat-label">
+              連続成功
+            </span>
+          </div>
+
+
+          <div class="stat-card">
+            <span class="stat-icon">🏆</span>
+            <span id="totalSuccess" class="stat-value">0</span>
+            <span class="stat-unit">日</span>
+            <span class="stat-label">
+              累計成功
+            </span>
+          </div>
+
+
+          <div class="stat-card">
+            <span class="stat-icon">⚠️</span>
+            <span id="consecutiveFailures" class="stat-value">0</span>
+            <span class="stat-unit">回</span>
+            <span class="stat-label">
+              連続失敗
+            </span>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- 次回失敗時のリスク -->
+      <section class="risk-card">
+
+        <div>
+          <p class="risk-label">
+            NEXT FAILURE RISK
+          </p>
+
+          <h3>
+            次に失敗した場合
+          </h3>
+        </div>
+
+        <div id="nextFailureResult" class="risk-result">
+          0m → 0m
+        </div>
+
+        <p id="riskDescription" class="risk-description">
+        </p>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- 通知 -->
+  <div id="toast" class="toast">
+  </div>
+
+
+  <!-- 確認モーダル -->
+  <div id="modalOverlay" class="modal-overlay hidden">
+
+    <div class="modal">
+
+      <div id="modalIcon" class="modal-icon">
+        ⚠️
+      </div>
+
+      <h2 id="modalTitle">
+        確認
+      </h2>
+
+      <p id="modalDescription">
+      </p>
+
+      <div class="modal-buttons">
+
+        <button
+          id="modalCancelButton"
+          class="modal-button modal-cancel"
+          type="button"
+        >
+          やめる
+        </button>
+
+        <button
+          id="modalConfirmButton"
+          class="modal-button modal-confirm"
+          type="button"
+        >
+          記録する
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
