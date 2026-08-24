@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 3.5</p>
+        <p class="version-label">Version 4.1</p>
       </div>
       <button id="developerButton" class="icon-button" type="button" aria-label="開発者モード">⚙️</button>
     </header>
@@ -23,6 +23,12 @@
         <p class="hero-label">YOUR JOURNEY</p>
         <h2>今日の継続が、<br>豆の木を宇宙へ伸ばす。</h2>
         <p>成功を積み重ね、現実世界のあらゆる高さを越えていく。</p>
+      </section>
+
+      <section id="homeEventCard" class="home-event-card">
+        <span id="homeEventIcon" class="home-event-icon">🌱</span>
+        <div><p class="section-label">TODAY'S EVENT</p><h3 id="homeEventTitle">通常成長日</h3><p id="homeEventDescription"></p></div>
+        <strong id="homeEventReward">+1m</strong>
       </section>
 
       <section class="section">
@@ -156,9 +162,9 @@
 
   <div id="confirmOverlay" class="modal-overlay hidden"><div class="modal"><div id="confirmIcon" class="modal-icon">⚠️</div><h2 id="confirmTitle">確認</h2><p id="confirmDescription"></p><div class="modal-actions"><button id="confirmCancelButton" class="secondary-button">やめる</button><button id="confirmOkButton" class="danger-button">記録する</button></div></div></div>
 
-  <div id="milestoneModalOverlay" class="modal-overlay hidden"><div class="modal detail-modal"><div id="milestoneModalIcon" class="detail-icon">🌍</div><p id="milestoneModalCategory" class="modal-category"></p><h2 id="milestoneModalName"></h2><div id="milestoneModalHeight" class="modal-height"></div><p id="milestoneModalDescription" class="modal-description"></p><button id="milestoneModalClose" class="primary-close">閉じる</button></div></div>
+  <div id="milestoneModalOverlay" class="modal-overlay hidden"><div class="modal detail-modal"><div id="milestoneModalIcon" class="detail-icon">🌍</div><p id="milestoneModalCategory" class="modal-category"></p><h2 id="milestoneModalName"></h2><div id="milestoneModalHeight" class="modal-height"></div><p id="milestoneModalLocation" class="detail-location"></p><p id="milestoneModalDescription" class="modal-description"></p><div id="milestoneExtraDetails" class="extra-details"></div><button id="milestoneModalClose" class="primary-close">閉じる</button></div></div>
 
-  <div id="encyclopediaOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">HEIGHT ENCYCLOPEDIA</p><h2>高さ図鑑</h2></div><button id="encyclopediaCloseButton" class="icon-button">✕</button></div><div id="encyclopediaSummary" class="encyclopedia-summary"></div><div id="categoryTabs" class="category-tabs"></div><div id="encyclopediaList" class="encyclopedia-list"></div></div></div>
+  <div id="encyclopediaOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">HEIGHT ENCYCLOPEDIA</p><h2>高さ図鑑</h2></div><button id="encyclopediaCloseButton" class="icon-button">✕</button></div><div id="encyclopediaSummary" class="encyclopedia-summary"></div><div class="encyclopedia-controls"><input id="encyclopediaSearch" type="search" placeholder="名前・国・地域・豆知識を検索"><select id="encyclopediaUnlockFilter"><option value="all">すべて</option><option value="unlocked">解放済み</option><option value="locked">未解放</option></select><select id="encyclopediaSort"><option value="asc">高さの低い順</option><option value="desc">高さの高い順</option></select></div><div id="categoryTabs" class="category-tabs"></div><div id="encyclopediaList" class="encyclopedia-list"></div></div></div>
 
   <div id="achievementsOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">ACHIEVEMENTS</p><h2>実績・称号</h2></div><button id="achievementsCloseButton" class="icon-button">✕</button></div><section class="title-showcase"><span id="achievementTitleIcon">🫘</span><div><p>現在の称号</p><h3 id="achievementTitleName">種からの挑戦者</h3></div></section><div id="achievementsList" class="achievements-list"></div></div></div>
 

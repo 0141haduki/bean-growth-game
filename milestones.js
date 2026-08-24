@@ -1,116 +1,2429 @@
-/* Bean Growth v3.5 - Height Encyclopedia
-   height: meters
-   approximate: true = game comparison uses an approximate representative value.
-*/
+/* Bean Growth v4.1 - encyclopedia data */
 window.BEAN_MILESTONES = [
-  {height:0,name:"地表",icon:"🌍",category:"基準",description:"すべての豆の木の出発点。地表を0mとして扱います。"},
-  {height:1,name:"最初の1m",icon:"🌱",category:"基準",description:"最初の成功で到達する、ゲーム最初の節目。"},
-  {height:1.5,name:"大型犬の目線級",icon:"🐕",category:"生物",approximate:true,description:"大型犬が立ったときの高さをイメージした比較です。"},
-  {height:1.7,name:"成人の身長級",icon:"🧍",category:"生物",approximate:true,description:"成人の身長を約1.7mとして比較します。"},
-  {height:2.4,name:"一般的な室内天井級",icon:"🏠",category:"建築",approximate:true,description:"住宅の室内天井に近い高さの目安です。"},
-  {height:3,name:"バスケットゴール級",icon:"🏀",category:"スポーツ",approximate:true,description:"バスケットボールのリングは床から約3.05mです。"},
-  {height:3.5,name:"ゾウ級",icon:"🐘",category:"生物",approximate:true,description:"大型のゾウの肩高に近いスケールです。"},
-  {height:4,name:"2階窓級",icon:"🏘️",category:"建築",approximate:true,description:"低層住宅の2階付近に相当するイメージです。"},
-  {height:5,name:"キリン級",icon:"🦒",category:"生物",approximate:true,description:"成体のキリンはおよそ4〜6m。5m級として比較します。"},
-  {height:6,name:"街路樹級",icon:"🌳",category:"自然",approximate:true,description:"よく見かける街路樹の一例としての高さです。"},
-  {height:7,name:"2階建て住宅級",icon:"🏠",category:"建築",approximate:true,description:"屋根まで含めた一般的な2階建て住宅のスケールです。"},
-  {height:8,name:"大型恐竜の全長級",icon:"🦖",category:"生物",approximate:true,description:"高さではなく、巨大恐竜の全長を縦に置いた概念比較です。"},
-  {height:9,name:"3階建て級",icon:"🏢",category:"建築",approximate:true,description:"1階あたり約3mとして3階建ての目安です。"},
-  {height:10,name:"電柱級",icon:"⚡",category:"構造物",approximate:true,description:"街中で見かける電柱の代表的なスケールです。"},
-  {height:12,name:"4階建て級",icon:"🏢",category:"建築",approximate:true,description:"1階約3mとして4階建ての目安です。"},
-  {height:15,name:"5階建て級",icon:"🏢",category:"建築",approximate:true,description:"1階約3mとして5階建ての目安です。"},
-  {height:18,name:"6階建て級",icon:"🏢",category:"建築",approximate:true,description:"1階約3mとして6階建ての目安です。"},
-  {height:20,name:"巨大な樹木級",icon:"🌲",category:"自然",approximate:true,description:"成熟した大木の高さとしてイメージしやすい20m級。"},
-  {height:22,name:"7階建て級",icon:"🏢",category:"建築",approximate:true,description:"中層建築のスケールに入ります。"},
-  {height:25,name:"8階建て級",icon:"🏢",category:"建築",approximate:true,description:"8階建て前後の建物を目安にした比較です。"},
-  {height:30,name:"シロナガスクジラ全長級",icon:"🐋",category:"生物",approximate:true,description:"最大級のシロナガスクジラの全長を縦にしたスケールです。"},
-  {height:35,name:"10階建て級",icon:"🏙️",category:"建築",approximate:true,description:"10階建て前後の建物に近いスケールです。"},
-  {height:40,name:"小型観覧車級",icon:"🎡",category:"構造物",approximate:true,description:"比較的小型の観覧車のスケールです。"},
-  {height:45,name:"自由の女神像本体級",icon:"🗽",category:"ランドマーク",approximate:true,description:"台座を除く像本体の高さに近いスケールです。"},
-  {height:50,name:"15階建て級",icon:"🏙️",category:"建築",approximate:true,description:"中高層建築物の高さとして分かりやすい50m級。"},
-  {height:55,name:"大型風力発電機のハブ級",icon:"🌬️",category:"構造物",approximate:true,description:"風力発電機の中心部の高さの一例です。"},
-  {height:60,name:"20階建て級",icon:"🏙️",category:"建築",approximate:true,description:"高層マンション級の高さに入ります。"},
-  {height:70,name:"大型観覧車級",icon:"🎡",category:"構造物",approximate:true,description:"大型観覧車の代表的なスケールです。"},
-  {height:80,name:"超高層ビル入口級",icon:"🏙️",category:"建築",approximate:true,description:"80mを超えると都市の高層建築としてかなり目立つ高さです。"},
-  {height:90,name:"30階建て級",icon:"🏙️",category:"建築",approximate:true,description:"1階約3m換算の概念比較です。"},
-  {height:100,name:"100m",icon:"🌳",category:"基準",description:"ついに3桁。人間の身長の数十倍に達します。"},
-  {height:110,name:"サッカーコート長辺級",icon:"⚽",category:"概念",approximate:true,description:"サッカーコートの長辺を縦にしたイメージ比較です。"},
-  {height:120,name:"40階建て級",icon:"🏙️",category:"建築",approximate:true,description:"都市の高層ビル級の高さです。"},
-  {height:130,name:"巨大風力発電機級",icon:"🌬️",category:"構造物",approximate:true,description:"大型風力設備の全高に近いスケールです。"},
-  {height:146.6,name:"ギザの大ピラミッド（建設当初）",icon:"🔺",category:"ランドマーク",description:"ギザの大ピラミッドの建設当初の高さとして知られる約146.6m。"},
-  {height:150,name:"150m",icon:"📏",category:"基準",description:"東京タワーの半分弱に迫る高さです。"},
-  {height:180,name:"超高層ビル級",icon:"🏙️",category:"建築",approximate:true,description:"大都市の超高層ビル群に入る高さです。"},
-  {height:200,name:"200m",icon:"☁️",category:"基準",description:"地上から見ると非常に巨大な構造物級です。"},
-  {height:234,name:"東京都庁第一本庁舎級",icon:"🏢",category:"ランドマーク",approximate:true,description:"東京都庁第一本庁舎の高さに近いスケールです。"},
-  {height:250,name:"250m",icon:"📏",category:"基準",description:"都市の象徴級の高さへ進みます。"},
-  {height:300,name:"東京タワー目前",icon:"🗼",category:"概念",description:"333mの東京タワーまであと33mの地点。"},
-  {height:333,name:"東京タワー",icon:"🗼",category:"ランドマーク",description:"東京タワーの高さは333mです。"},
-  {height:350,name:"超高層塔級",icon:"📡",category:"構造物",approximate:true,description:"大型の放送塔や超高層構造物の領域です。"},
-  {height:400,name:"400m",icon:"☁️",category:"基準",description:"地上の建築物としては極めて高い領域です。"},
-  {height:450,name:"巨大構造物級",icon:"🏗️",category:"構造物",approximate:true,description:"通常の建築物を大きく超えるスケールです。"},
-  {height:500,name:"500m級小惑星",icon:"☄️",category:"天体サイズ",approximate:true,description:"直径500mほどの小惑星を縦に置いた場合のスケール比較です。"},
-  {height:550,name:"超高層塔級 550m",icon:"📡",category:"構造物",description:"600m級タワーへ迫る領域です。"},
-  {height:600,name:"600m",icon:"☁️",category:"基準",description:"東京スカイツリーまであと34m。"},
-  {height:634,name:"東京スカイツリー",icon:"📡",category:"ランドマーク",description:"東京スカイツリーの高さは634mです。"},
-  {height:700,name:"700m級",icon:"🏙️",category:"建築",description:"世界最高層の建築物に迫る高さです。"},
-  {height:800,name:"800m級",icon:"🏙️",category:"建築",description:"800mを超える建物は極めて例外的な存在です。"},
-  {height:828,name:"ブルジュ・ハリファ",icon:"🏙️",category:"ランドマーク",description:"ドバイのブルジュ・ハリファは828mです。"},
-  {height:900,name:"900m級",icon:"☁️",category:"基準",description:"1kmまで残り100m。"},
-  {height:1000,name:"1km",icon:"☁️",category:"基準",description:"1,000m。ここから高度をkmで意識する世界へ。"},
-  {height:1200,name:"1.2km",icon:"🌫️",category:"大気",description:"低い雲と比較できる高度帯に入ります。"},
-  {height:1500,name:"雲底高度の一例",icon:"☁️",category:"大気",approximate:true,description:"雲底は気象条件で大きく変わります。1.5kmは一例としての比較です。"},
-  {height:2000,name:"2km",icon:"⛰️",category:"基準",description:"高い山地の標高と比較できる領域です。"},
-  {height:2500,name:"高山帯級",icon:"⛰️",category:"自然",approximate:true,description:"日本の山岳では高山帯を意識する標高帯です。"},
-  {height:3000,name:"3km",icon:"🏔️",category:"基準",description:"富士山頂まであと776m。"},
-  {height:3776,name:"富士山",icon:"🗻",category:"自然",description:"富士山の標高は3,776mです。"},
-  {height:4000,name:"4km",icon:"🏔️",category:"基準",description:"富士山を越え、世界の高峰へ向かいます。"},
-  {height:5000,name:"5km",icon:"🏔️",category:"自然",description:"非常に高い山岳域の高度です。"},
-  {height:5895,name:"キリマンジャロ級",icon:"🏔️",category:"自然",approximate:true,description:"キリマンジャロの標高に近いスケールです。"},
-  {height:6000,name:"6km",icon:"🏔️",category:"基準",description:"高峰の世界。空気も地上よりかなり薄い高度です。"},
-  {height:7000,name:"7km",icon:"🏔️",category:"自然",description:"ヒマラヤ高峰級の領域です。"},
-  {height:8000,name:"デスゾーン入口級",icon:"🥶",category:"自然",approximate:true,description:"登山で『デスゾーン』と呼ばれることのある8,000m級。"},
-  {height:8849,name:"エベレスト",icon:"🏔️",category:"自然",description:"エベレストの標高は約8,849mです。"},
-  {height:9000,name:"9km",icon:"✈️",category:"航空",description:"旅客機の巡航高度が近づきます。"},
-  {height:10000,name:"旅客機巡航高度級",icon:"✈️",category:"航空",approximate:true,description:"大型旅客機はおおむね10km前後の高度を巡航します。"},
-  {height:12000,name:"対流圏界面付近",icon:"🌤️",category:"大気",approximate:true,description:"対流圏界面の高度は緯度・季節で変わります。12kmは目安です。"},
-  {height:15000,name:"15km",icon:"🌌",category:"大気",description:"旅客機の通常巡航よりさらに高い高度です。"},
-  {height:20000,name:"成層圏 20km",icon:"☀️",category:"大気",description:"高度20km。空気は非常に薄くなっています。"},
-  {height:25000,name:"25km",icon:"🌌",category:"大気",description:"成層圏の内部をさらに上昇。"},
-  {height:30000,name:"高高度気球級",icon:"🎈",category:"航空",approximate:true,description:"高高度気球が到達することのある高度帯の一例です。"},
-  {height:40000,name:"40km",icon:"🌌",category:"大気",description:"成層圏上部へ。"},
-  {height:50000,name:"成層圏上端付近",icon:"🌌",category:"大気",approximate:true,description:"成層圏の上端はおよそ50km付近。"},
-  {height:60000,name:"中間圏 60km",icon:"🌠",category:"大気",description:"中間圏の領域。"},
-  {height:80000,name:"流星が光る高度帯級",icon:"🌠",category:"大気",approximate:true,description:"流星現象が見られる高度帯の概念比較です。"},
-  {height:100000,name:"カーマン・ライン",icon:"🚀",category:"宇宙",description:"高度100km。宇宙の境界として広く使われる目安です。"},
-  {height:120000,name:"120km",icon:"🚀",category:"宇宙",description:"地球大気が極めて希薄な高度です。"},
-  {height:160000,name:"超低軌道級",icon:"🛰️",category:"宇宙",approximate:true,description:"軌道維持が難しいほど低い宇宙高度のイメージです。"},
-  {height:200000,name:"200km",icon:"🛰️",category:"宇宙",description:"地球低軌道の非常に低い領域。"},
-  {height:300000,name:"300km",icon:"🛰️",category:"宇宙",description:"宇宙船が周回する低軌道スケール。"},
-  {height:400000,name:"ISS軌道級",icon:"🛰️",category:"宇宙",approximate:true,description:"ISSはおよそ400km前後の高度を周回します。"},
-  {height:500000,name:"500km",icon:"🛰️",category:"宇宙",description:"地球低軌道の人工衛星が多数存在する高度帯。"},
-  {height:1000000,name:"1,000km",icon:"🌍",category:"宇宙",description:"地表から1,000km。地球の曲率を強く意識する距離です。"},
-  {height:1737400,name:"月半径級",icon:"🌕",category:"天体サイズ",approximate:true,description:"月の平均半径約1,737kmを縦にした比較です。"},
-  {height:2000000,name:"2,000km",icon:"🛰️",category:"軌道",description:"低軌道の上限としてよく使われる目安に近い距離。"},
-  {height:3474800,name:"月直径級",icon:"🌕",category:"天体サイズ",approximate:true,description:"月の直径約3,475kmを縦にした比較です。"},
-  {height:5000000,name:"5,000km",icon:"🌍",category:"軌道",description:"地球半径に迫るスケール。"},
-  {height:6371000,name:"地球半径級",icon:"🌍",category:"天体サイズ",approximate:true,description:"地球の平均半径約6,371kmを縦にした比較です。"},
-  {height:10000000,name:"1万km",icon:"🌍",category:"基準",description:"天体スケールの距離。"},
-  {height:12742000,name:"地球直径級",icon:"🌎",category:"天体サイズ",approximate:true,description:"地球の直径約12,742kmを縦にした比較です。"},
-  {height:20000000,name:"2万km",icon:"🛰️",category:"軌道",description:"中軌道衛星を意識する距離。"},
-  {height:20200000,name:"GPS衛星軌道高度級",icon:"📍",category:"軌道",approximate:true,description:"GPS衛星は高度約20,200kmを周回します。"},
-  {height:30000000,name:"3万km",icon:"📡",category:"軌道",description:"静止軌道まであと約5,786km。"},
-  {height:35786000,name:"静止軌道",icon:"📡",category:"軌道",description:"赤道上空約35,786kmの静止軌道。"},
-  {height:50000000,name:"5万km",icon:"🌌",category:"宇宙",description:"地球から大きく離れた宇宙空間。"},
-  {height:100000000,name:"10万km",icon:"🌌",category:"宇宙",description:"月までのおよそ4分の1の距離。"},
-  {height:150000000,name:"15万km",icon:"🌕",category:"宇宙",description:"月までの距離の半分弱。"},
-  {height:200000000,name:"20万km",icon:"🌕",category:"宇宙",description:"月まで半分を越える距離。"},
-  {height:300000000,name:"30万km",icon:"🌕",category:"宇宙",description:"月が目前に近づく距離。"},
-  {height:350000000,name:"35万km",icon:"🌕",category:"宇宙",description:"月まで残り約3万4,400km。"},
-  {height:384400000,name:"月",icon:"🌕",category:"宇宙",description:"地球と月の平均距離、約38万4,400km。Bean Growthの伝説級到達点です。"},
-  {height:500000000,name:"5億m",icon:"🌌",category:"宇宙",description:"月を越えた先の深宇宙領域。"},
-  {height:1000000000,name:"100万km",icon:"✨",category:"宇宙",description:"100万km。地球—月距離の約2.6倍。"},
-  {height:1392700000,name:"太陽直径級",icon:"☀️",category:"天体サイズ",approximate:true,description:"太陽の直径約139万kmを縦にした比較です。"},
-  {height:10000000000,name:"1,000万km",icon:"✨",category:"宇宙",description:"惑星間空間を意識する巨大距離。"},
-  {height:50000000000,name:"5,000万km",icon:"☀️",category:"宇宙",description:"太陽系内の惑星間距離スケール。"},
-  {height:149600000000,name:"1天文単位級",icon:"☀️",category:"宇宙",approximate:true,description:"地球と太陽の平均距離は約1億4,960万kmです。"}
+  {
+    "height": 0,
+    "name": "地表",
+    "icon": "🌍",
+    "category": "基準",
+    "description": "すべての豆の木の出発点。地表を0mとして扱います。",
+    "id": "m000",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 1,
+    "name": "最初の1m",
+    "icon": "🌱",
+    "category": "基準",
+    "description": "最初の成功で到達する、ゲーム最初の節目。",
+    "id": "m001",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 1.5,
+    "name": "大型犬の目線級",
+    "icon": "🐕",
+    "category": "生物",
+    "approximate": true,
+    "description": "大型犬が立ったときの高さをイメージした比較です。",
+    "id": "m002",
+    "facts": [
+      "生物の値は種・個体・測定方法で幅があるため、代表的なスケール比較として扱う。"
+    ],
+    "trivia": [
+      "「身長」「肩高」「全長」は別の測り方なので、図鑑では何を比べているかを見ると面白い。"
+    ]
+  },
+  {
+    "height": 1.7,
+    "name": "成人の身長級",
+    "icon": "🧍",
+    "category": "生物",
+    "approximate": true,
+    "description": "成人の身長を約1.7mとして比較します。",
+    "id": "m003",
+    "facts": [
+      "生物の値は種・個体・測定方法で幅があるため、代表的なスケール比較として扱う。"
+    ],
+    "trivia": [
+      "「身長」「肩高」「全長」は別の測り方なので、図鑑では何を比べているかを見ると面白い。"
+    ]
+  },
+  {
+    "height": 2.4,
+    "name": "一般的な室内天井級",
+    "icon": "🏠",
+    "category": "建築",
+    "approximate": true,
+    "description": "住宅の室内天井に近い高さの目安です。",
+    "id": "m004",
+    "facts": [
+      "Bean Growthでは2.4m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 3,
+    "name": "バスケットゴール級",
+    "icon": "🏀",
+    "category": "スポーツ",
+    "approximate": true,
+    "description": "バスケットボールのリングは床から約3.05mです。",
+    "id": "m005",
+    "facts": [
+      "3mという高さを直感的に理解するための比較項目。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 3.5,
+    "name": "ゾウ級",
+    "icon": "🐘",
+    "category": "生物",
+    "approximate": true,
+    "description": "大型のゾウの肩高に近いスケールです。",
+    "id": "m006",
+    "facts": [
+      "生物の値は種・個体・測定方法で幅があるため、代表的なスケール比較として扱う。"
+    ],
+    "trivia": [
+      "「身長」「肩高」「全長」は別の測り方なので、図鑑では何を比べているかを見ると面白い。"
+    ]
+  },
+  {
+    "height": 4,
+    "name": "2階窓級",
+    "icon": "🏘️",
+    "category": "建築",
+    "approximate": true,
+    "description": "低層住宅の2階付近に相当するイメージです。",
+    "id": "m007",
+    "facts": [
+      "Bean Growthでは4m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 5,
+    "name": "キリン級",
+    "icon": "🦒",
+    "category": "生物",
+    "approximate": true,
+    "description": "成体のキリンはおよそ4〜6m。5m級として比較します。",
+    "id": "m008",
+    "facts": [
+      "生物の値は種・個体・測定方法で幅があるため、代表的なスケール比較として扱う。"
+    ],
+    "trivia": [
+      "「身長」「肩高」「全長」は別の測り方なので、図鑑では何を比べているかを見ると面白い。"
+    ]
+  },
+  {
+    "height": 6,
+    "name": "街路樹級",
+    "icon": "🌳",
+    "category": "自然",
+    "approximate": true,
+    "description": "よく見かける街路樹の一例としての高さです。",
+    "id": "m009",
+    "facts": [
+      "6mという高さを直感的に理解するための比較項目。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 7,
+    "name": "2階建て住宅級",
+    "icon": "🏠",
+    "category": "建築",
+    "approximate": true,
+    "description": "屋根まで含めた一般的な2階建て住宅のスケールです。",
+    "id": "m010",
+    "facts": [
+      "Bean Growthでは7m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 8,
+    "name": "大型恐竜の全長級",
+    "icon": "🦖",
+    "category": "生物",
+    "approximate": true,
+    "description": "高さではなく、巨大恐竜の全長を縦に置いた概念比較です。",
+    "id": "m011",
+    "facts": [
+      "生物の値は種・個体・測定方法で幅があるため、代表的なスケール比較として扱う。"
+    ],
+    "trivia": [
+      "「身長」「肩高」「全長」は別の測り方なので、図鑑では何を比べているかを見ると面白い。"
+    ]
+  },
+  {
+    "height": 9,
+    "name": "3階建て級",
+    "icon": "🏢",
+    "category": "建築",
+    "approximate": true,
+    "description": "1階あたり約3mとして3階建ての目安です。",
+    "id": "m012",
+    "facts": [
+      "Bean Growthでは9m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 10,
+    "name": "電柱級",
+    "icon": "⚡",
+    "category": "構造物",
+    "approximate": true,
+    "description": "街中で見かける電柱の代表的なスケールです。",
+    "id": "m013",
+    "facts": [
+      "10m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 12,
+    "name": "4階建て級",
+    "icon": "🏢",
+    "category": "建築",
+    "approximate": true,
+    "description": "1階約3mとして4階建ての目安です。",
+    "id": "m014",
+    "facts": [
+      "Bean Growthでは12m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 15,
+    "name": "5階建て級",
+    "icon": "🏢",
+    "category": "建築",
+    "approximate": true,
+    "description": "1階約3mとして5階建ての目安です。",
+    "id": "m015",
+    "facts": [
+      "Bean Growthでは15m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 18,
+    "name": "6階建て級",
+    "icon": "🏢",
+    "category": "建築",
+    "approximate": true,
+    "description": "1階約3mとして6階建ての目安です。",
+    "id": "m016",
+    "facts": [
+      "Bean Growthでは18m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 20,
+    "name": "巨大な樹木級",
+    "icon": "🌲",
+    "category": "自然",
+    "approximate": true,
+    "description": "成熟した大木の高さとしてイメージしやすい20m級。",
+    "id": "m017",
+    "facts": [
+      "20mという高さを直感的に理解するための比較項目。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 22,
+    "name": "7階建て級",
+    "icon": "🏢",
+    "category": "建築",
+    "approximate": true,
+    "description": "中層建築のスケールに入ります。",
+    "id": "m018",
+    "facts": [
+      "Bean Growthでは22m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 25,
+    "name": "8階建て級",
+    "icon": "🏢",
+    "category": "建築",
+    "approximate": true,
+    "description": "8階建て前後の建物を目安にした比較です。",
+    "id": "m019",
+    "facts": [
+      "Bean Growthでは25m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 30,
+    "name": "シロナガスクジラ全長級",
+    "icon": "🐋",
+    "category": "生物",
+    "approximate": true,
+    "description": "最大級のシロナガスクジラの全長を縦にしたスケールです。",
+    "id": "m020",
+    "facts": [
+      "生物の値は種・個体・測定方法で幅があるため、代表的なスケール比較として扱う。"
+    ],
+    "trivia": [
+      "「身長」「肩高」「全長」は別の測り方なので、図鑑では何を比べているかを見ると面白い。"
+    ]
+  },
+  {
+    "height": 35,
+    "name": "10階建て級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "10階建て前後の建物に近いスケールです。",
+    "id": "m021",
+    "facts": [
+      "Bean Growthでは35m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 40,
+    "name": "小型観覧車級",
+    "icon": "🎡",
+    "category": "構造物",
+    "approximate": true,
+    "description": "比較的小型の観覧車のスケールです。",
+    "id": "m022",
+    "facts": [
+      "40m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 45,
+    "name": "自由の女神像本体級",
+    "icon": "🗽",
+    "category": "ランドマーク",
+    "approximate": true,
+    "description": "台座を除く像本体の高さに近いスケールです。",
+    "id": "m023",
+    "facts": [
+      "自由の女神像本体級を豆の木の高さと比較するための到達地点。"
+    ],
+    "trivia": [
+      "高さだけでなく、建設された時代・目的・構造を知るとランドマークの個性が見えてくる。"
+    ]
+  },
+  {
+    "height": 50,
+    "name": "15階建て級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "中高層建築物の高さとして分かりやすい50m級。",
+    "id": "m024",
+    "facts": [
+      "Bean Growthでは50m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 55,
+    "name": "大型風力発電機のハブ級",
+    "icon": "🌬️",
+    "category": "構造物",
+    "approximate": true,
+    "description": "風力発電機の中心部の高さの一例です。",
+    "id": "m025",
+    "facts": [
+      "55m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 60,
+    "name": "20階建て級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "高層マンション級の高さに入ります。",
+    "id": "m026",
+    "facts": [
+      "Bean Growthでは60m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 70,
+    "name": "大型観覧車級",
+    "icon": "🎡",
+    "category": "構造物",
+    "approximate": true,
+    "description": "大型観覧車の代表的なスケールです。",
+    "id": "m027",
+    "facts": [
+      "70m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 80,
+    "name": "超高層ビル入口級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "80mを超えると都市の高層建築としてかなり目立つ高さです。",
+    "id": "m028",
+    "facts": [
+      "Bean Growthでは80m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 90,
+    "name": "30階建て級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "1階約3m換算の概念比較です。",
+    "id": "m029",
+    "facts": [
+      "Bean Growthでは90m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 100,
+    "name": "100m",
+    "icon": "🌳",
+    "category": "基準",
+    "description": "ついに3桁。人間の身長の数十倍に達します。",
+    "id": "m030",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 110,
+    "name": "サッカーコート長辺級",
+    "icon": "⚽",
+    "category": "概念",
+    "approximate": true,
+    "description": "サッカーコートの長辺を縦にしたイメージ比較です。",
+    "id": "m031",
+    "facts": [
+      "実在物の高さそのものではなく、別の長さを縦に置いて比べる概念上の目安。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 120,
+    "name": "40階建て級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "都市の高層ビル級の高さです。",
+    "id": "m032",
+    "facts": [
+      "Bean Growthでは120m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 130,
+    "name": "巨大風力発電機級",
+    "icon": "🌬️",
+    "category": "構造物",
+    "approximate": true,
+    "description": "大型風力設備の全高に近いスケールです。",
+    "id": "m033",
+    "facts": [
+      "130m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 146.6,
+    "name": "ギザの大ピラミッド（建設当初）",
+    "icon": "🔺",
+    "category": "ランドマーク",
+    "description": "ギザの大ピラミッドの建設当初の高さとして知られる約146.6m。",
+    "id": "m034",
+    "facts": [
+      "ギザの大ピラミッド（建設当初）を豆の木の高さと比較するための到達地点。"
+    ],
+    "trivia": [
+      "高さだけでなく、建設された時代・目的・構造を知るとランドマークの個性が見えてくる。"
+    ]
+  },
+  {
+    "height": 150,
+    "name": "150m",
+    "icon": "📏",
+    "category": "基準",
+    "description": "東京タワーの半分弱に迫る高さです。",
+    "id": "m035",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 180,
+    "name": "超高層ビル級",
+    "icon": "🏙️",
+    "category": "建築",
+    "approximate": true,
+    "description": "大都市の超高層ビル群に入る高さです。",
+    "id": "m036",
+    "facts": [
+      "Bean Growthでは180m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 200,
+    "name": "200m",
+    "icon": "☁️",
+    "category": "基準",
+    "description": "地上から見ると非常に巨大な構造物級です。",
+    "id": "m037",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 234,
+    "name": "東京都庁第一本庁舎級",
+    "icon": "🏢",
+    "category": "ランドマーク",
+    "approximate": true,
+    "description": "東京都庁第一本庁舎の高さに近いスケールです。",
+    "id": "m038",
+    "facts": [
+      "東京都庁第一本庁舎級を豆の木の高さと比較するための到達地点。"
+    ],
+    "trivia": [
+      "高さだけでなく、建設された時代・目的・構造を知るとランドマークの個性が見えてくる。"
+    ]
+  },
+  {
+    "height": 250,
+    "name": "250m",
+    "icon": "📏",
+    "category": "基準",
+    "description": "都市の象徴級の高さへ進みます。",
+    "id": "m039",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 300,
+    "name": "東京タワー目前",
+    "icon": "🗼",
+    "category": "概念",
+    "description": "333mの東京タワーまであと33mの地点。",
+    "id": "m040",
+    "facts": [
+      "実在物の高さそのものではなく、別の長さを縦に置いて比べる概念上の目安。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 333,
+    "name": "東京タワー",
+    "icon": "🗼",
+    "category": "ランドマーク",
+    "description": "東京・芝公園に立つ高さ333mの電波塔。戦後日本を象徴するランドマークの一つです。鉄骨構造の塔として、豆の木が都市の象徴を越える最初の大目標になります。",
+    "country": "日本",
+    "region": "東京都",
+    "facts": [
+      "1958年完成。",
+      "高さ333mの電波塔。"
+    ],
+    "id": "m041",
+    "trivia": [
+      "高さだけでなく、建設された時代・目的・構造を知るとランドマークの個性が見えてくる。"
+    ]
+  },
+  {
+    "height": 350,
+    "name": "超高層塔級",
+    "icon": "📡",
+    "category": "構造物",
+    "approximate": true,
+    "description": "大型の放送塔や超高層構造物の領域です。",
+    "id": "m042",
+    "facts": [
+      "350m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 400,
+    "name": "400m",
+    "icon": "☁️",
+    "category": "基準",
+    "description": "地上の建築物としては極めて高い領域です。",
+    "id": "m043",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 450,
+    "name": "巨大構造物級",
+    "icon": "🏗️",
+    "category": "構造物",
+    "approximate": true,
+    "description": "通常の建築物を大きく超えるスケールです。",
+    "id": "m044",
+    "facts": [
+      "450m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 500,
+    "name": "500m級小惑星",
+    "icon": "☄️",
+    "category": "天体サイズ",
+    "approximate": true,
+    "description": "直径約500mの小惑星を縦に置いた場合のスケール比較です。小惑星は球形とは限らず、実際には長軸・短軸が異なる不規則な形が一般的です。",
+    "facts": [
+      "小惑星は不規則な形が多く、「直径」は代表値として扱われる。",
+      "このアプリでは大きさを縦に置いた概念比較。"
+    ],
+    "id": "m045",
+    "trivia": [
+      "天体は完全な球とは限らないため、「直径」には平均値や代表値が使われることがある。"
+    ]
+  },
+  {
+    "height": 550,
+    "name": "超高層塔級 550m",
+    "icon": "📡",
+    "category": "構造物",
+    "description": "600m級タワーへ迫る領域です。",
+    "id": "m046",
+    "facts": [
+      "550m級の構造物スケールとして比較。"
+    ],
+    "trivia": [
+      "高さが増えるほど、自重だけでなく風や振動への対策が重要になる。"
+    ]
+  },
+  {
+    "height": 599,
+    "name": "高尾山",
+    "icon": "⛰️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "東京都",
+    "dangerLevel": 1,
+    "risks": [
+      "転倒・滑落",
+      "夏の暑さ",
+      "混雑"
+    ],
+    "wildlife": [
+      "ムササビ",
+      "ニホンリス",
+      "多様な野鳥"
+    ],
+    "trivia": [
+      "都心からアクセスしやすく、自然観察でも有名。"
+    ],
+    "description": "東京都八王子市にある標高599mの山。登山道は比較的整備されていますが、雨後のぬかるみや転倒には注意が必要です。都市近郊ながら森林が豊かで、ムササビなどの生き物も見られます。",
+    "id": "m047"
+  },
+  {
+    "height": 600,
+    "name": "600m",
+    "icon": "☁️",
+    "category": "基準",
+    "description": "東京スカイツリーまであと34m。",
+    "id": "m048",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 634,
+    "name": "東京スカイツリー",
+    "icon": "📡",
+    "category": "ランドマーク",
+    "description": "東京都墨田区にある高さ634mの電波塔。634という数字は「むさし」と読めることでも知られています。東京タワーを大きく上回る次世代の都市ランドマークです。",
+    "country": "日本",
+    "region": "東京都",
+    "facts": [
+      "高さ634m。",
+      "地上デジタル放送などの電波塔として建設。"
+    ],
+    "id": "m049",
+    "trivia": [
+      "高さだけでなく、建設された時代・目的・構造を知るとランドマークの個性が見えてくる。"
+    ]
+  },
+  {
+    "height": 700,
+    "name": "700m級",
+    "icon": "🏙️",
+    "category": "建築",
+    "description": "世界最高層の建築物に迫る高さです。",
+    "id": "m050",
+    "facts": [
+      "Bean Growthでは700m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 800,
+    "name": "800m級",
+    "icon": "🏙️",
+    "category": "建築",
+    "description": "800mを超える建物は極めて例外的な存在です。",
+    "id": "m051",
+    "facts": [
+      "Bean Growthでは800m地点の建築スケール比較として登録。"
+    ],
+    "trivia": [
+      "同じ階数でも、用途や階高によって建物全体の高さはかなり変わる。"
+    ]
+  },
+  {
+    "height": 828,
+    "name": "ブルジュ・ハリファ",
+    "icon": "🏙️",
+    "category": "ランドマーク",
+    "description": "ドバイにある高さ828mの超高層建築物。住居・ホテル・オフィスなどを含む巨大な垂直都市で、1km到達直前の象徴的な目標です。",
+    "country": "アラブ首長国連邦",
+    "region": "ドバイ",
+    "facts": [
+      "高さ828m。",
+      "超高層複合用途ビル。"
+    ],
+    "id": "m052",
+    "trivia": [
+      "高さだけでなく、建設された時代・目的・構造を知るとランドマークの個性が見えてくる。"
+    ]
+  },
+  {
+    "height": 877,
+    "name": "筑波山",
+    "icon": "⛰️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "茨城県",
+    "dangerLevel": 2,
+    "risks": [
+      "岩場での転倒",
+      "濡れた路面",
+      "暑さ"
+    ],
+    "wildlife": [
+      "ニホンリス",
+      "アカゲラなどの野鳥"
+    ],
+    "trivia": [
+      "男体山と女体山の二峰で知られる。"
+    ],
+    "description": "茨城県を代表する山。標高は最高峰の女体山で877m。低山ですが岩場があり、雨天時は滑りやすくなります。古くから信仰の山としても知られています。",
+    "id": "m053"
+  },
+  {
+    "height": 900,
+    "name": "900m級",
+    "icon": "☁️",
+    "category": "基準",
+    "description": "1kmまで残り100m。",
+    "id": "m054",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 1000,
+    "name": "1km",
+    "icon": "☁️",
+    "category": "基準",
+    "description": "1,000m。ここから高度をkmで意識する世界へ。",
+    "id": "m055",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 1200,
+    "name": "1.2km",
+    "icon": "🌫️",
+    "category": "大気",
+    "description": "低い雲と比較できる高度帯に入ります。",
+    "id": "m056",
+    "facts": [
+      "地表から約1.2kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 1345,
+    "name": "ベン・ネヴィス",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "イギリス",
+    "region": "スコットランド",
+    "dangerLevel": 3,
+    "risks": [
+      "濃霧",
+      "低温",
+      "強風",
+      "道迷い"
+    ],
+    "wildlife": [
+      "アカシカ",
+      "ライチョウ類"
+    ],
+    "trivia": [
+      "イギリス最高峰。低い標高でも海洋性気候で天候が急変しやすい。"
+    ],
+    "description": "スコットランドにあるイギリス最高峰。標高1,345mですが、高緯度かつ海洋性気候のため、濃霧・強風・低温が問題になります。標高の数字だけでは危険度を判断できない山の代表例です。",
+    "id": "m057"
+  },
+  {
+    "height": 1500,
+    "name": "雲底高度の一例",
+    "icon": "☁️",
+    "category": "大気",
+    "approximate": true,
+    "description": "雲底は気象条件で大きく変わります。1.5kmは一例としての比較です。",
+    "id": "m058",
+    "facts": [
+      "地表から約1.5kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 1592,
+    "name": "阿蘇山・高岳",
+    "icon": "🌋",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "熊本県",
+    "dangerLevel": 2,
+    "risks": [
+      "火山活動",
+      "火山ガス",
+      "強風"
+    ],
+    "wildlife": [
+      "キュウシュウジカ",
+      "草原性の昆虫"
+    ],
+    "trivia": [
+      "阿蘇は巨大なカルデラ地形で知られる。"
+    ],
+    "description": "阿蘇五岳の最高峰、高岳は標高1,592m。周辺は世界最大級のカルデラ景観で知られます。火山活動や火山ガスの影響で立入規制が行われる場合があります。",
+    "id": "m059"
+  },
+  {
+    "height": 1982,
+    "name": "石鎚山",
+    "icon": "⛰️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "愛媛県",
+    "dangerLevel": 3,
+    "risks": [
+      "急斜面",
+      "鎖場",
+      "滑落",
+      "悪天候"
+    ],
+    "wildlife": [
+      "ニホンカモシカ",
+      "野鳥"
+    ],
+    "trivia": [
+      "西日本最高峰。鎖場で知られる修験の山。"
+    ],
+    "description": "愛媛県にある標高1,982mの西日本最高峰。急峻な地形と鎖場で有名です。一般登山道もありますが、雨や凍結時は滑落リスクが高まります。",
+    "id": "m060"
+  },
+  {
+    "height": 2000,
+    "name": "2km",
+    "icon": "⛰️",
+    "category": "基準",
+    "description": "高い山地の標高と比較できる領域です。",
+    "id": "m061",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 2228,
+    "name": "コジオスコ山",
+    "icon": "⛰️",
+    "category": "世界の山",
+    "country": "オーストラリア",
+    "region": "ニューサウスウェールズ州",
+    "dangerLevel": 1,
+    "risks": [
+      "天候急変",
+      "低温"
+    ],
+    "wildlife": [
+      "ウォンバット",
+      "カンガルー類"
+    ],
+    "trivia": [
+      "オーストラリア本土最高峰。"
+    ],
+    "description": "オーストラリア本土最高峰で標高2,228m。七大陸最高峰の中では比較的登りやすい山として知られますが、高山の天候変化には注意が必要です。",
+    "id": "m062"
+  },
+  {
+    "height": 2291,
+    "name": "旭岳",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "北海道",
+    "dangerLevel": 3,
+    "risks": [
+      "低温",
+      "強風",
+      "ホワイトアウト",
+      "火山地形"
+    ],
+    "wildlife": [
+      "エゾナキウサギ",
+      "キタキツネ",
+      "高山植物"
+    ],
+    "trivia": [
+      "北海道最高峰で大雪山系の主峰。"
+    ],
+    "description": "北海道最高峰、標高2,291m。ロープウェイで高所へアクセスできますが、山頂部は強風や低温、視界不良が起こりやすい本格的な高山環境です。",
+    "id": "m063"
+  },
+  {
+    "height": 2899,
+    "name": "赤岳",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "八ヶ岳",
+    "dangerLevel": 3,
+    "risks": [
+      "岩場",
+      "滑落",
+      "落石",
+      "冬季の凍結"
+    ],
+    "wildlife": [
+      "ホシガラス",
+      "ニホンカモシカ"
+    ],
+    "trivia": [
+      "八ヶ岳連峰の最高峰。"
+    ],
+    "description": "八ヶ岳連峰の最高峰で標高2,899m。山頂付近は岩場が多く、特に悪天候や冬季には難易度が大きく上がります。",
+    "id": "m064"
+  },
+  {
+    "height": 2918,
+    "name": "オリンポス山",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ギリシャ",
+    "region": "テッサリア／マケドニア",
+    "dangerLevel": 3,
+    "risks": [
+      "岩場",
+      "落石",
+      "天候変化"
+    ],
+    "wildlife": [
+      "シャモア",
+      "猛禽類"
+    ],
+    "trivia": [
+      "ギリシャ神話で神々の住まいとされた山。"
+    ],
+    "description": "ギリシャ最高峰で標高約2,918m。ギリシャ神話では神々の住まいとされました。山頂部には岩稜があり、ルートによっては手を使う登攀が必要です。",
+    "id": "m065"
+  },
+  {
+    "height": 3000,
+    "name": "3km",
+    "icon": "🏔️",
+    "category": "基準",
+    "description": "富士山頂まであと776m。",
+    "id": "m066",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 3003,
+    "name": "立山・雄山",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "富山県",
+    "dangerLevel": 3,
+    "risks": [
+      "落石",
+      "残雪",
+      "雷",
+      "高山病"
+    ],
+    "wildlife": [
+      "ライチョウ",
+      "オコジョ"
+    ],
+    "trivia": [
+      "日本有数のライチョウ生息地。"
+    ],
+    "description": "立山連峰の雄山は標高3,003m。周辺は特別天然記念物ライチョウの重要な生息地です。夏でも残雪があり、雷や急変する天候、高山病への注意が必要です。",
+    "id": "m067"
+  },
+  {
+    "height": 3067,
+    "name": "御嶽山",
+    "icon": "🌋",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "長野県／岐阜県",
+    "dangerLevel": 4,
+    "risks": [
+      "火山活動",
+      "噴石",
+      "火山ガス",
+      "悪天候"
+    ],
+    "wildlife": [
+      "ライチョウ",
+      "ホシガラス"
+    ],
+    "trivia": [
+      "信仰の山であり、活火山でもある。"
+    ],
+    "description": "標高3,067mの活火山。山岳信仰で知られる一方、火山活動そのものが主要リスクです。登山時は気象だけでなく、最新の火山情報と規制を確認する必要があります。",
+    "id": "m068"
+  },
+  {
+    "height": 3180,
+    "name": "槍ヶ岳",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "北アルプス",
+    "dangerLevel": 4,
+    "risks": [
+      "岩稜",
+      "滑落",
+      "落石",
+      "雷"
+    ],
+    "wildlife": [
+      "ライチョウ",
+      "ホシガラス"
+    ],
+    "trivia": [
+      "鋭い槍のような山頂で日本を代表する高峰。"
+    ],
+    "description": "標高3,180m。鋭く尖った山頂部が特徴で、山頂直下にははしごや鎖を使う区間があります。落石・滑落・雷など高山特有の危険があります。",
+    "id": "m069"
+  },
+  {
+    "height": 3190,
+    "name": "奥穂高岳",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "北アルプス",
+    "dangerLevel": 4,
+    "risks": [
+      "岩稜",
+      "滑落",
+      "落石",
+      "悪天候"
+    ],
+    "wildlife": [
+      "ライチョウ",
+      "ニホンカモシカ"
+    ],
+    "trivia": [
+      "日本第3位の標高。"
+    ],
+    "description": "標高3,190mで日本第3位。穂高連峰は急峻な岩稜で知られ、ルートによっては高度感のある危険箇所が続きます。",
+    "id": "m070"
+  },
+  {
+    "height": 3193,
+    "name": "北岳",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "南アルプス",
+    "dangerLevel": 3,
+    "risks": [
+      "高山病",
+      "落石",
+      "雷",
+      "長い行程"
+    ],
+    "wildlife": [
+      "ライチョウ",
+      "キタダケソウ"
+    ],
+    "trivia": [
+      "日本第2位の高峰。固有植物キタダケソウで知られる。"
+    ],
+    "description": "標高3,193mで富士山に次ぐ日本第2位の高峰。北岳周辺だけに自生することで知られるキタダケソウなど、貴重な高山植物の宝庫です。",
+    "id": "m071"
+  },
+  {
+    "height": 3357,
+    "name": "エトナ山",
+    "icon": "🌋",
+    "category": "世界の山",
+    "country": "イタリア",
+    "region": "シチリア島",
+    "dangerLevel": 3,
+    "risks": [
+      "噴火",
+      "火山ガス",
+      "溶岩地形",
+      "天候変化"
+    ],
+    "wildlife": [
+      "キツネ",
+      "猛禽類"
+    ],
+    "trivia": [
+      "ヨーロッパ有数の活発な火山。標高は噴火で変化する。"
+    ],
+    "description": "シチリア島の活火山。噴火活動が頻繁で、山頂高度も噴火による地形変化で変わり得ます。火山活動そのものが観光資源である一方、最大の危険要因でもあります。",
+    "id": "m072"
+  },
+  {
+    "height": 3724,
+    "name": "アオラキ／マウント・クック",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ニュージーランド",
+    "region": "南島",
+    "dangerLevel": 5,
+    "risks": [
+      "氷河",
+      "雪崩",
+      "クレバス",
+      "落石",
+      "急変する天候"
+    ],
+    "wildlife": [
+      "ケア",
+      "高山性の鳥類"
+    ],
+    "trivia": [
+      "ニュージーランド最高峰。登山は技術的に難しい。"
+    ],
+    "description": "ニュージーランド最高峰、標高3,724m。氷河と急峻な岩稜を持ち、標高以上に技術的難度が高い山です。高山性のオウム「ケア」が周辺で見られます。",
+    "id": "m073"
+  },
+  {
+    "height": 3776,
+    "name": "富士山",
+    "icon": "🗻",
+    "category": "世界の山",
+    "country": "日本",
+    "region": "山梨県／静岡県",
+    "dangerLevel": 3,
+    "risks": [
+      "高山病",
+      "低温",
+      "強風",
+      "落石",
+      "混雑"
+    ],
+    "wildlife": [
+      "ホシガラス",
+      "ニホンカモシカ（山麓）"
+    ],
+    "trivia": [
+      "日本最高峰。世界文化遺産「富士山―信仰の対象と芸術の源泉」。"
+    ],
+    "description": "日本最高峰、標高3,776mの成層火山。登山道は整備されていますが、短時間で高所へ上がるため高山病が起きやすく、山頂付近は夏でも低温・強風になります。",
+    "id": "m074"
+  },
+  {
+    "height": 4000,
+    "name": "4km",
+    "icon": "🏔️",
+    "category": "基準",
+    "description": "富士山を越え、世界の高峰へ向かいます。",
+    "id": "m075",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 4095,
+    "name": "キナバル山",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "マレーシア",
+    "region": "ボルネオ島・サバ州",
+    "dangerLevel": 3,
+    "risks": [
+      "雨",
+      "滑りやすい岩",
+      "低温",
+      "高度"
+    ],
+    "wildlife": [
+      "ウツボカズラ類",
+      "多様なラン",
+      "固有種"
+    ],
+    "trivia": [
+      "非常に高い生物多様性で知られる。"
+    ],
+    "description": "ボルネオ島にある標高4,095mの山。熱帯低地から高山帯まで短い距離で環境が変化し、ウツボカズラやランなど豊かな植物相で有名です。",
+    "id": "m076"
+  },
+  {
+    "height": 4421,
+    "name": "ホイットニー山",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "アメリカ",
+    "region": "カリフォルニア州",
+    "dangerLevel": 3,
+    "risks": [
+      "高山病",
+      "雷",
+      "積雪",
+      "長距離行程"
+    ],
+    "wildlife": [
+      "ミュールジカ",
+      "マーモット"
+    ],
+    "trivia": [
+      "アメリカ本土48州の最高峰。"
+    ],
+    "description": "標高4,421m。アメリカ本土48州の最高峰で、シエラネバダ山脈にあります。技術的登攀を要さない一般ルートでも、高度と長距離歩行が大きな負担になります。",
+    "id": "m077"
+  },
+  {
+    "height": 4478,
+    "name": "マッターホルン",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "スイス／イタリア",
+    "region": "アルプス",
+    "dangerLevel": 5,
+    "risks": [
+      "急峻な岩稜",
+      "落石",
+      "滑落",
+      "天候急変"
+    ],
+    "wildlife": [
+      "アルプスアイベックス",
+      "マーモット"
+    ],
+    "trivia": [
+      "独特のピラミッド型で世界的に有名。"
+    ],
+    "description": "標高4,478m。アルプスを象徴する鋭い山容で、通常ルートでも本格的な登攀技術が必要です。落石や滑落、混雑によるリスクもあります。",
+    "id": "m078"
+  },
+  {
+    "height": 4806,
+    "name": "モンブラン",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "フランス／イタリア",
+    "region": "アルプス",
+    "dangerLevel": 4,
+    "risks": [
+      "雪崩",
+      "クレバス",
+      "落石",
+      "高山病"
+    ],
+    "wildlife": [
+      "アルプスアイベックス",
+      "シャモア",
+      "マーモット"
+    ],
+    "trivia": [
+      "西ヨーロッパ最高峰として知られる。積雪で標高値はわずかに変動する。"
+    ],
+    "description": "アルプス最高峰で標高は約4,806m。氷河や雪稜を進むため、クレバス・雪崩・高山病が重要な危険です。周辺にはアイベックスやマーモットが生息します。",
+    "id": "m079"
+  },
+  {
+    "height": 4884,
+    "name": "プンチャック・ジャヤ",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "インドネシア",
+    "region": "ニューギニア島",
+    "dangerLevel": 4,
+    "risks": [
+      "険しい岩壁",
+      "多雨",
+      "アクセスの難しさ"
+    ],
+    "wildlife": [
+      "極楽鳥類",
+      "ニューギニア固有種"
+    ],
+    "trivia": [
+      "オセアニア最高峰として七大陸最高峰に含める分類がある。"
+    ],
+    "description": "標高4,884m。赤道近くのニューギニア島にありながら高山環境を持ちます。石灰岩の急峻な岩壁が特徴で、登頂には登攀技術が必要です。",
+    "id": "m080"
+  },
+  {
+    "height": 5000,
+    "name": "5km",
+    "icon": "🏔️",
+    "category": "自然",
+    "description": "非常に高い山岳域の高度です。",
+    "id": "m081",
+    "facts": [
+      "5000mという高さを直感的に理解するための比較項目。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 5642,
+    "name": "エルブルス山",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ロシア",
+    "region": "コーカサス",
+    "dangerLevel": 4,
+    "risks": [
+      "高山病",
+      "低温",
+      "強風",
+      "ホワイトアウト",
+      "氷河"
+    ],
+    "wildlife": [
+      "コーカサスツール",
+      "猛禽類"
+    ],
+    "trivia": [
+      "ヨーロッパ最高峰として一般に扱われる。"
+    ],
+    "description": "標高5,642mの休火山。七大陸最高峰の一つとして知られます。ルート自体の技術難度以上に、高度・低温・視界不良が大きな危険になります。",
+    "id": "m082"
+  },
+  {
+    "height": 5895,
+    "name": "キリマンジャロ",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "タンザニア",
+    "region": "東アフリカ",
+    "dangerLevel": 3,
+    "risks": [
+      "高山病",
+      "低温",
+      "急激な高度上昇"
+    ],
+    "wildlife": [
+      "コロブスモンキー",
+      "ゾウ（山麓）",
+      "多様な鳥類"
+    ],
+    "trivia": [
+      "赤道近くにありながら山頂部には氷河が残る。"
+    ],
+    "description": "アフリカ最高峰、標高5,895m。登攀技術をあまり必要としないルートもありますが、高度順応不足による高山病が主要リスクです。山麓の熱帯林から高山砂漠まで植生が劇的に変化します。",
+    "id": "m083"
+  },
+  {
+    "height": 6000,
+    "name": "6km",
+    "icon": "🏔️",
+    "category": "基準",
+    "description": "高峰の世界。空気も地上よりかなり薄い高度です。",
+    "id": "m084",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 6190,
+    "name": "デナリ",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "アメリカ",
+    "region": "アラスカ",
+    "dangerLevel": 5,
+    "risks": [
+      "極低温",
+      "強風",
+      "クレバス",
+      "雪崩",
+      "長期遠征"
+    ],
+    "wildlife": [
+      "グリズリー",
+      "カリブー",
+      "ドールシープ"
+    ],
+    "trivia": [
+      "北米最高峰。高緯度のため同じ標高でも気圧が低くなりやすい。"
+    ],
+    "description": "北米最高峰、標高6,190m。アラスカの高緯度に位置し、極端な寒さと巨大な山体で知られます。氷河上のクレバスや雪崩、長期間の遠征が大きな負担です。",
+    "id": "m085"
+  },
+  {
+    "height": 6263,
+    "name": "チンボラソ",
+    "icon": "🌋",
+    "category": "世界の山",
+    "country": "エクアドル",
+    "region": "アンデス",
+    "dangerLevel": 4,
+    "risks": [
+      "高山病",
+      "氷河",
+      "クレバス",
+      "低温"
+    ],
+    "wildlife": [
+      "ビクーニャ",
+      "アンデスの猛禽類"
+    ],
+    "trivia": [
+      "地球の赤道膨張のため、山頂は地球中心から最も遠い地点として知られる。"
+    ],
+    "description": "標高6,263mの火山。エベレストより標高は低いものの、地球が赤道方向に膨らんでいるため山頂は「地球中心から最も遠い地表地点」として有名です。",
+    "id": "m086"
+  },
+  {
+    "height": 6961,
+    "name": "アコンカグア",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "アルゼンチン",
+    "region": "アンデス",
+    "dangerLevel": 4,
+    "risks": [
+      "高山病",
+      "強風",
+      "低温",
+      "乾燥"
+    ],
+    "wildlife": [
+      "アンデスコンドル",
+      "グアナコ"
+    ],
+    "trivia": [
+      "南米および西半球最高峰。"
+    ],
+    "description": "南米最高峰、標高6,961m。一般ルートは大規模な岩登りを必要としませんが、約7,000mという高度、強風、低温が重大なリスクです。",
+    "id": "m087"
+  },
+  {
+    "height": 7000,
+    "name": "7km",
+    "icon": "🏔️",
+    "category": "自然",
+    "description": "ヒマラヤ高峰級の領域です。",
+    "id": "m088",
+    "facts": [
+      "7000mという高さを直感的に理解するための比較項目。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 8091,
+    "name": "アンナプルナI",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "雪崩",
+      "氷壁",
+      "高山病",
+      "急変する天候"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "ヒマラヤタール"
+    ],
+    "trivia": [
+      "8,000m峰として最初に登頂された山。"
+    ],
+    "description": "標高8,091m。1950年に8,000m峰として初登頂されたことで有名です。雪崩地形が多く、世界の高峰の中でも極めて厳しい登山環境として知られます。",
+    "id": "m089"
+  },
+  {
+    "height": 8126,
+    "name": "ナンガ・パルバット",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "パキスタン",
+    "region": "ヒマラヤ西端",
+    "dangerLevel": 5,
+    "risks": [
+      "巨大岩壁",
+      "雪崩",
+      "落石",
+      "高山病"
+    ],
+    "wildlife": [
+      "ヒマラヤアイベックス",
+      "猛禽類"
+    ],
+    "trivia": [
+      "巨大なルパール壁で知られる。"
+    ],
+    "description": "標高8,126m。山麓から山頂までの比高が非常に大きく、特にルパール壁は世界最大級の山壁として知られます。",
+    "id": "m090"
+  },
+  {
+    "height": 8163,
+    "name": "マナスル",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "雪崩",
+      "クレバス",
+      "高山病"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "ヒマラヤタール"
+    ],
+    "trivia": [
+      "世界第8位の高峰。"
+    ],
+    "description": "標高8,163mの世界第8位の高峰。雪崩や氷河上のクレバス、高高度環境が主要な危険です。",
+    "id": "m091"
+  },
+  {
+    "height": 8167,
+    "name": "ダウラギリI",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "雪崩",
+      "急峻な雪壁",
+      "高山病",
+      "悪天候"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "ブルーシープ"
+    ],
+    "trivia": [
+      "山名はサンスクリット語系で「白い山」を意味する。"
+    ],
+    "description": "標高8,167mの世界第7位の高峰。巨大な雪氷斜面と急変する天候を持つ、非常に難しい8,000m峰です。",
+    "id": "m092"
+  },
+  {
+    "height": 8188,
+    "name": "チョ・オユー",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール／中国",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "高山病",
+      "雪崩",
+      "クレバス",
+      "極低温"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "チベット高原の野生動物"
+    ],
+    "trivia": [
+      "8,000m峰の中では比較的登攀難度が低いとされるが、8,000m級の危険性は変わらない。"
+    ],
+    "description": "標高8,188m。技術的には8,000m峰の中で比較的登りやすいと評されることがありますが、低酸素・極低温・雪崩など生命に関わる環境であることに変わりはありません。",
+    "id": "m093"
+  },
+  {
+    "height": 8485,
+    "name": "マカルー",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール／中国",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "急峻な岩雪壁",
+      "高山病",
+      "強風"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "ヒマラヤタール"
+    ],
+    "trivia": [
+      "ピラミッド型の鋭い山容で知られる。"
+    ],
+    "description": "標高8,485mの世界第5位の高峰。四角錐のような鋭い山容で、終盤に難しい岩・雪・氷の登攀が現れます。",
+    "id": "m094"
+  },
+  {
+    "height": 8516,
+    "name": "ローツェ",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール／中国",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "急峻な氷壁",
+      "高山病",
+      "雪崩"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "ヒマラヤタール"
+    ],
+    "trivia": [
+      "エベレストのすぐ南に位置する世界第4位の高峰。"
+    ],
+    "description": "標高8,516m。エベレストに隣接する世界第4位の高峰で、ローツェ・フェイスと呼ばれる急な氷雪斜面が大きな難所です。",
+    "id": "m095"
+  },
+  {
+    "height": 8586,
+    "name": "カンチェンジュンガ",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール／インド",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "雪崩",
+      "長大なルート",
+      "高山病",
+      "悪天候"
+    ],
+    "wildlife": [
+      "レッサーパンダ（山麓地域）",
+      "ユキヒョウ（地域）"
+    ],
+    "trivia": [
+      "世界第3位の高峰。周辺は生物多様性でも重要。"
+    ],
+    "description": "標高8,586mの世界第3位の高峰。ネパールとインドの国境にあり、周辺にはレッサーパンダやユキヒョウの生息域があります。登山は長大で非常に厳しい環境です。",
+    "id": "m096"
+  },
+  {
+    "height": 8611,
+    "name": "K2",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "パキスタン／中国",
+    "region": "カラコルム",
+    "dangerLevel": 5,
+    "risks": [
+      "急峻な登攀",
+      "落石",
+      "雪崩",
+      "極端な天候",
+      "高山病"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "シベリアアイベックス"
+    ],
+    "trivia": [
+      "世界第2位。技術的難度と天候の厳しさで知られる。"
+    ],
+    "description": "標高8,611mの世界第2位の高峰。急峻な岩・氷の登攀、落石、雪崩、悪天候が重なり、エベレストとは異なる技術的な難しさで知られます。",
+    "id": "m097"
+  },
+  {
+    "height": 8849,
+    "name": "エベレスト",
+    "icon": "🏔️",
+    "category": "世界の山",
+    "country": "ネパール／中国",
+    "region": "ヒマラヤ",
+    "dangerLevel": 5,
+    "risks": [
+      "極端な低酸素",
+      "凍傷",
+      "雪崩",
+      "滑落",
+      "天候急変"
+    ],
+    "wildlife": [
+      "ユキヒョウ（地域）",
+      "ヒマラヤタール"
+    ],
+    "trivia": [
+      "世界最高峰。8,000mを超える領域は「デスゾーン」と呼ばれる。"
+    ],
+    "description": "世界最高峰、標高約8,849m。8,000m以上では酸素分圧が著しく低く、人間が長期間順応できない「デスゾーン」と呼ばれる環境になります。低酸素、凍傷、雪崩、滑落、急変する天候が主要な危険です。",
+    "id": "m098"
+  },
+  {
+    "height": 9000,
+    "name": "9km",
+    "icon": "✈️",
+    "category": "航空",
+    "description": "旅客機の巡航高度が近づきます。",
+    "id": "m099",
+    "facts": [
+      "実際の飛行高度は機種・気象・運航条件によって変化する。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 10000,
+    "name": "旅客機巡航高度級",
+    "icon": "✈️",
+    "category": "航空",
+    "approximate": true,
+    "description": "大型旅客機はおおむね10km前後の高度を巡航します。",
+    "id": "m100",
+    "facts": [
+      "実際の飛行高度は機種・気象・運航条件によって変化する。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 12000,
+    "name": "対流圏界面付近",
+    "icon": "🌤️",
+    "category": "大気",
+    "approximate": true,
+    "description": "対流圏界面の高度は緯度・季節で変わります。12kmは目安です。",
+    "id": "m101",
+    "facts": [
+      "地表から約12kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 15000,
+    "name": "15km",
+    "icon": "🌌",
+    "category": "大気",
+    "description": "旅客機の通常巡航よりさらに高い高度です。",
+    "id": "m102",
+    "facts": [
+      "地表から約15kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 20000,
+    "name": "成層圏 20km",
+    "icon": "☀️",
+    "category": "大気",
+    "description": "高度20km。空気は非常に薄くなっています。",
+    "id": "m103",
+    "facts": [
+      "地表から約20kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 25000,
+    "name": "25km",
+    "icon": "🌌",
+    "category": "大気",
+    "description": "成層圏の内部をさらに上昇。",
+    "id": "m104",
+    "facts": [
+      "地表から約25kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 30000,
+    "name": "高高度気球級",
+    "icon": "🎈",
+    "category": "航空",
+    "approximate": true,
+    "description": "高高度気球が到達することのある高度帯の一例です。",
+    "id": "m105",
+    "facts": [
+      "実際の飛行高度は機種・気象・運航条件によって変化する。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 40000,
+    "name": "40km",
+    "icon": "🌌",
+    "category": "大気",
+    "description": "成層圏上部へ。",
+    "id": "m106",
+    "facts": [
+      "地表から約40kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 50000,
+    "name": "成層圏上端付近",
+    "icon": "🌌",
+    "category": "大気",
+    "approximate": true,
+    "description": "成層圏の上端はおよそ50km付近。",
+    "id": "m107",
+    "facts": [
+      "地表から約50kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 60000,
+    "name": "中間圏 60km",
+    "icon": "🌠",
+    "category": "大気",
+    "description": "中間圏の領域。",
+    "id": "m108",
+    "facts": [
+      "地表から約60kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 80000,
+    "name": "流星が光る高度帯級",
+    "icon": "🌠",
+    "category": "大気",
+    "approximate": true,
+    "description": "流星現象が見られる高度帯の概念比較です。",
+    "id": "m109",
+    "facts": [
+      "地表から約80kmの高度として表示。"
+    ],
+    "trivia": [
+      "大気の層の境界高度は緯度・季節・気象条件によって一定ではない。"
+    ]
+  },
+  {
+    "height": 100000,
+    "name": "カーマン・ライン",
+    "icon": "🚀",
+    "category": "宇宙",
+    "description": "高度100kmに置かれる「宇宙の入口」の代表的な基準。大気が完全になくなる線ではなく、航空と宇宙飛行を区切る慣用的・制度的な境界です。",
+    "facts": [
+      "高度100km。",
+      "宇宙の境界の目安として広く使われる。"
+    ],
+    "id": "m110",
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 120000,
+    "name": "120km",
+    "icon": "🚀",
+    "category": "宇宙",
+    "description": "地球大気が極めて希薄な高度です。",
+    "id": "m111",
+    "facts": [
+      "地表から120kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 160000,
+    "name": "超低軌道級",
+    "icon": "🛰️",
+    "category": "宇宙",
+    "approximate": true,
+    "description": "軌道維持が難しいほど低い宇宙高度のイメージです。",
+    "id": "m112",
+    "facts": [
+      "地表から160kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 200000,
+    "name": "200km",
+    "icon": "🛰️",
+    "category": "宇宙",
+    "description": "地球低軌道の非常に低い領域。",
+    "id": "m113",
+    "facts": [
+      "地表から200kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 300000,
+    "name": "300km",
+    "icon": "🛰️",
+    "category": "宇宙",
+    "description": "宇宙船が周回する低軌道スケール。",
+    "id": "m114",
+    "facts": [
+      "地表から300kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 400000,
+    "name": "ISS軌道級",
+    "icon": "🛰️",
+    "category": "宇宙",
+    "approximate": true,
+    "description": "国際宇宙ステーション（ISS）が周回する高度に近い約400km級。地上から見ると宇宙ですが、地球全体の大きさと比べればまだ非常に近い低軌道です。",
+    "facts": [
+      "ISSの高度はおよそ400km前後。",
+      "大気抵抗などで軌道高度は変化する。"
+    ],
+    "id": "m115",
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 500000,
+    "name": "500km",
+    "icon": "🛰️",
+    "category": "宇宙",
+    "description": "地球低軌道の人工衛星が多数存在する高度帯。",
+    "id": "m116",
+    "facts": [
+      "地表から500kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 1000000,
+    "name": "1,000km",
+    "icon": "🌍",
+    "category": "宇宙",
+    "description": "地表から1,000km。地球の曲率を強く意識する距離です。",
+    "id": "m117",
+    "facts": [
+      "地表から1,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 1737400,
+    "name": "月半径級",
+    "icon": "🌕",
+    "category": "天体サイズ",
+    "approximate": true,
+    "description": "月の平均半径約1,737kmを縦にした比較です。",
+    "id": "m118",
+    "facts": [
+      "高度ではなく、天体の大きさを縦方向へ置いた概念比較。"
+    ],
+    "trivia": [
+      "天体は完全な球とは限らないため、「直径」には平均値や代表値が使われることがある。"
+    ]
+  },
+  {
+    "height": 2000000,
+    "name": "2,000km",
+    "icon": "🛰️",
+    "category": "軌道",
+    "description": "低軌道の上限としてよく使われる目安に近い距離。",
+    "id": "m119",
+    "facts": [
+      "人工衛星の軌道は高度だけでなく速度と重力の釣り合いで成立する。"
+    ],
+    "trivia": [
+      "低い軌道ほど一般に速い公転速度が必要で、地球を一周する時間も短い。"
+    ]
+  },
+  {
+    "height": 3474800,
+    "name": "月直径級",
+    "icon": "🌕",
+    "category": "天体サイズ",
+    "approximate": true,
+    "description": "月の直径約3,475kmを縦にした比較です。",
+    "id": "m120",
+    "facts": [
+      "高度ではなく、天体の大きさを縦方向へ置いた概念比較。"
+    ],
+    "trivia": [
+      "天体は完全な球とは限らないため、「直径」には平均値や代表値が使われることがある。"
+    ]
+  },
+  {
+    "height": 5000000,
+    "name": "5,000km",
+    "icon": "🌍",
+    "category": "軌道",
+    "description": "地球半径に迫るスケール。",
+    "id": "m121",
+    "facts": [
+      "人工衛星の軌道は高度だけでなく速度と重力の釣り合いで成立する。"
+    ],
+    "trivia": [
+      "低い軌道ほど一般に速い公転速度が必要で、地球を一周する時間も短い。"
+    ]
+  },
+  {
+    "height": 6371000,
+    "name": "地球半径級",
+    "icon": "🌍",
+    "category": "天体サイズ",
+    "approximate": true,
+    "description": "地球の平均半径約6,371kmを縦にした比較です。",
+    "id": "m122",
+    "facts": [
+      "高度ではなく、天体の大きさを縦方向へ置いた概念比較。"
+    ],
+    "trivia": [
+      "天体は完全な球とは限らないため、「直径」には平均値や代表値が使われることがある。"
+    ]
+  },
+  {
+    "height": 10000000,
+    "name": "1万km",
+    "icon": "🌍",
+    "category": "基準",
+    "description": "天体スケールの距離。",
+    "id": "m123",
+    "facts": [
+      "高さの桁や世界観が切り替わる節目として設定。"
+    ],
+    "trivia": [
+      "同じ数字でも比較対象を変えると、高さの感覚は大きく変わる。"
+    ]
+  },
+  {
+    "height": 12742000,
+    "name": "地球直径級",
+    "icon": "🌎",
+    "category": "天体サイズ",
+    "approximate": true,
+    "description": "地球の直径約12,742kmを縦にした比較です。",
+    "facts": [
+      "地球の直径は約12,742km。",
+      "高さではなく天体の大きさの概念比較。"
+    ],
+    "id": "m124",
+    "trivia": [
+      "天体は完全な球とは限らないため、「直径」には平均値や代表値が使われることがある。"
+    ]
+  },
+  {
+    "height": 20000000,
+    "name": "2万km",
+    "icon": "🛰️",
+    "category": "軌道",
+    "description": "中軌道衛星を意識する距離。",
+    "id": "m125",
+    "facts": [
+      "人工衛星の軌道は高度だけでなく速度と重力の釣り合いで成立する。"
+    ],
+    "trivia": [
+      "低い軌道ほど一般に速い公転速度が必要で、地球を一周する時間も短い。"
+    ]
+  },
+  {
+    "height": 20200000,
+    "name": "GPS衛星軌道高度級",
+    "icon": "📍",
+    "category": "軌道",
+    "approximate": true,
+    "description": "GPS衛星は高度約20,200kmを周回します。",
+    "id": "m126",
+    "facts": [
+      "人工衛星の軌道は高度だけでなく速度と重力の釣り合いで成立する。"
+    ],
+    "trivia": [
+      "低い軌道ほど一般に速い公転速度が必要で、地球を一周する時間も短い。"
+    ]
+  },
+  {
+    "height": 30000000,
+    "name": "3万km",
+    "icon": "📡",
+    "category": "軌道",
+    "description": "静止軌道まであと約5,786km。",
+    "id": "m127",
+    "facts": [
+      "人工衛星の軌道は高度だけでなく速度と重力の釣り合いで成立する。"
+    ],
+    "trivia": [
+      "低い軌道ほど一般に速い公転速度が必要で、地球を一周する時間も短い。"
+    ]
+  },
+  {
+    "height": 35786000,
+    "name": "静止軌道",
+    "icon": "📡",
+    "category": "軌道",
+    "description": "赤道上空約35,786kmの静止軌道。",
+    "id": "m128",
+    "facts": [
+      "人工衛星の軌道は高度だけでなく速度と重力の釣り合いで成立する。"
+    ],
+    "trivia": [
+      "低い軌道ほど一般に速い公転速度が必要で、地球を一周する時間も短い。"
+    ]
+  },
+  {
+    "height": 50000000,
+    "name": "5万km",
+    "icon": "🌌",
+    "category": "宇宙",
+    "description": "地球から大きく離れた宇宙空間。",
+    "id": "m129",
+    "facts": [
+      "地表から50,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 100000000,
+    "name": "10万km",
+    "icon": "🌌",
+    "category": "宇宙",
+    "description": "月までのおよそ4分の1の距離。",
+    "id": "m130",
+    "facts": [
+      "地表から100,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 150000000,
+    "name": "15万km",
+    "icon": "🌕",
+    "category": "宇宙",
+    "description": "月までの距離の半分弱。",
+    "id": "m131",
+    "facts": [
+      "地表から150,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 200000000,
+    "name": "20万km",
+    "icon": "🌕",
+    "category": "宇宙",
+    "description": "月まで半分を越える距離。",
+    "id": "m132",
+    "facts": [
+      "地表から200,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 300000000,
+    "name": "30万km",
+    "icon": "🌕",
+    "category": "宇宙",
+    "description": "月が目前に近づく距離。",
+    "id": "m133",
+    "facts": [
+      "地表から300,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 350000000,
+    "name": "35万km",
+    "icon": "🌕",
+    "category": "宇宙",
+    "description": "月まで残り約3万4,400km。",
+    "id": "m134",
+    "facts": [
+      "地表から350,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 384400000,
+    "name": "月",
+    "icon": "🌕",
+    "category": "宇宙",
+    "description": "地球と月の平均距離、約384,400km。Bean Growthでは伝説級到達地点。初到達時に一度だけ「月の加護」を獲得します。",
+    "facts": [
+      "地球からの平均距離は約384,400km。",
+      "実際の距離は月の楕円軌道によって変化する。"
+    ],
+    "id": "m135",
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 500000000,
+    "name": "5億m",
+    "icon": "🌌",
+    "category": "宇宙",
+    "description": "月を越えた先の深宇宙領域。",
+    "id": "m136",
+    "facts": [
+      "地表から500,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 1000000000,
+    "name": "100万km",
+    "icon": "✨",
+    "category": "宇宙",
+    "description": "100万km。地球—月距離の約2.6倍。",
+    "id": "m137",
+    "facts": [
+      "地表から1,000,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 1392700000,
+    "name": "太陽直径級",
+    "icon": "☀️",
+    "category": "天体サイズ",
+    "approximate": true,
+    "description": "太陽の直径約139万kmを縦にした比較です。",
+    "facts": [
+      "太陽の直径は約139万km。",
+      "地球約109個分の直径に相当するスケール。"
+    ],
+    "id": "m138",
+    "trivia": [
+      "天体は完全な球とは限らないため、「直径」には平均値や代表値が使われることがある。"
+    ]
+  },
+  {
+    "height": 10000000000,
+    "name": "1,000万km",
+    "icon": "✨",
+    "category": "宇宙",
+    "description": "惑星間空間を意識する巨大距離。",
+    "id": "m139",
+    "facts": [
+      "地表から10,000,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 50000000000,
+    "name": "5,000万km",
+    "icon": "☀️",
+    "category": "宇宙",
+    "description": "太陽系内の惑星間距離スケール。",
+    "id": "m140",
+    "facts": [
+      "地表から50,000,000kmの距離スケール。"
+    ],
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  },
+  {
+    "height": 149600000000,
+    "name": "1天文単位級",
+    "icon": "☀️",
+    "category": "宇宙",
+    "approximate": true,
+    "description": "地球と太陽の平均距離は約1億4,960万kmです。",
+    "facts": [
+      "1AUは地球と太陽の平均距離を基準にした単位。",
+      "約1億4,960万km。"
+    ],
+    "id": "m141",
+    "trivia": [
+      "高度100kmを越えてもごく薄い大気は残っており、宇宙と大気は連続的につながっている。"
+    ]
+  }
 ];
