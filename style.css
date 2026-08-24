@@ -190,3 +190,21 @@
 .event-card.storm{background:linear-gradient(135deg,#eef3ff,#fff)}
 .event-card.miracle{background:linear-gradient(135deg,#fff0fb,#fff8df)}
 @media(max-width:420px){.event-records-grid{grid-template-columns:1fr}.public-profile-grid{grid-template-columns:1fr 1fr}}
+
+
+/* Version 4.40 */
+.special-day-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-top:5px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#fff0cc;
+  font-size:.54rem;
+  font-weight:900;
+}
+.event-secret{
+  letter-spacing:.04em;
+  font-weight:900;
+}

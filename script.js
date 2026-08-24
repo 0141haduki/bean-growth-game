@@ -1,6 +1,6 @@
 "use strict";
 
-const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.39",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
+const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.40",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
 const HABITS={
 noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱",description:"自慰をしない"},
 noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺",description:"飲酒をしない"},
@@ -15,9 +15,9 @@ noCaffeine:{id:"noCaffeine",name:"カフェイン禁",englishName:"NO CAFFEINE",
 };
 const MOON_HEIGHT=384400000,WEEKEND_BONUS=5,GUERRILLA_SWITCH_HEIGHT=400;
 const GUERRILLA_EVENTS={
-wind:{type:"wind",icon:"🌿",title:"成長の風",multiplier:1.025,rate:.20,guarantee:10,rarity:"common"},
-storm:{type:"storm",icon:"⚡",title:"成長の嵐",multiplier:1.05,rate:.048,guarantee:20,rarity:"rare"},
-miracle:{type:"miracle",icon:"🌠",title:"天豆の奇跡",multiplier:1.30,rate:.002,guarantee:120,rarity:"legendary"}
+wind:{type:"wind",icon:"🌿",title:"成長の風",multiplier:1.1,rate:.20,guarantee:10,rarity:"common",rateLabel:"20%"},
+storm:{type:"storm",icon:"⚡",title:"成長の嵐",multiplier:1.15,rate:.048,guarantee:20,rarity:"rare",rateLabel:"SECRET"},
+miracle:{type:"miracle",icon:"🌠",title:"天豆の奇跡",multiplier:1.3,rate:.002,guarantee:120,rarity:"legendary",rateLabel:"SECRET"}
 };
 const TITLE_RARITY={common:"COMMON",rare:"RARE",epic:"EPIC",legendary:"LEGENDARY"};
 const TITLE_MODIFIERS=[
@@ -206,11 +206,36 @@ let appData=loadData(),currentHabitId=null,pendingAction=null,developerMode=fals
 function hashString(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}function seededRandom(s){let x=s;x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}
 function dateFromKey(k){const [y,m,d]=String(k).split("-").map(Number);return new Date(y,m-1,d,12,0,0)}
 function isWeekendDate(k=todayKey()){const day=dateFromKey(k).getDay();return day===5||day===6||day===0}
-function weekendLabel(k=todayKey()){const day=dateFromKey(k).getDay();return day===5?"金曜ボーナス":day===6?"土曜ボーナス":day===0?"日曜ボーナス":""}
-function eventFromType(t){if(GUERRILLA_EVENTS[t]){const e=GUERRILLA_EVENTS[t],digits=t==="wind"?3:2;return{...e,reward:`×${e.multiplier.toFixed(digits)} / 400m以下は最低+${e.guarantee}m`,description:`${e.title}。400m以下では+${e.guarantee}mを保証し、400m超では高さを×${e.multiplier.toFixed(digits)}。`}}return{type:"normal",icon:"🌱",title:"通常成長日",reward:"+1m",description:"今日成功すると通常成長+1m。"}}
+function weekendLabel(k=todayKey()){const day=dateFromKey(k).getDay();return day===5?"金曜日":day===6?"土曜日":day===0?"日曜日":""}
+function specialDayLabel(k=todayKey()){return isWeekendDate(k)?`🎉 特別の日・${weekendLabel(k)}`:""}
+function eventFromType(t){
+  if(GUERRILLA_EVENTS[t]){
+    const e=GUERRILLA_EVENTS[t];
+    const mult=String(e.multiplier);
+    const rate=e.rateLabel==="SECRET"?"発生率 SECRET":`発生率 ${e.rateLabel}`;
+    return{
+      ...e,
+      reward:`×${mult} / ${rate}`,
+      description:`${e.title}。${rate}。最低保証は+${e.guarantee}m。最低保証を超える場合は高さを×${mult}。`
+    };
+  }
+  return{type:"normal",icon:"🌱",title:"通常成長日",reward:"+1m",description:"今日成功すると通常成長+1m。"};
+}
 function eventForDate(k=todayKey()){const r=seededRandom(hashString("bean-event-v439|"+k));if(r<GUERRILLA_EVENTS.miracle.rate)return eventFromType("miracle");if(r<GUERRILLA_EVENTS.miracle.rate+GUERRILLA_EVENTS.storm.rate)return eventFromType("storm");if(r<GUERRILLA_EVENTS.miracle.rate+GUERRILLA_EVENTS.storm.rate+GUERRILLA_EVENTS.wind.rate)return eventFromType("wind");return eventFromType("normal")}
 function eventToday(){if(developerMode&&developerForcedEvent!=="auto")return eventFromType(developerForcedEvent);return eventForDate(todayKey())}
-function successCalc(h,e,k=todayKey()){const weekend=isWeekendDate(k),weekendBonus=weekend?WEEKEND_BONUS:0,base=round1(Number(h)+1+weekendBonus);let n=base,mode="normal",eventBonus=0;if(GUERRILLA_EVENTS[e.type]){if(Number(h)<=GUERRILLA_SWITCH_HEIGHT){eventBonus=e.guarantee;n=round1(base+eventBonus);mode="guarantee"}else{n=round1(base*e.multiplier);eventBonus=round1(n-base);mode="multiplier"}}return{newHeight:n,gained:round1(n-h),normalBonus:1,weekendBonus,eventBonus,mode}}
+function successCalc(h,e,k=todayKey()){
+  const weekend=isWeekendDate(k),weekendBonus=weekend?WEEKEND_BONUS:0,base=round1(Number(h)+1+weekendBonus);
+  let n=base,mode="normal",eventBonus=0;
+  if(GUERRILLA_EVENTS[e.type]){
+    const multiplierGain=round1(base*(e.multiplier-1));
+    if(multiplierGain<e.guarantee){
+      eventBonus=e.guarantee;n=round1(base+eventBonus);mode="guarantee";
+    }else{
+      n=round1(base*e.multiplier);eventBonus=round1(n-base);mode="multiplier";
+    }
+  }
+  return{newHeight:n,gained:round1(n-h),normalBonus:1,weekendBonus,eventBonus,mode};
+}
 function failureCalc(d){const h=d.height,n=d.consecutiveFailures+1;if(d.moonBlessing)return{newHeight:h,loss:0,usesMoonBlessing:true,nextFailures:Math.min(3,n),message:"🌕 月の加護が発動。高さの減少を防ぎました。"};if(n===1){const loss=Math.floor(h/5);return{newHeight:Math.max(0,round1(h-loss)),loss,usesMoonBlessing:false,nextFailures:1,message:`1回目の失敗。${fmtH(loss)}失いました。`}}if(n===2){const nh=floor1(h/2);return{newHeight:nh,loss:round1(h-nh),usesMoonBlessing:false,nextFailures:2,message:"2回連続失敗。高さが半分になりました。"}}return{newHeight:0,loss:h,usesMoonBlessing:false,nextFailures:3,message:"3回連続失敗。豆の木は0mに戻りました。"}}
 function curMilestone(h){let r=MILESTONES[0];for(const m of MILESTONES){if(h>=m.height)r=m;else break}return r}function nextMilestone(h){return MILESTONES.find(m=>m.height>h)||null}function crossed(a,b){return MILESTONES.filter(m=>m.height>a&&m.height<=b)}
 function showNextTitleUnlock(){
@@ -301,7 +326,15 @@ function awardMoon(d){if(d.height>=MOON_HEIGHT&&!d.moonBlessingEarned){d.moonBle
 function syncUnlocks(d){if(!Array.isArray(d.unlockedMilestones))d.unlockedMilestones=[];for(const m of MILESTONES){if(m.height>0&&m.height<=d.height&&!d.unlockedMilestones.includes(milestoneKey(m)))d.unlockedMilestones.push(milestoneKey(m))}}
 function isUnlocked(d,m){syncUnlocks(d);return m.height===0||d.unlockedMilestones.includes(milestoneKey(m))}
 function enrichAllUnlocks(){Object.values(appData.habits).forEach(syncUnlocks);saveData()}
-function homeEvent(){const e=eventToday(),c=$("homeEventCard");c.classList.remove("special","guerrilla","both","wind","storm","miracle");if(e.type!=="normal")c.classList.add(e.type);$("homeEventIcon").textContent=e.icon;$("homeEventTitle").textContent=isWeekendDate()?`${e.title} ＋ ${weekendLabel()}`:e.title;$("homeEventDescription").textContent=e.description+(isWeekendDate()?` さらに金・土・日は成功ごとに+${WEEKEND_BONUS}m。`:"");$("homeEventReward").textContent=`${isWeekendDate()?"+5m ＋ ":""}${e.reward}`}
+function homeEvent(){
+  const e=eventToday(),c=$("homeEventCard");
+  c.classList.remove("special","guerrilla","both","wind","storm","miracle");
+  if(e.type!=="normal")c.classList.add(e.type);
+  $("homeEventIcon").textContent=e.icon;
+  $("homeEventTitle").textContent=isWeekendDate()?`${specialDayLabel()} ＋ ${e.title}`:e.title;
+  $("homeEventDescription").textContent=e.description+(isWeekendDate()?` 金・土・日は「特別の日」。成功ごとに+${WEEKEND_BONUS}m。`:"");
+  $("homeEventReward").textContent=`${isWeekendDate()?`特別の日 +${WEEKEND_BONUS}m ＋ `:""}${e.reward}`;
+}
 function escapeHtml(s){return String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
 function makeDetailSection(title,html){return `<section class="detail-section"><h4>${title}</h4>${html}</section>`}
 function categoryContext(m){
@@ -442,7 +475,16 @@ function quickHomeSuccess(id){
 function openHabit(id){currentHabitId=id;$("homeScreen").classList.remove("active");$("gameScreen").classList.add("active");renderGame();window.scrollTo({top:0,behavior:"auto"})}function goHome(){if(developerMode)exitDeveloper(false);currentHabitId=null;$("gameScreen").classList.remove("active");$("homeScreen").classList.add("active");renderHome();window.scrollTo({top:0,behavior:"auto"})}function activeData(){return developerMode?developerData:appData.habits[currentHabitId]}
 function renderGame(){if(!currentHabitId)return;const h=HABITS[currentHabitId],d=activeData();$("gameIcon").textContent=h.icon;$("gameEnglishName").textContent=h.englishName;$("gameTitle").textContent=h.name;const p=d.height<1000?{v:fmt(d.height),u:"m"}:{v:fmt(d.height/1000,2),u:"km"};$("currentHeight").textContent=p.v;$("currentHeightUnit").textContent=p.u;$("currentStreak").textContent=fmt(d.currentStreak,0);$("totalSuccess").textContent=fmt(d.totalSuccess,0);$("consecutiveFailures").textContent=d.consecutiveFailures;renderTree(d.height);renderEvent(d);renderMilestones(d.height);renderToday(d);renderStatus(d);renderRisk(d);renderMoon(d);renderDeveloper()}
 function renderTree(h){const v=45+Math.min(58,Math.log10(h+1)*24);$("treeStem").style.height=`${v}px`;$("treeTop").style.bottom=`${Math.min(94,v+18)}px`}
-function renderEvent(d){const e=eventToday(),c=$("eventCard");c.classList.remove("special","guerrilla","both","wind","storm","miracle");if(e.type!=="normal")c.classList.add(e.type);$("eventIcon").textContent=e.icon;$("eventTitle").textContent=isWeekendDate()?`${e.title} ＋ ${weekendLabel()}`:e.title;$("eventDescription").textContent=e.description+(isWeekendDate()?` 金・土・日はさらに+${WEEKEND_BONUS}m。`:"");$("eventReward").textContent=`${isWeekendDate()?"+5m ＋ ":""}${e.reward}`;const r=successCalc(d.height,e);$("successButtonDescription").textContent=`${fmtH(d.height)} → ${fmtH(r.newHeight)}`}
+function renderEvent(d){
+  const e=eventToday(),c=$("eventCard");
+  c.classList.remove("special","guerrilla","both","wind","storm","miracle");
+  if(e.type!=="normal")c.classList.add(e.type);
+  $("eventIcon").textContent=e.icon;
+  $("eventTitle").textContent=isWeekendDate()?`${specialDayLabel()} ＋ ${e.title}`:e.title;
+  $("eventDescription").textContent=e.description+(isWeekendDate()?` 金・土・日は「特別の日」。成功ごとに+${WEEKEND_BONUS}m。`:"");
+  $("eventReward").textContent=`${isWeekendDate()?`特別の日 +${WEEKEND_BONUS}m ＋ `:""}${e.reward}`;
+  const r=successCalc(d.height,e);$("successButtonDescription").textContent=`${fmtH(d.height)} → ${fmtH(r.newHeight)}`;
+}
 function renderMilestones(h){const cur=curMilestone(h),next=nextMilestone(h);$("currentMilestoneIcon").textContent=cur.icon;$("currentMilestoneName").textContent=cur.name;$("currentMilestoneHeight").textContent=fmtH(cur.height);$("currentMilestoneDescription").textContent=cur.description;$("currentMilestoneDetailButton").onclick=()=>openMilestone(cur);if(!next){$("nextMilestoneCard").classList.add("hidden");$("growthMessage").textContent="登録済みの最終地点を突破しています。"}else{$("nextMilestoneCard").classList.remove("hidden");$("nextMilestoneIcon").textContent=next.icon;$("nextMilestoneName").textContent=next.name;$("nextMilestoneHeight").textContent=fmtH(next.height);$("distanceToNext").textContent=fmtH(round1(next.height-h));const span=next.height-cur.height,p=span>0?Math.max(0,Math.min(100,(h-cur.height)/span*100)):0;$("milestoneProgressBar").style.width=`${p}%`;$("progressText").textContent=`${cur.name} → ${next.name}　${p.toFixed(1)}%`;$("nextMilestoneDetailButton").onclick=()=>openMilestone(next);$("growthMessage").textContent=h===0?"地表からスタート。最初の1mを目指そう。":`${cur.name}を突破。次は${next.name}。`}const idx=MILESTONES.findIndex(m=>m.height>h),up=idx<0?[]:MILESTONES.slice(idx,idx+5);$("upcomingList").innerHTML="";up.forEach(m=>{const row=document.createElement("div");row.className="upcoming-item";row.innerHTML=`<span class="emoji">${m.icon}</span><div><strong>${m.name}</strong><small>${fmtH(m.height)}</small></div><span class="upcoming-distance">+${fmtH(round1(m.height-h))}</span>`;$("upcomingList").appendChild(row)});$("encyclopediaProgress").textContent=`${MILESTONES.filter(m=>m.height>0&&isUnlocked(activeData(),m)).length} / ${MILESTONES.filter(m=>m.height>0).length}`}
 function renderToday(d){if(developerMode){$("successButton").classList.remove("hidden");$("failButton").classList.remove("hidden");$("todayCompleted").classList.add("hidden");return}const done=d.lastActionDate===todayKey();$("successButton").classList.toggle("hidden",done);$("failButton").classList.toggle("hidden",done);$("todayCompleted").classList.toggle("hidden",!done);if(done){const s=d.lastActionType==="success";$("todayResultIcon").textContent=s?"✓":"↘";$("todayResultIcon").style.background=s?"var(--green-pale)":"var(--red-pale)";$("todayResultIcon").style.color=s?"var(--green-dark)":"var(--red)";$("todayResultTitle").textContent=s?"今日も継続成功":"継続できなかった日を記録";$("todayResultDescription").textContent=`現在の高さは${fmtH(d.height)}です。`}}
 function renderStatus(d){const t=equippedTitle();$("currentTitleBadge").textContent=`${t.icon} ${t.text}`;$("achievementProgress").textContent=`${unlockedTitlePartCount()} / ${totalTitlePartCount()}パーツ`}
@@ -455,7 +497,7 @@ function requestFailure(){if(developerMode){devFailure();return}const d=activeDa
 function recordFailure(){const d=activeData(),before=snap(d),r=failureCalc(d);d.height=r.newHeight;d.currentStreak=0;d.consecutiveFailures=r.nextFailures;d.lastActionDate=todayKey();d.lastActionType="failure";if(r.usesMoonBlessing)d.moonBlessing=false;d.history.push({id:"act-"+Date.now().toString(36),date:todayKey(),timestamp:new Date().toISOString(),type:"failure",usedMoonBlessing:r.usesMoonBlessing,before,after:snap(d)});saveData();closeConfirm();renderGame();renderHome();toast(r.message)}
 function requestUndo(){if(developerMode)return;const d=activeData(),i=todayHistoryIndex(d);if(i<0)return;pendingAction="undo";$("confirmIcon").textContent="↩";$("confirmTitle").textContent="今日の記録を取り消しますか？";$("confirmDescription").textContent="今日の操作直前の状態へ戻します。";$("confirmOkButton").textContent="取り消す";$("confirmOverlay").classList.remove("hidden")}
 function undoToday(){const d=activeData(),i=todayHistoryIndex(d);if(i<0){closeConfirm();return}restore(d,d.history[i].before);d.history.splice(i,1);saveData();closeConfirm();renderGame();renderHome();toast("今日の記録を取り消しました。")}function todayHistoryIndex(d){for(let i=d.history.length-1;i>=0;i--)if(d.history[i].date===todayKey())return i;return-1}
-function celebrate(r,e,passed,moon){$("celebrationIcon").textContent=moon?"🌕":e.icon||"🌱";$("celebrationKicker").textContent=moon?"LEGENDARY REWARD":GUERRILLA_EVENTS[e.type]?e.title.toUpperCase():"SUCCESS";$("celebrationTitle").textContent=`+${fmtH(r.gained)}`;const parts=["通常 +1m"];if(r.weekendBonus)parts.push(`${weekendLabel()} +${r.weekendBonus}m`);if(GUERRILLA_EVENTS[e.type])parts.push(r.mode==="guarantee"?`${e.title} 最低保証 +${fmtH(r.eventBonus)}`:`${e.title} ×${e.multiplier}`);$("celebrationDescription").textContent=`豆の木は${fmtH(r.newHeight)}まで成長しました。${parts.join(" / ")}`;$("newMilestoneList").innerHTML="";if(passed.length){const head=document.createElement("div");head.className="new-milestone-chip";head.textContent=`📚 NEW × ${passed.length}　図鑑を新たに解放`;$("newMilestoneList").appendChild(head)}passed.slice(-5).forEach(m=>{const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`${m.icon} ${m.name} を突破！`;$("newMilestoneList").appendChild(x)});if(passed.length>5){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`ほか ${passed.length-5} 件も図鑑に追加`;$("newMilestoneList").appendChild(x)}const d=activeData();if([3,7,14,30].includes(Number(d.currentStreak))){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`🔥 ${d.currentStreak}日連続達成！`;$("newMilestoneList").appendChild(x)}if(moon){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent="🌕 伝説級アイテム『月の加護』を獲得！";$("newMilestoneList").appendChild(x)}spawnCelebrationParticles();$("celebrationOverlay").classList.remove("hidden")}
+function celebrate(r,e,passed,moon){$("celebrationIcon").textContent=moon?"🌕":e.icon||"🌱";$("celebrationKicker").textContent=moon?"LEGENDARY REWARD":GUERRILLA_EVENTS[e.type]?e.title.toUpperCase():"SUCCESS";$("celebrationTitle").textContent=`+${fmtH(r.gained)}`;const parts=["通常 +1m"];if(r.weekendBonus)parts.push(`特別の日（${weekendLabel()}） +${r.weekendBonus}m`);if(GUERRILLA_EVENTS[e.type])parts.push(r.mode==="guarantee"?`${e.title} 最低保証 +${fmtH(r.eventBonus)}`:`${e.title} ×${e.multiplier}`);$("celebrationDescription").textContent=`豆の木は${fmtH(r.newHeight)}まで成長しました。${parts.join(" / ")}`;$("newMilestoneList").innerHTML="";if(passed.length){const head=document.createElement("div");head.className="new-milestone-chip";head.textContent=`📚 NEW × ${passed.length}　図鑑を新たに解放`;$("newMilestoneList").appendChild(head)}passed.slice(-5).forEach(m=>{const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`${m.icon} ${m.name} を突破！`;$("newMilestoneList").appendChild(x)});if(passed.length>5){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`ほか ${passed.length-5} 件も図鑑に追加`;$("newMilestoneList").appendChild(x)}const d=activeData();if([3,7,14,30].includes(Number(d.currentStreak))){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`🔥 ${d.currentStreak}日連続達成！`;$("newMilestoneList").appendChild(x)}if(moon){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent="🌕 伝説級アイテム『月の加護』を獲得！";$("newMilestoneList").appendChild(x)}spawnCelebrationParticles();$("celebrationOverlay").classList.remove("hidden")}
 
 function spawnCelebrationParticles(){document.querySelectorAll(".celebration-particle").forEach(x=>x.remove());const icons=["🌱","✨","🍃","⭐"];for(let i=0;i<22;i++){const p=document.createElement("span");p.className="celebration-particle";p.textContent=icons[i%icons.length];const a=(Math.PI*2*i/22)+(Math.random()*.3),dist=110+Math.random()*190;p.style.setProperty("--x",`${Math.cos(a)*dist}px`);p.style.setProperty("--y",`${Math.sin(a)*dist}px`);p.style.setProperty("--r",`${Math.round(Math.random()*540-270)}deg`);document.body.appendChild(p);setTimeout(()=>p.remove(),1400)}}
 
@@ -572,7 +614,7 @@ function renderRecords(){
   $("recordsProfileCard").innerHTML=`<p>LOCAL PLAYER</p><h3>${escapeHtml(appData.profile.nickname)}　${title.icon} ${title.text}</h3><div class="records-profile-meta"><span>開始 ${new Date(appData.profile.createdAt).toLocaleDateString("ja-JP")}</span><span>${h.icon} ${h.name}</span><span>Schema v${appData.schemaVersion}</span></div>`;
   $("recordsSummary").innerHTML=[
     ["📏","現在高度",fmtH(d.height)],["🏔️","最高高度",fmtH(allTimeMaxHeight(d))],["🔥","最高連続",`${allTimeMaxStreak(d)}日`],["🏆","累計成功",`${d.totalSuccess}日`],
-    ["📚","図鑑",`${unlocked}/${all.length}`],["🎉","金土日成功",`${d.stats?.weekendSuccess||0}回`],["⚡","全ゲリラ遭遇",`${eventEncounterCount("wind")+eventEncounterCount("storm")+eventEncounterCount("miracle")}回`],["🌕","月の加護",d.moonBlessing?"所持":d.moonBlessingEarned?"使用済":"未獲得"]
+    ["📚","図鑑",`${unlocked}/${all.length}`],["🎉","金土日成功",`${d.stats?.weekendSuccess||0}回`],["⚡","全イベント遭遇",`${eventEncounterCount("wind")+eventEncounterCount("storm")+eventEncounterCount("miracle")}回`],["🌕","月の加護",d.moonBlessing?"所持":d.moonBlessingEarned?"使用済":"未獲得"]
   ].map(x=>`<div class="record-stat"><span>${x[0]}</span><strong>${x[2]}</strong><small>${x[1]}</small></div>`).join("");
   const recovery=averageRecoveryDays(d),bestMulti=bestSimultaneousHabitCount();
   $("recordsAnalytics").innerHTML=[

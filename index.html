@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.39</p>
+        <p class="version-label">Version 4.40.1</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -53,12 +53,20 @@
       <section class="rule-card">
         <h3>基本ルール</h3>
         <div class="rule-list">
-          <div><b class="pill good">+1m</b><span>通常日の成功</span></div>
-          <div><b class="pill gold">+10m</b><span>特別成長日の成功</span></div>
-          <div><b class="pill purple">×1.1</b><span>ゲリラ成長日の成功</span></div>
-          <div><b class="pill warn">−20%</b><span>1回目の連続失敗</span></div>
-          <div><b class="pill warn">×0.5</b><span>2回連続失敗</span></div>
-          <div><b class="pill bad">0m</b><span>3回連続失敗</span></div>
+          <div><b class="pill good">+1m</b><span>成功すると毎日、通常成長として+1m</span></div>
+          <div><b class="pill gold">+5m</b><span>金・土・日は「特別の日」。成功した禁欲ごとにさらに+5m</span></div>
+          <div><b class="pill purple">×1.1</b><span>🌿 成長の風：発生率20%。最低保証+10m</span></div>
+          <div><b class="pill purple">×1.15</b><span>⚡ 成長の嵐：発生率SECRET。最低保証+20m</span></div>
+          <div><b class="pill purple">×1.3</b><span>🌠 天豆の奇跡：発生率SECRET。最低保証+120m</span></div>
+          <div><b class="pill good">MAX</b><span>イベントは「最低保証」と「倍率による追加成長」の大きい方を適用</span></div>
+          <div><b class="pill gold">順序</b><span>通常+1m → 特別の日+5m → イベント効果の順に計算</span></div>
+          <div><b class="pill warn">1回目</b><span>連続失敗：現在高度の1/5を切り捨てて、その分だけ減少</span></div>
+          <div><b class="pill warn">2回目</b><span>連続失敗：残った高さを1/2にし、小数点以下を切り捨て</span></div>
+          <div><b class="pill bad">3回目</b><span>連続失敗：高さが0mにリセット</span></div>
+          <div><b class="pill good">RESET</b><span>成功すると連続失敗回数は0回に戻る</span></div>
+          <div><b class="pill good">1日1回</b><span>同じ禁欲は1日に成功・失敗のどちらか1回だけ記録。今日の記録は取り消し可能</span></div>
+          <div><b class="pill purple">遭遇</b><span>イベントの遭遇回数は1日1回。同じ日に複数の禁欲で成功しても遭遇回数は1回</span></div>
+          <div><b class="pill gold">🌕</b><span>月へ初到達すると「月の加護」を1個獲得。次の失敗時、高さの減少だけを1回防ぐ</span></div>
         </div>
       </section>
     </main>
@@ -167,9 +175,9 @@
         <select id="developerEventSelect">
           <option value="auto">自動判定</option>
           <option value="normal">通常日</option>
-          <option value="wind">🌿 成長の風 ×1.025 / 最低+10m</option>
-          <option value="storm">⚡ 成長の嵐 ×1.05 / 最低+20m</option>
-          <option value="miracle">🌠 天豆の奇跡 ×1.30 / 最低+120m</option>
+          <option value="wind">🌿 成長の風 ×1.1 / 発生率20% / 最低+10m</option>
+          <option value="storm">⚡ 成長の嵐 ×1.15 / 発生率SECRET / 最低+20m</option>
+          <option value="miracle">🌠 天豆の奇跡 ×1.3 / 発生率SECRET / 最低+120m</option>
         </select>
         <h3>連続失敗</h3><div class="dev-grid three"><button data-failure-count="0">0回</button><button data-failure-count="1">1回</button><button data-failure-count="2">2回</button></div>
         <h3>長期バランスシミュレーション</h3>
@@ -237,7 +245,7 @@
         <div id="recordsAnalytics" class="records-summary"></div>
       </section>
       <section class="records-section">
-        <p class="section-label">EVENT RECORDS</p><h3>ゲリラ遭遇記録</h3>
+        <p class="section-label">EVENT RECORDS</p><h3>イベント遭遇記録</h3>
         <p class="records-note">同じ日に複数の禁欲を成功しても「遭遇」は1回だけです。「成功適用」はイベント効果が適用された禁欲数です。</p>
         <div id="eventRecordsGrid" class="event-records-grid"></div>
       </section>
