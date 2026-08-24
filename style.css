@@ -166,3 +166,27 @@
 .analysis-wide{grid-column:1/-1}
 .mission-card .mission-reward strong{display:block;margin-top:3px}
 @media(max-width:420px){.title-collection-summary{grid-template-columns:1fr 1fr}.data-actions{grid-template-columns:1fr}}
+
+/* =========================================================
+   Version 4.31 - 4.39
+========================================================= */
+.event-records-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.event-record-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:11px 8px;text-align:center}
+.event-record-card .event-big-icon{font-size:1.45rem;display:block;margin-bottom:4px}
+.event-record-card strong{display:block;font-size:.78rem}
+.event-record-card small{display:block;color:var(--muted);font-size:.54rem;margin-top:3px;line-height:1.45}
+.public-profile-preview{border:1px solid var(--border);border-radius:15px;background:#fff;padding:13px}
+.public-profile-preview h4{margin:3px 0 8px;font-size:.92rem}
+.public-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.public-profile-grid div{padding:8px;border-radius:11px;background:var(--green-pale)}
+.public-profile-grid small{display:block;color:var(--muted);font-size:.52rem}
+.public-profile-grid strong{font-size:.69rem}
+.dev-simulator{display:grid;gap:8px;padding:10px;border:1px solid var(--border);border-radius:14px;background:#fff}
+.dev-simulator label{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.64rem;font-weight:800}
+.dev-simulator input,.dev-simulator select{width:110px;border:1px solid var(--border);border-radius:9px;padding:7px}
+.dev-simulator button{border:0;border-radius:10px;padding:9px;font-weight:900}
+.simulation-result{font-size:.59rem;line-height:1.55;color:var(--muted);padding:8px;background:#f7f7f4;border-radius:10px}
+.event-card.wind{background:linear-gradient(135deg,#edf8e7,#fff)}
+.event-card.storm{background:linear-gradient(135deg,#eef3ff,#fff)}
+.event-card.miracle{background:linear-gradient(135deg,#fff0fb,#fff8df)}
+@media(max-width:420px){.event-records-grid{grid-template-columns:1fr}.public-profile-grid{grid-template-columns:1fr 1fr}}

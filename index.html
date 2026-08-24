@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.30</p>
+        <p class="version-label">Version 4.39</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -164,8 +164,21 @@
         <div class="dev-grid"><button data-add-height="1">+1m</button><button data-add-height="10">+10m</button><button data-add-height="100">+100m</button><button data-add-height="1000">+1km</button><button data-add-height="100000">+100km</button><button data-add-height="384400000">+月距離</button></div>
         <div class="dev-input-row"><input id="developerHeightInput" type="number" min="0" step="0.1" placeholder="高さをmで入力"><button id="developerSetHeightButton" type="button">設定</button></div>
         <h3>イベント</h3>
-        <select id="developerEventSelect"><option value="auto">自動判定</option><option value="normal">通常日</option><option value="special">特別成長日</option><option value="guerrilla">ゲリラ成長日</option><option value="both">特別＋ゲリラ</option></select>
+        <select id="developerEventSelect">
+          <option value="auto">自動判定</option>
+          <option value="normal">通常日</option>
+          <option value="wind">🌿 成長の風 ×1.025 / 最低+10m</option>
+          <option value="storm">⚡ 成長の嵐 ×1.05 / 最低+20m</option>
+          <option value="miracle">🌠 天豆の奇跡 ×1.30 / 最低+120m</option>
+        </select>
         <h3>連続失敗</h3><div class="dev-grid three"><button data-failure-count="0">0回</button><button data-failure-count="1">1回</button><button data-failure-count="2">2回</button></div>
+        <h3>長期バランスシミュレーション</h3>
+        <div class="dev-simulator">
+          <label>成功率 <input id="simSuccessRate" type="number" min="1" max="100" step="1" value="70"> %</label>
+          <label>期間 <select id="simYears"><option value="0.0822">30日</option><option value="1">1年</option><option value="5">5年</option><option value="10" selected>10年</option></select></label>
+          <button id="runSimulationButton" type="button">100回シミュレーション</button>
+          <div id="simulationResult" class="simulation-result">成功しなかった日は「失敗」として計算します。</div>
+        </div>
         <h3>処理テスト</h3><button id="developerSuccessButton" class="dev-big success">🌱 成功を1回シミュレート</button><button id="developerFailureButton" class="dev-big failure">↘ 失敗を1回シミュレート</button><button id="developerResetButton" class="dev-big neutral">テストデータを元に戻す</button><button id="developerExitButton" class="dev-big exit">開発者モードを終了</button>
       </section>
     </main>
@@ -224,12 +237,22 @@
         <div id="recordsAnalytics" class="records-summary"></div>
       </section>
       <section class="records-section">
+        <p class="section-label">EVENT RECORDS</p><h3>ゲリラ遭遇記録</h3>
+        <p class="records-note">同じ日に複数の禁欲を成功しても「遭遇」は1回だけです。「成功適用」はイベント効果が適用された禁欲数です。</p>
+        <div id="eventRecordsGrid" class="event-records-grid"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">PUBLIC PROFILE PREVIEW</p><h3>公開プロフィール予定</h3>
+        <div id="publicProfilePreview" class="public-profile-preview"></div>
+        <p class="records-note">ランキング・フレンド機能では上の情報だけを公開する設計です。履歴・失敗日・ローカルIDなどは非公開データとして分離します。</p>
+      </section>
+      <section class="records-section">
         <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
         <div id="recordsCategoryProgress" class="records-category-progress"></div>
       </section>
       <section class="records-section">
         <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
-        <p class="records-note">v4.9では保存データをクラウド移行しやすい構造へ整理しています。現在はまだ端末内保存です。</p>
+        <p class="records-note">v4.39では公開プロフィール用データと端末内の詳細データを分離できる構造まで準備しています。現在はまだ端末内保存です。</p>
         <div class="data-actions">
           <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
           <button id="importDataButton" type="button">JSONバックアップを読み込む</button>
