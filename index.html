@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.1</p>
+        <p class="version-label">Version 4.9.1</p>
       </div>
       <button id="developerButton" class="icon-button" type="button" aria-label="開発者モード">⚙️</button>
     </header>
@@ -41,6 +41,10 @@
       <section class="home-summary-card">
         <div><span class="mini-label">TOTAL HEIGHT</span><strong id="homeTotalHeight">0m</strong></div>
         <div><span class="mini-label">TOTAL SUCCESS</span><strong id="homeTotalSuccess">0日</strong></div>
+      </section>
+      <section class="home-tools">
+        <button id="openCalendarButton" class="home-tool-button" type="button"><span>📅</span><strong>継続カレンダー</strong><small>今月の記録を見る</small></button>
+        <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>個人記録</strong><small>最高記録・図鑑進捗</small></button>
       </section>
 
       <section class="rule-card">
@@ -126,6 +130,8 @@
         <div class="collection-grid">
           <button id="openEncyclopediaButton2" class="collection-card" type="button"><span>📚</span><strong>高さ図鑑</strong><small id="encyclopediaProgress">0 / 0</small></button>
           <button id="openAchievementsButton" class="collection-card" type="button"><span>🏅</span><strong>実績・称号</strong><small id="achievementProgress">0 / 0</small></button>
+          <button id="openCalendarButton2" class="collection-card" type="button"><span>📅</span><strong>カレンダー</strong><small>継続履歴</small></button>
+          <button id="openRecordsButton2" class="collection-card" type="button"><span>📊</span><strong>個人記録</strong><small>最高記録</small></button>
         </div>
       </section>
 
@@ -164,9 +170,53 @@
 
   <div id="milestoneModalOverlay" class="modal-overlay hidden"><div class="modal detail-modal"><div id="milestoneModalIcon" class="detail-icon">🌍</div><p id="milestoneModalCategory" class="modal-category"></p><h2 id="milestoneModalName"></h2><div id="milestoneModalHeight" class="modal-height"></div><p id="milestoneModalLocation" class="detail-location"></p><p id="milestoneModalDescription" class="modal-description"></p><div id="milestoneExtraDetails" class="extra-details"></div><button id="milestoneModalClose" class="primary-close">閉じる</button></div></div>
 
-  <div id="encyclopediaOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">HEIGHT ENCYCLOPEDIA</p><h2>高さ図鑑</h2></div><button id="encyclopediaCloseButton" class="icon-button">✕</button></div><div id="encyclopediaSummary" class="encyclopedia-summary"></div><div class="encyclopedia-controls"><input id="encyclopediaSearch" type="search" placeholder="名前・国・地域・豆知識を検索"><select id="encyclopediaUnlockFilter"><option value="all">すべて</option><option value="unlocked">解放済み</option><option value="locked">未解放</option></select><select id="encyclopediaSort"><option value="asc">高さの低い順</option><option value="desc">高さの高い順</option></select></div><div id="categoryTabs" class="category-tabs"></div><div id="encyclopediaList" class="encyclopedia-list"></div></div></div>
+  <div id="encyclopediaOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">HEIGHT ENCYCLOPEDIA</p><h2>高さ図鑑</h2></div><button id="encyclopediaCloseButton" class="icon-button">✕</button></div><div id="encyclopediaSummary" class="encyclopedia-summary"></div><div id="categoryProgressGrid" class="category-progress-grid"></div><div class="encyclopedia-controls"><input id="encyclopediaSearch" type="search" placeholder="名前・国・地域・豆知識を検索"><select id="encyclopediaUnlockFilter"><option value="all">すべて</option><option value="unlocked">解放済み</option><option value="locked">未解放</option></select><select id="encyclopediaSort"><option value="asc">高さの低い順</option><option value="desc">高さの高い順</option></select></div><div id="categoryTabs" class="category-tabs"></div><div id="encyclopediaList" class="encyclopedia-list"></div></div></div>
 
   <div id="achievementsOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">ACHIEVEMENTS</p><h2>実績・称号</h2></div><button id="achievementsCloseButton" class="icon-button">✕</button></div><section class="title-showcase"><span id="achievementTitleIcon">🫘</span><div><p>現在の称号</p><h3 id="achievementTitleName">種からの挑戦者</h3></div></section><div id="achievementsList" class="achievements-list"></div></div></div>
+
+
+  <div id="calendarOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">CONTINUATION CALENDAR</p><h2>継続カレンダー</h2></div>
+        <button id="calendarCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <div class="calendar-habit-tabs" id="calendarHabitTabs"></div>
+      <div class="calendar-nav">
+        <button id="calendarPrevButton" type="button">←</button>
+        <strong id="calendarMonthLabel"></strong>
+        <button id="calendarNextButton" type="button">→</button>
+      </div>
+      <div class="calendar-legend"><span>● 成功</span><span>● 継続できず</span><span>○ 未記録</span></div>
+      <div class="calendar-weekdays"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+      <div id="calendarMonthStats" class="calendar-month-stats"></div>
+    </div>
+  </div>
+
+  <div id="recordsOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">PERSONAL RECORDS</p><h2>個人記録</h2></div>
+        <button id="recordsCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <section id="recordsProfileCard" class="records-profile-card"></section>
+      <div id="recordsHabitTabs" class="calendar-habit-tabs"></div>
+      <section id="recordsSummary" class="records-summary"></section>
+      <section class="records-section">
+        <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
+        <div id="recordsCategoryProgress" class="records-category-progress"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
+        <p class="records-note">v4.9では保存データをクラウド移行しやすい構造へ整理しています。現在はまだ端末内保存です。</p>
+        <div class="data-actions">
+          <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
+        </div>
+        <div id="dataSchemaInfo" class="schema-info"></div>
+      </section>
+    </div>
+  </div>
 
   <div id="developerModalOverlay" class="modal-overlay hidden"><div class="modal"><div class="modal-icon">🧪</div><h2>開発者モード</h2><p>テストする豆の木を選んでください。本番データは変更されません。</p><div class="developer-habit-select"><button data-developer-habit="noMasturbation">🌱 オナ禁</button><button data-developer-habit="noAlcohol">🍺 禁酒</button><button data-developer-habit="noSmoking">🚭 禁煙</button></div><button id="developerModalClose" class="primary-close secondary">閉じる</button></div></div>
 

@@ -48,3 +48,35 @@
 .danger-stars{color:#a86c17!important;font-size:1.2rem!important;letter-spacing:.08em}
 .encyclopedia-item{cursor:pointer;text-align:left}
 .encyclopedia-item:not(.locked):after{content:"詳しく";display:none}
+
+
+/* =========================================================
+   Version 4.2 - 4.9 additions
+========================================================= */
+.home-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.home-tool-button{display:flex;flex-direction:column;align-items:flex-start;border:1px solid var(--border);border-radius:18px;padding:15px;background:rgba(255,255,255,.75);color:var(--text);box-shadow:var(--shadow);text-align:left;cursor:pointer}
+.home-tool-button>span{font-size:1.35rem}.home-tool-button strong{margin-top:4px;font-size:.82rem}.home-tool-button small{color:var(--muted);font-size:.62rem}
+.habit-card{position:relative;display:grid;grid-template-columns:55px 1fr auto;grid-template-areas:"icon copy height" "icon next next" "quick quick quick";gap:0 12px}
+.habit-card .habit-icon{grid-area:icon}.habit-card .habit-copy{grid-area:copy;margin-left:0}.habit-card .habit-height{grid-area:height}
+.habit-next{grid-area:next;margin-top:6px;color:var(--muted);font-size:.66rem}
+.habit-open-action{display:none}
+.home-quick-success{grid-area:quick;width:100%;margin-top:11px;border:0;border-radius:13px;padding:11px;background:var(--green-dark);color:#fff;font-size:.76rem;font-weight:900;cursor:pointer}
+.home-quick-success.done{background:#e9eee9;color:var(--muted)}
+.quick-result{display:block;margin-top:2px;font-size:.61rem;opacity:.78;font-weight:700}
+.category-progress-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.category-progress-card{padding:11px;border:1px solid var(--border);border-radius:14px;background:#fff}
+.category-progress-card strong{display:block;font-size:.73rem}.category-progress-card small{display:block;margin-top:2px;color:var(--muted);font-size:.61rem}
+.mini-progress{height:5px;margin-top:7px;border-radius:99px;background:#e9eee9;overflow:hidden}.mini-progress>span{display:block;height:100%;background:var(--green);border-radius:99px}
+.calendar-habit-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:8px;scrollbar-width:none}.calendar-habit-tabs::-webkit-scrollbar{display:none}
+.calendar-habit-tab{flex-shrink:0;border:1px solid var(--border);border-radius:99px;padding:8px 11px;background:#fff;color:var(--muted);font-size:.7rem;font-weight:900;cursor:pointer}.calendar-habit-tab.active{background:var(--green-dark);color:#fff}
+.calendar-nav{display:grid;grid-template-columns:50px 1fr 50px;align-items:center;margin-top:10px;padding:10px;border:1px solid var(--border);border-radius:16px;background:#fff;text-align:center}.calendar-nav button{border:0;background:transparent;color:var(--green-dark);font-size:1.1rem;cursor:pointer}
+.calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin:11px 2px;color:var(--muted);font-size:.62rem}.calendar-legend span:nth-child(1){color:var(--green)}.calendar-legend span:nth-child(2){color:var(--red)}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.calendar-weekdays{margin-bottom:5px;text-align:center;color:var(--muted);font-size:.62rem}
+.calendar-day{min-height:60px;padding:7px 4px;border:1px solid var(--border);border-radius:11px;background:#fff;text-align:center}.calendar-day.blank{visibility:hidden}.calendar-day.future{opacity:.42}.calendar-day.today{outline:2px solid var(--green-light)}.calendar-day strong{display:block;font-size:.72rem}.calendar-day .day-mark{display:grid;place-items:center;width:22px;height:22px;margin:5px auto 0;border-radius:50%;font-size:.64rem;font-weight:900}.calendar-day.success .day-mark{background:var(--green-pale);color:var(--green-dark)}.calendar-day.failure .day-mark{background:var(--red-pale);color:var(--red)}.calendar-day.unrecorded .day-mark{background:#f0f1ed;color:#a0a59f}
+.calendar-month-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}.calendar-month-stats>div{padding:12px;border:1px solid var(--border);border-radius:14px;background:#fff;text-align:center}.calendar-month-stats strong{display:block;font-size:1.05rem}.calendar-month-stats small{color:var(--muted);font-size:.6rem}
+.records-profile-card{padding:18px;border-radius:22px;background:linear-gradient(145deg,#173d25,#286744);color:#fff;box-shadow:var(--shadow)}.records-profile-card p{margin:0;opacity:.66;font-size:.64rem}.records-profile-card h3{margin:3px 0 0;font-size:1.2rem}.records-profile-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:.67rem;opacity:.82}
+.records-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:13px}.record-stat{padding:14px;border:1px solid var(--border);border-radius:16px;background:#fff}.record-stat span{display:block;font-size:1.15rem}.record-stat strong{display:block;margin-top:3px;font-size:1.05rem}.record-stat small{color:var(--muted);font-size:.61rem}
+.records-section{margin-top:20px}.records-section h3{margin:3px 0 10px}.records-category-progress{display:grid;gap:7px}.record-category-row{padding:11px 12px;border:1px solid var(--border);border-radius:14px;background:#fff}.record-category-row>div:first-child{display:flex;justify-content:space-between;gap:10px;font-size:.7rem;font-weight:800}
+.records-note{color:var(--muted);font-size:.72rem}.data-actions button{width:100%;border:1px solid var(--border);border-radius:13px;padding:11px;background:#fff;color:var(--green-dark);font-weight:900;cursor:pointer}.schema-info{margin-top:9px;padding:11px;border-radius:12px;background:#eef3ee;color:var(--muted);font-size:.64rem;word-break:break-all}
+.detail-section .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.detail-data-cell{padding:9px;border-radius:11px;background:#f3f5f1}.detail-data-cell small{display:block;color:var(--muted);font-size:.58rem}.detail-data-cell strong{display:block;margin-top:2px;font-size:.7rem}
+@media(max-width:420px){.category-progress-grid{grid-template-columns:1fr}.calendar-day{min-height:52px}.records-summary{grid-template-columns:1fr 1fr}}
