@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.21</p>
+        <p class="version-label">Version 4.30</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -220,6 +220,10 @@
       <div id="recordsHabitTabs" class="calendar-habit-tabs"></div>
       <section id="recordsSummary" class="records-summary"></section>
       <section class="records-section">
+        <p class="section-label">ANALYTICS</p><h3>継続分析</h3>
+        <div id="recordsAnalytics" class="records-summary"></div>
+      </section>
+      <section class="records-section">
         <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
         <div id="recordsCategoryProgress" class="records-category-progress"></div>
       </section>
@@ -228,8 +232,10 @@
         <p class="records-note">v4.9では保存データをクラウド移行しやすい構造へ整理しています。現在はまだ端末内保存です。</p>
         <div class="data-actions">
           <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
+          <button id="importDataButton" type="button">JSONバックアップを読み込む</button>
+          <input id="importDataInput" type="file" accept="application/json,.json" hidden>
         </div>
-        <div id="dataSchemaInfo" class="schema-info"></div>
+        <div id="dataIntegrityStatus" class="data-integrity-status"></div><div id="dataSchemaInfo" class="schema-info"></div>
       </section>
     </div>
   </div>
@@ -279,18 +285,30 @@
       <section id="selectedTitleCard" class="selected-title-card"></section>
 
       <section class="title-forge-help">
-        <strong>修飾語 × 名詞</strong>
+        <strong>前称号 × 後称号</strong>
         <p>どの禁欲で獲得したパーツでも自由に組み合わせられます。例：「意志が強い」＋「オナ禁戦士」</p>
       </section>
 
       <div class="title-part-tabs">
-        <button id="modifierTabButton" class="title-part-tab active" type="button">前半：修飾語</button>
-        <button id="nounTabButton" class="title-part-tab" type="button">後半：名詞</button>
+        <button id="modifierTabButton" class="title-part-tab active" type="button">前称号</button>
+        <button id="nounTabButton" class="title-part-tab" type="button">後称号</button>
       </div>
 
+      <div class="title-search-tools">
+        <input id="titleSearchInput" type="search" placeholder="称号を検索">
+        <select id="titleRarityFilter">
+          <option value="all">全レアリティ</option>
+          <option value="common">COMMON</option>
+          <option value="rare">RARE</option>
+          <option value="epic">EPIC</option>
+          <option value="legendary">LEGENDARY</option>
+          <option value="black_history">BLACK HISTORY</option>
+        </select>
+      </div>
+      <div id="titleCollectionSummary" class="title-collection-summary"></div>
       <section id="modifierPartSection" class="settings-section">
         <div class="settings-section-heading">
-          <div><p class="section-label">MODIFIERS</p><h3>修飾語を選択</h3></div>
+          <div><p class="section-label">MODIFIERS</p><h3>前称号を選択</h3></div>
           <span id="unlockedModifierCount" class="settings-count">0 / 0</span>
         </div>
         <div id="modifierSelectionList" class="title-selection-list"></div>
@@ -298,23 +316,15 @@
 
       <section id="nounPartSection" class="settings-section hidden">
         <div class="settings-section-heading">
-          <div><p class="section-label">NOUN TITLES</p><h3>名詞を選択</h3></div>
+          <div><p class="section-label">NOUN TITLES</p><h3>後称号を選択</h3></div>
           <span id="unlockedNounCount" class="settings-count">0 / 0</span>
         </div>
         <div id="nounSourceFilters" class="title-source-filters"></div><p class="compound-title-note">「複合禁欲」には、3種類以上・5種類以上を同時に続けた実績称号が入ります。</p>
         <div id="nounSelectionList" class="title-selection-list"></div>
       </section>
-
-      
-      <section class="settings-section">
-        <div class="settings-section-heading">
-          <div><p class="section-label">CATEGORY MANAGEMENT</p><h3>並び順・状態</h3></div>
-        </div>
-        <p class="records-note">▲▼で表示順を変更できます。「休止」は記録候補から外しますが、データは保持します。</p>
-      </section>
 <section class="settings-note-card">
         <strong>獲得した称号パーツは全禁欲で共有</strong>
-        <p>オナ禁で獲得した修飾語と、ギャンブル禁で獲得した名詞などを組み合わせられます。一度獲得したパーツは失われません。</p>
+        <p>オナ禁で獲得した前称号と、ギャンブル禁で獲得した後称号などを自由に組み合わせられます。一度獲得したパーツは失われません。</p>
       </section>
     </div>
   </div>
@@ -346,6 +356,13 @@
           <span id="visibleHabitCount" class="settings-count">10 / 10</span>
         </div>
         <div id="habitVisibilityList" class="habit-visibility-list"></div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div><p class="section-label">CATEGORY MANAGEMENT</p><h3>並び順・状態</h3></div>
+        </div>
+        <p class="records-note">▲▼で表示順を変更できます。「休止」は記録候補から外しますが、データは保持します。</p>
       </section>
 
       <section class="settings-note-card">

@@ -150,3 +150,19 @@
 
 /* Version 4.21 */
 .compound-title-note{margin:-3px 0 10px;color:var(--muted);font-size:.6rem;line-height:1.5}
+
+
+/* =========================================================
+   Version 4.22 - 4.30
+========================================================= */
+.title-search-tools{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:13px}
+.title-search-tools input,.title-search-tools select{min-width:0;border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff;color:var(--text);font-size:.68rem}
+.title-collection-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.title-summary-cell{padding:9px 5px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:center}
+.title-summary-cell strong{display:block;font-size:.85rem}.title-summary-cell small{display:block;color:var(--muted);font-size:.52rem;margin-top:2px}
+.data-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.data-integrity-status{margin-top:9px;padding:10px 11px;border-radius:12px;background:#eef4ee;color:var(--green-dark);font-size:.63rem;font-weight:800}
+.data-integrity-status.warning{background:#fff4e3;color:#8b5b10}
+.analysis-wide{grid-column:1/-1}
+.mission-card .mission-reward strong{display:block;margin-top:3px}
+@media(max-width:420px){.title-collection-summary{grid-template-columns:1fr 1fr}.data-actions{grid-template-columns:1fr}}
