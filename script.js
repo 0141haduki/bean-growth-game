@@ -1,482 +1,83 @@
 "use strict";
 
-/* =========================================================
-   Bean Growth Version 3.1
-========================================================= */
+const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="3.5",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
+const HABITS={noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱"},noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺"},noSmoking:{id:"noSmoking",name:"禁煙",englishName:"NO SMOKING",icon:"🚭"}};
+const SPECIAL_DAYS_OF_MONTH=[1,15],GUERRILLA_RATE=.08,MOON_HEIGHT=384400000;
+const TITLES=[
+{id:"seed",name:"種からの挑戦者",icon:"🫘",test:d=>d.totalSuccess===0&&d.height===0},
+{id:"sprout",name:"発芽した者",icon:"🌱",test:d=>d.totalSuccess>=1||d.height>=1},
+{id:"week",name:"七日の守り手",icon:"🔥",test:d=>d.currentStreak>=7},
+{id:"tree",name:"巨木の育成者",icon:"🌳",test:d=>d.height>=100},
+{id:"tower",name:"塔を越える者",icon:"🗼",test:d=>d.height>=333},
+{id:"sky",name:"天空への挑戦者",icon:"☁️",test:d=>d.height>=1000},
+{id:"mountain",name:"山を越える者",icon:"🗻",test:d=>d.height>=3776},
+{id:"space",name:"宇宙へ伸びる者",icon:"🚀",test:d=>d.height>=100000},
+{id:"orbital",name:"軌道を貫く者",icon:"🛰️",test:d=>d.height>=400000},
+{id:"moon",name:"月へ届く豆",icon:"🌕",test:d=>d.height>=MOON_HEIGHT}
+];
+const ACHIEVEMENTS=[
+{id:"first_success",icon:"🌱",name:"最初の一歩",description:"初めて成功を記録する",test:d=>d.totalSuccess>=1},
+{id:"streak3",icon:"🔥",name:"三日連続",description:"3日連続成功",test:d=>d.currentStreak>=3},
+{id:"streak7",icon:"🔥",name:"一週間",description:"7日連続成功",test:d=>d.currentStreak>=7},
+{id:"streak30",icon:"🏆",name:"30日の継続",description:"30日連続成功",test:d=>d.currentStreak>=30},
+{id:"success50",icon:"🏅",name:"50回成功",description:"累計成功50日",test:d=>d.totalSuccess>=50},
+{id:"success100",icon:"💯",name:"100回成功",description:"累計成功100日",test:d=>d.totalSuccess>=100},
+{id:"height10",icon:"⚡",name:"10m突破",description:"高さ10mに到達",test:d=>d.height>=10},
+{id:"height100",icon:"🌳",name:"100m突破",description:"高さ100mに到達",test:d=>d.height>=100},
+{id:"tokyoTower",icon:"🗼",name:"東京タワー突破",description:"333mに到達",test:d=>d.height>=333},
+{id:"skytree",icon:"📡",name:"スカイツリー突破",description:"634mに到達",test:d=>d.height>=634},
+{id:"oneKm",icon:"☁️",name:"1km突破",description:"1,000mに到達",test:d=>d.height>=1000},
+{id:"fuji",icon:"🗻",name:"富士山突破",description:"3,776mに到達",test:d=>d.height>=3776},
+{id:"everest",icon:"🏔️",name:"地球最高峰",description:"8,849mに到達",test:d=>d.height>=8849},
+{id:"space",icon:"🚀",name:"宇宙到達",description:"100kmに到達",test:d=>d.height>=100000},
+{id:"iss",icon:"🛰️",name:"ISS級",description:"400kmに到達",test:d=>d.height>=400000},
+{id:"moon",icon:"🌕",name:"月到達",description:"384,400kmに到達",test:d=>d.height>=MOON_HEIGHT}
+];
+function initialHabit(){return{height:0,currentStreak:0,totalSuccess:0,consecutiveFailures:0,lastActionDate:null,lastActionType:null,history:[],moonBlessing:false,moonBlessingEarned:false}}
+function initialData(){return{version:APP_VERSION,habits:{noMasturbation:initialHabit(),noAlcohol:initialHabit(),noSmoking:initialHabit()}}}
+function loadData(){const r=localStorage.getItem(STORAGE_KEY);if(!r)return initialData();try{return mergeData(JSON.parse(r))}catch(e){console.error(e);return initialData()}}
+function mergeData(s){const i=initialData(),m={...i,...s,version:APP_VERSION,habits:{...i.habits}};Object.keys(HABITS).forEach(id=>m.habits[id]={...i.habits[id],...(s.habits?.[id]||{})});return m}
+function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(appData))}function clone(v){return JSON.parse(JSON.stringify(v))}function $(id){return document.getElementById(id)}
+function todayKey(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${day}`}
+function fmt(v,max=1){return Number(v).toLocaleString("ja-JP",{maximumFractionDigits:max})}function fmtH(m){m=Number(m);return m<1000?`${fmt(m)}m`:m<1000000?`${fmt(m/1000,2)}km`:`${fmt(m/1000,1)}km`}function round1(v){return Math.round(v*10)/10}function floor1(v){return Math.floor(v*10)/10}
+let appData=loadData(),currentHabitId=null,pendingAction=null,developerMode=false,developerData=null,developerOriginalData=null,developerForcedEvent="auto",encyclopediaCategory="すべて",toastTimer=null;
 
-const STORAGE_KEY = "beanGrowthGame_v1";
-const SPECIAL_DAYS_OF_MONTH = [1, 15];
-const GUERRILLA_RATE = 0.08;
+function hashString(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}function seededRandom(s){let x=s;x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}
+function eventFromType(t){if(t==="special")return{type:t,icon:"✨",title:"特別成長日",reward:"+10m",description:"今日成功すると一気に10m成長。"};if(t==="guerrilla")return{type:t,icon:"⚡",title:"ゲリラ成長日",reward:"×1.1",description:"今日成功すると現在の高さが1.1倍。"};if(t==="both")return{type:t,icon:"🔥",title:"超成長日",reward:"+10m → ×1.1",description:"10m成長したあと、さらに1.1倍。"};return{type:"normal",icon:"🌱",title:"通常成長日",reward:"+1m",description:"今日成功すると1m成長。"}}
+function eventToday(){if(developerMode&&developerForcedEvent!=="auto")return eventFromType(developerForcedEvent);if(SPECIAL_DAYS_OF_MONTH.includes(new Date().getDate()))return eventFromType("special");if(seededRandom(hashString(todayKey()))<GUERRILLA_RATE)return eventFromType("guerrilla");return eventFromType("normal")}
+function successCalc(h,e){let n=h;if(e.type==="normal")n=h+1;else if(e.type==="special")n=h+10;else if(e.type==="guerrilla")n=h===0?1:h*1.1;else n=(h+10)*1.1;n=round1(n);return{newHeight:n,gained:round1(n-h)}}
+function failureCalc(d){const h=d.height,n=d.consecutiveFailures+1;if(d.moonBlessing)return{newHeight:h,loss:0,usesMoonBlessing:true,nextFailures:Math.min(3,n),message:"🌕 月の加護が発動。高さの減少を防ぎました。"};if(n===1){const loss=Math.floor(h/5);return{newHeight:Math.max(0,round1(h-loss)),loss,usesMoonBlessing:false,nextFailures:1,message:`1回目の失敗。${fmtH(loss)}失いました。`}}if(n===2){const nh=floor1(h/2);return{newHeight:nh,loss:round1(h-nh),usesMoonBlessing:false,nextFailures:2,message:"2回連続失敗。高さが半分になりました。"}}return{newHeight:0,loss:h,usesMoonBlessing:false,nextFailures:3,message:"3回連続失敗。豆の木は0mに戻りました。"}}
+function curMilestone(h){let r=MILESTONES[0];for(const m of MILESTONES){if(h>=m.height)r=m;else break}return r}function nextMilestone(h){return MILESTONES.find(m=>m.height>h)||null}function crossed(a,b){return MILESTONES.filter(m=>m.height>a&&m.height<=b)}function titleFor(d){let t=TITLES[0];for(const x of TITLES)if(x.test(d))t=x;return t}function unlockedA(d){return ACHIEVEMENTS.filter(a=>a.test(d))}
+function awardMoon(d){if(d.height>=MOON_HEIGHT&&!d.moonBlessingEarned){d.moonBlessing=true;d.moonBlessingEarned=true;return true}return false}
 
-const HABITS = {
-  noMasturbation: { id:"noMasturbation", name:"オナ禁", englishName:"NO MASTURBATION", icon:"🌱" },
-  noAlcohol: { id:"noAlcohol", name:"禁酒", englishName:"NO ALCOHOL", icon:"🍺" },
-  noSmoking: { id:"noSmoking", name:"禁煙", englishName:"NO SMOKING", icon:"🚭" }
-};
+function renderHome(){const list=$("habitList");list.innerHTML="";let th=0,ts=0;Object.values(HABITS).forEach(h=>{const d=appData.habits[h.id];th+=d.height;ts+=d.totalSuccess;let status="今日は未記録";if(d.lastActionDate===todayKey())status=d.lastActionType==="success"?"今日は成功済み":"今日は継続できず";const b=document.createElement("button");b.className="habit-card";b.innerHTML=`<span class="habit-icon">${h.icon}</span><span class="habit-copy"><strong>${h.name}</strong><small>連続 ${d.currentStreak}日 ・ ${status}</small></span><span class="habit-height">${fmtH(d.height)}</span><span class="habit-arrow">›</span>`;b.onclick=()=>openHabit(h.id);list.appendChild(b)});$("homeTotalHeight").textContent=fmtH(th);$("homeTotalSuccess").textContent=`${fmt(ts,0)}日`}
+function openHabit(id){currentHabitId=id;$("homeScreen").classList.remove("active");$("gameScreen").classList.add("active");renderGame();window.scrollTo({top:0,behavior:"instant"})}function goHome(){if(developerMode)exitDeveloper(false);currentHabitId=null;$("gameScreen").classList.remove("active");$("homeScreen").classList.add("active");renderHome();window.scrollTo({top:0,behavior:"instant"})}function activeData(){return developerMode?developerData:appData.habits[currentHabitId]}
+function renderGame(){if(!currentHabitId)return;const h=HABITS[currentHabitId],d=activeData();$("gameIcon").textContent=h.icon;$("gameEnglishName").textContent=h.englishName;$("gameTitle").textContent=h.name;const p=d.height<1000?{v:fmt(d.height),u:"m"}:{v:fmt(d.height/1000,2),u:"km"};$("currentHeight").textContent=p.v;$("currentHeightUnit").textContent=p.u;$("currentStreak").textContent=fmt(d.currentStreak,0);$("totalSuccess").textContent=fmt(d.totalSuccess,0);$("consecutiveFailures").textContent=d.consecutiveFailures;renderTree(d.height);renderEvent(d);renderMilestones(d.height);renderToday(d);renderStatus(d);renderRisk(d);renderMoon(d);renderDeveloper()}
+function renderTree(h){const v=45+Math.min(58,Math.log10(h+1)*24);$("treeStem").style.height=`${v}px`;$("treeTop").style.bottom=`${Math.min(94,v+18)}px`}
+function renderEvent(d){const e=eventToday(),c=$("eventCard");c.classList.remove("special","guerrilla","both");if(e.type!=="normal")c.classList.add(e.type);$("eventIcon").textContent=e.icon;$("eventTitle").textContent=e.title;$("eventDescription").textContent=e.description;$("eventReward").textContent=e.reward;const r=successCalc(d.height,e);$("successButtonDescription").textContent=`${fmtH(d.height)} → ${fmtH(r.newHeight)}`}
+function renderMilestones(h){const cur=curMilestone(h),next=nextMilestone(h);$("currentMilestoneIcon").textContent=cur.icon;$("currentMilestoneName").textContent=cur.name;$("currentMilestoneHeight").textContent=fmtH(cur.height);$("currentMilestoneDescription").textContent=cur.description;$("currentMilestoneDetailButton").onclick=()=>openMilestone(cur);if(!next){$("nextMilestoneCard").classList.add("hidden");$("growthMessage").textContent="登録済みの最終地点を突破しています。"}else{$("nextMilestoneCard").classList.remove("hidden");$("nextMilestoneIcon").textContent=next.icon;$("nextMilestoneName").textContent=next.name;$("nextMilestoneHeight").textContent=fmtH(next.height);$("distanceToNext").textContent=fmtH(round1(next.height-h));const span=next.height-cur.height,p=span>0?Math.max(0,Math.min(100,(h-cur.height)/span*100)):0;$("milestoneProgressBar").style.width=`${p}%`;$("progressText").textContent=`${cur.name} → ${next.name}　${p.toFixed(1)}%`;$("nextMilestoneDetailButton").onclick=()=>openMilestone(next);$("growthMessage").textContent=h===0?"地表からスタート。最初の1mを目指そう。":`${cur.name}を突破。次は${next.name}。`}const idx=MILESTONES.findIndex(m=>m.height>h),up=idx<0?[]:MILESTONES.slice(idx,idx+5);$("upcomingList").innerHTML="";up.forEach(m=>{const row=document.createElement("div");row.className="upcoming-item";row.innerHTML=`<span class="emoji">${m.icon}</span><div><strong>${m.name}</strong><small>${fmtH(m.height)}</small></div><span class="upcoming-distance">+${fmtH(round1(m.height-h))}</span>`;$("upcomingList").appendChild(row)});$("encyclopediaProgress").textContent=`${MILESTONES.filter(m=>m.height>0&&m.height<=h).length} / ${MILESTONES.filter(m=>m.height>0).length}`}
+function renderToday(d){if(developerMode){$("successButton").classList.remove("hidden");$("failButton").classList.remove("hidden");$("todayCompleted").classList.add("hidden");return}const done=d.lastActionDate===todayKey();$("successButton").classList.toggle("hidden",done);$("failButton").classList.toggle("hidden",done);$("todayCompleted").classList.toggle("hidden",!done);if(done){const s=d.lastActionType==="success";$("todayResultIcon").textContent=s?"✓":"↘";$("todayResultIcon").style.background=s?"var(--green-pale)":"var(--red-pale)";$("todayResultIcon").style.color=s?"var(--green-dark)":"var(--red)";$("todayResultTitle").textContent=s?"今日も継続成功":"継続できなかった日を記録";$("todayResultDescription").textContent=`現在の高さは${fmtH(d.height)}です。`}}
+function renderStatus(d){const t=titleFor(d);$("currentTitleBadge").textContent=`${t.icon} ${t.name}`;$("achievementProgress").textContent=`${unlockedA(d).length} / ${ACHIEVEMENTS.length}`}
+function renderMoon(d){if(!d.moonBlessingEarned){$("moonBlessingCard").classList.add("hidden");return}$("moonBlessingCard").classList.remove("hidden");$("moonBlessingStatus").textContent=d.moonBlessing?"所持中。次の失敗時、高さの減少だけを1回防ぎます。連続失敗回数は増えます。":"使用済み。月到達で得られる一度限りの伝説級アイテムです。"}
+function renderRisk(d){const r=failureCalc(d);$("nextFailureResult").textContent=`${fmtH(d.height)} → ${fmtH(r.newHeight)}`;if(r.usesMoonBlessing)$("riskDescription").textContent="月の加護が自動発動し、高さの減少を防ぎます。ただし連続失敗は1回増えます。";else if(d.consecutiveFailures===0)$("riskDescription").textContent=`1回目の失敗。現在の高さの1/5（${fmtH(r.loss)}）を失います。`;else if(d.consecutiveFailures===1)$("riskDescription").textContent="2回連続失敗。残っている高さが半分になります。";else $("riskDescription").textContent="3回連続失敗。豆の木は0mに戻ります。";$("failButtonDescription").textContent=r.usesMoonBlessing?"月の加護が発動":d.consecutiveFailures===0?"高さの1/5を失う":d.consecutiveFailures===1?"高さが半分になる":"0mに戻る"}
 
-function createInitialHabitData() {
-  return { height:0, currentStreak:0, totalSuccess:0, consecutiveFailures:0, lastActionDate:null, lastActionType:null, history:[] };
-}
+function snap(d){return{height:d.height,currentStreak:d.currentStreak,totalSuccess:d.totalSuccess,consecutiveFailures:d.consecutiveFailures,lastActionDate:d.lastActionDate,lastActionType:d.lastActionType,moonBlessing:d.moonBlessing,moonBlessingEarned:d.moonBlessingEarned}}function restore(d,s){Object.assign(d,s)}
+function recordSuccess(){if(developerMode){devSuccess();return}const d=activeData();if(d.lastActionDate===todayKey()){toast("今日はすでに記録されています。");return}const before=snap(d),e=eventToday(),r=successCalc(d.height,e),passed=crossed(d.height,r.newHeight);d.height=r.newHeight;d.currentStreak++;d.totalSuccess++;d.consecutiveFailures=0;d.lastActionDate=todayKey();d.lastActionType="success";const moon=awardMoon(d);d.history.push({date:todayKey(),type:"success",eventType:e.type,before,after:snap(d)});saveData();renderGame();renderHome();celebrate(r,e,passed,moon)}
+function requestFailure(){if(developerMode){devFailure();return}const d=activeData();if(d.lastActionDate===todayKey()){toast("今日はすでに記録されています。");return}const r=failureCalc(d);pendingAction="failure";$("confirmIcon").textContent=r.usesMoonBlessing?"🌕":"⚠️";$("confirmTitle").textContent="継続できなかった日を記録しますか？";$("confirmDescription").textContent=r.usesMoonBlessing?`月の加護が発動します。高さは${fmtH(d.height)}のままですが、連続失敗は1回増えます。`:`${fmtH(d.height)} → ${fmtH(r.newHeight)}になります。`;$("confirmOkButton").textContent="記録する";$("confirmOverlay").classList.remove("hidden")}
+function recordFailure(){const d=activeData(),before=snap(d),r=failureCalc(d);d.height=r.newHeight;d.currentStreak=0;d.consecutiveFailures=r.nextFailures;d.lastActionDate=todayKey();d.lastActionType="failure";if(r.usesMoonBlessing)d.moonBlessing=false;d.history.push({date:todayKey(),type:"failure",usedMoonBlessing:r.usesMoonBlessing,before,after:snap(d)});saveData();closeConfirm();renderGame();renderHome();toast(r.message)}
+function requestUndo(){if(developerMode)return;const d=activeData(),i=todayHistoryIndex(d);if(i<0)return;pendingAction="undo";$("confirmIcon").textContent="↩";$("confirmTitle").textContent="今日の記録を取り消しますか？";$("confirmDescription").textContent="今日の操作直前の状態へ戻します。";$("confirmOkButton").textContent="取り消す";$("confirmOverlay").classList.remove("hidden")}
+function undoToday(){const d=activeData(),i=todayHistoryIndex(d);if(i<0){closeConfirm();return}restore(d,d.history[i].before);d.history.splice(i,1);saveData();closeConfirm();renderGame();renderHome();toast("今日の記録を取り消しました。")}function todayHistoryIndex(d){for(let i=d.history.length-1;i>=0;i--)if(d.history[i].date===todayKey())return i;return-1}
+function celebrate(r,e,passed,moon){$("celebrationIcon").textContent=moon?"🌕":e.type==="guerrilla"?"⚡":e.type==="special"?"✨":"🌱";$("celebrationKicker").textContent=moon?"LEGENDARY REWARD":"SUCCESS";$("celebrationTitle").textContent=`+${fmtH(r.gained)}`;$("celebrationDescription").textContent=`豆の木は${fmtH(r.newHeight)}まで成長しました。`;$("newMilestoneList").innerHTML="";passed.slice(-6).forEach(m=>{const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`${m.icon} ${m.name} を突破！`;$("newMilestoneList").appendChild(x)});if(passed.length>6){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent=`ほか ${passed.length-6} 個の目標も突破`;$("newMilestoneList").appendChild(x)}if(moon){const x=document.createElement("div");x.className="new-milestone-chip";x.textContent="🌕 伝説級アイテム『月の加護』を獲得！";$("newMilestoneList").appendChild(x)}$("celebrationOverlay").classList.remove("hidden")}
 
-function createInitialData() {
-  return {
-    version:"3.1",
-    habits:{
-      noMasturbation:createInitialHabitData(),
-      noAlcohol:createInitialHabitData(),
-      noSmoking:createInitialHabitData()
-    }
-  };
-}
+function openEncyclopedia(){encyclopediaCategory="すべて";renderEncyclopedia();$("encyclopediaOverlay").classList.remove("hidden");window.scrollTo(0,0)}
+function renderEncyclopedia(){const d=activeData(),u=MILESTONES.filter(m=>m.height>0&&m.height<=d.height).length,t=MILESTONES.filter(m=>m.height>0).length;$("encyclopediaSummary").innerHTML=`<div><strong>${u} / ${t}</strong><small>解放済み</small></div><div><strong>${Math.round(u/t*100)}%</strong><small>図鑑完成率</small></div>`;const cats=["すべて",...new Set(MILESTONES.filter(m=>m.height>0).map(m=>m.category))];$("categoryTabs").innerHTML="";cats.forEach(c=>{const b=document.createElement("button");b.className=`category-tab ${c===encyclopediaCategory?"active":""}`;b.textContent=c;b.onclick=()=>{encyclopediaCategory=c;renderEncyclopedia()};$("categoryTabs").appendChild(b)});$("encyclopediaList").innerHTML="";MILESTONES.filter(m=>m.height>0&&(encyclopediaCategory==="すべて"||m.category===encyclopediaCategory)).forEach(m=>{const ok=m.height<=d.height,row=document.createElement("button");row.type="button";row.className=`encyclopedia-item ${ok?"":"locked"}`;row.innerHTML=`<span class="e-icon">${ok?m.icon:"❓"}</span><div><h3>${ok?m.name:"？？？"}</h3><p>${ok?m.category:"未到達"}${m.approximate&&ok?"・概算比較":""}</p></div><span class="e-height">${fmtH(m.height)}</span>`;if(ok)row.onclick=()=>openMilestone(m);$("encyclopediaList").appendChild(row)})}
+function openAchievements(){const d=activeData(),t=titleFor(d);$("achievementTitleIcon").textContent=t.icon;$("achievementTitleName").textContent=t.name;$("achievementsList").innerHTML="";ACHIEVEMENTS.forEach(a=>{const ok=a.test(d),r=document.createElement("div");r.className=`achievement-row ${ok?"":"locked"}`;r.innerHTML=`<span class="a-icon">${ok?a.icon:"🔒"}</span><div><h3>${a.name}</h3><p>${a.description}</p></div><span class="achievement-state">${ok?"達成":"未達成"}</span>`;$("achievementsList").appendChild(r)});$("achievementsOverlay").classList.remove("hidden");window.scrollTo(0,0)}
+function openMilestone(m){$("milestoneModalIcon").textContent=m.icon;$("milestoneModalCategory").textContent=`${m.category}${m.approximate?"・概算比較":""}`;$("milestoneModalName").textContent=m.name;$("milestoneModalHeight").textContent=fmtH(m.height);$("milestoneModalDescription").textContent=m.description;$("milestoneModalOverlay").classList.remove("hidden")}
 
-function loadData() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return createInitialData();
-  try { return mergeWithInitialData(JSON.parse(saved)); }
-  catch (error) { console.error("保存データの読み込み失敗", error); return createInitialData(); }
-}
+function openDeveloper(){ $("developerModalOverlay").classList.remove("hidden") }function startDeveloper(id){currentHabitId=id;developerMode=true;developerOriginalData=clone(appData.habits[id]);developerData=clone(developerOriginalData);developerForcedEvent="auto";$("developerEventSelect").value="auto";$("developerModalOverlay").classList.add("hidden");$("homeScreen").classList.remove("active");$("gameScreen").classList.add("active");renderGame();window.scrollTo(0,0)}
+function exitDeveloper(show=true){developerMode=false;developerData=null;developerOriginalData=null;developerForcedEvent="auto";$("developerPanel").classList.add("hidden");$("developerIndicator").classList.add("hidden");if(currentHabitId)renderGame();if(show)toast("開発者モードを終了しました。")}
+function renderDeveloper(){$("developerPanel").classList.toggle("hidden",!developerMode);$("developerIndicator").classList.toggle("hidden",!developerMode)}function devAdd(n){developerData.height=round1(developerData.height+n);awardMoon(developerData);renderGame()}function devSet(){const n=Number($("developerHeightInput").value);if(!Number.isFinite(n)||n<0){toast("0以上の高さを入力してください。");return}developerData.height=round1(n);awardMoon(developerData);renderGame()}function devSuccess(){const e=eventToday(),r=successCalc(developerData.height,e),p=crossed(developerData.height,r.newHeight);developerData.height=r.newHeight;developerData.currentStreak++;developerData.totalSuccess++;developerData.consecutiveFailures=0;const moon=awardMoon(developerData);renderGame();celebrate(r,e,p,moon)}function devFailure(){const r=failureCalc(developerData);developerData.height=r.newHeight;developerData.currentStreak=0;developerData.consecutiveFailures=r.nextFailures;if(r.usesMoonBlessing)developerData.moonBlessing=false;renderGame();toast(`🧪 ${r.message}`)}function devReset(){developerData=clone(developerOriginalData);developerForcedEvent="auto";$("developerEventSelect").value="auto";$("developerHeightInput").value="";renderGame();toast("テストデータを元に戻しました。")}
+function toast(m){$("toast").textContent=m;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400)}function closeConfirm(){$("confirmOverlay").classList.add("hidden");pendingAction=null}
 
-function mergeWithInitialData(saved) {
-  const initial = createInitialData();
-  const merged = { ...initial, ...saved, version:"3.1", habits:{...initial.habits} };
-  Object.keys(HABITS).forEach(id => {
-    merged.habits[id] = { ...initial.habits[id], ...(saved.habits?.[id] || {}) };
-  });
-  return merged;
-}
-
-function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
-
-function getTodayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-
-function getTodayDisplay() {
-  return new Intl.DateTimeFormat("ja-JP", {year:"numeric", month:"long", day:"numeric", weekday:"short"}).format(new Date());
-}
-
-let appData = loadData();
-let currentHabitId = null;
-let pendingAction = null;
-let developerMode = false;
-let developerData = null;
-let developerOriginalData = null;
-let developerForcedEvent = "auto";
-
-const $ = id => document.getElementById(id);
-
-function renderHome() {
-  const list = $("habitList");
-  list.innerHTML = "";
-  Object.values(HABITS).forEach(habit => {
-    const data = appData.habits[habit.id];
-    let status = "今日は未記録";
-    if (data.lastActionDate === getTodayKey()) status = data.lastActionType === "success" ? "今日は成功済み" : "今日は失敗を記録";
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "habit-card";
-    button.innerHTML = `
-      <span class="habit-icon">${habit.icon}</span>
-      <span class="habit-content"><span class="habit-name">${habit.name}</span><span class="habit-meta">連続 ${data.currentStreak}日 ・ ${status}</span></span>
-      <span class="habit-height">${formatHeight(data.height)}</span><span class="habit-arrow">›</span>`;
-    button.addEventListener("click", () => openHabit(habit.id));
-    list.appendChild(button);
-  });
-}
-
-function openHabit(id) {
-  currentHabitId = id;
-  $("homeScreen").classList.remove("active");
-  $("gameScreen").classList.add("active");
-  renderGame();
-  window.scrollTo(0,0);
-}
-
-function goHome() {
-  if (developerMode) exitDeveloperMode();
-  currentHabitId = null;
-  $("gameScreen").classList.remove("active");
-  $("homeScreen").classList.add("active");
-  renderHome();
-  window.scrollTo(0,0);
-}
-
-function getActiveData() { return developerMode ? developerData : appData.habits[currentHabitId]; }
-
-function renderGame() {
-  if (!currentHabitId) return;
-  const habit = HABITS[currentHabitId];
-  const data = getActiveData();
-
-  $("gameIcon").textContent = habit.icon;
-  $("gameEnglishName").textContent = habit.englishName;
-  $("gameTitle").textContent = habit.name;
-  $("todayDate").textContent = getTodayDisplay();
-  $("currentHeight").textContent = formatNumber(data.height);
-  $("heightHeadline").textContent = formatHeight(data.height);
-  $("journeyCurrentHeight").textContent = formatHeight(data.height);
-  $("currentStreak").textContent = formatNumber(data.currentStreak);
-  $("totalSuccess").textContent = formatNumber(data.totalSuccess);
-  $("consecutiveFailures").textContent = data.consecutiveFailures;
-
-  renderDeveloperState();
-  renderTree(data.height);
-  renderGrowthMessage(data.height);
-  renderEvent(data);
-  renderMilestones(data.height);
-  renderTodayStatus(data);
-  renderFailureRisk(data);
-}
-
-function renderTree(height) {
-  const visual = 28 + Math.min(28, Math.log10(height + 1) * 12);
-  $("treeStem").style.height = `${visual}px`;
-}
-
-function renderGrowthMessage(height) {
-  const current = findCurrentMilestone(height);
-  const next = findNextMilestone(height);
-  if (!next) { $("growthMessage").textContent = "月まで到達。次はさらに先の宇宙へ。"; return; }
-  if (height === 0) { $("growthMessage").textContent = "地表からスタート。最初の1mを目指そう。"; return; }
-  $("growthMessage").textContent = `${current.n}を突破。次は${next.n}まであと${formatHeight(roundToOneDecimal(next.h-height))}。`;
-}
-
-function eventFromType(type) {
-  if (type === "special") return {type, icon:"✨", title:"特別成長日", reward:"+10m", description:"今日の成功は10m成長", special:true, guerrilla:false};
-  if (type === "guerrilla") return {type, icon:"⚡", title:"ゲリラ成長日", reward:"×1.1", description:"今日の成功で現在高が1.1倍", special:false, guerrilla:true};
-  if (type === "both") return {type, icon:"🔥", title:"超成長日", reward:"+10m → ×1.1", description:"10m成長後、さらに1.1倍", special:true, guerrilla:true};
-  return {type:"normal", icon:"🌱", title:"通常成長日", reward:"+1m", description:"今日の成功で1m成長", special:false, guerrilla:false};
-}
-
-function getEventForToday() {
-  if (developerMode && developerForcedEvent !== "auto") return eventFromType(developerForcedEvent);
-  const day = new Date().getDate();
-  if (SPECIAL_DAYS_OF_MONTH.includes(day)) return eventFromType("special");
-  const value = seededRandom(hashString(getTodayKey()));
-  return value < GUERRILLA_RATE ? eventFromType("guerrilla") : eventFromType("normal");
-}
-
-function hashString(text) {
-  let hash = 2166136261;
-  for (let i=0;i<text.length;i++) { hash ^= text.charCodeAt(i); hash = Math.imul(hash,16777619); }
-  return hash >>> 0;
-}
-
-function seededRandom(seed) {
-  let x = seed; x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
-  return (x >>> 0) / 4294967296;
-}
-
-function renderEvent(data) {
-  const event = getEventForToday();
-  const badge = $("eventBadge");
-  badge.className = `event-badge ${event.type}`;
-  $("eventIcon").textContent = event.icon;
-  $("eventTitle").textContent = event.title;
-  $("eventDescription").textContent = event.description;
-  $("eventReward").textContent = event.reward;
-  const result = calculateSuccessResult(data.height,event);
-  $("successButtonDescription").textContent = `${formatHeight(data.height)} → ${formatHeight(result.newHeight)}`;
-}
-
-function calculateSuccessResult(height,event) {
-  let newHeight = height;
-  if (!event.special && !event.guerrilla) newHeight = height + 1;
-  if (event.special && !event.guerrilla) newHeight = height + 10;
-  if (!event.special && event.guerrilla) newHeight = height === 0 ? 1 : height * 1.1;
-  if (event.special && event.guerrilla) newHeight = (height + 10) * 1.1;
-  newHeight = roundToOneDecimal(newHeight);
-  return {newHeight, gained:roundToOneDecimal(newHeight-height)};
-}
-
-function recordSuccess() {
-  if (developerMode) { simulateDeveloperSuccess(); return; }
-  const data = getActiveData();
-  if (data.lastActionDate === getTodayKey()) { showToast("今日はすでに記録されています。"); return; }
-  const beforeHeight = data.height;
-  const before = createSnapshot(data);
-  const event = getEventForToday();
-  const result = calculateSuccessResult(data.height,event);
-  data.height = result.newHeight;
-  data.currentStreak += 1;
-  data.totalSuccess += 1;
-  data.consecutiveFailures = 0;
-  data.lastActionDate = getTodayKey();
-  data.lastActionType = "success";
-  data.history.push({date:getTodayKey(),type:"success",eventType:event.type,before,after:createSnapshot(data)});
-  saveData(); renderGame(); renderHome();
-  const crossed = MILESTONES.filter(m => m.h > beforeHeight && m.h <= data.height);
-  showToast(crossed.length ? `🎉 ${crossed[crossed.length-1].n}を突破！` : `🌱 ${formatHeight(result.gained)}成長しました。`);
-}
-
-function requestFailure() {
-  if (developerMode) { simulateDeveloperFailure(); return; }
-  const data = getActiveData();
-  if (data.lastActionDate === getTodayKey()) { showToast("今日はすでに記録されています。"); return; }
-  const result = calculateFailureResult(data.height,data.consecutiveFailures);
-  pendingAction = "failure";
-  $("modalIcon").textContent = "⚠️";
-  $("modalTitle").textContent = "継続できなかった記録を残しますか？";
-  $("modalDescription").textContent = `${formatHeight(data.height)} → ${formatHeight(result.newHeight)}になります。`;
-  $("modalConfirmButton").textContent = "記録する";
-  openModal();
-}
-
-function recordFailure() {
-  const data = getActiveData();
-  const before = createSnapshot(data);
-  const result = calculateFailureResult(data.height,data.consecutiveFailures);
-  data.height = result.newHeight;
-  data.currentStreak = 0;
-  data.consecutiveFailures = Math.min(3,data.consecutiveFailures+1);
-  data.lastActionDate = getTodayKey();
-  data.lastActionType = "failure";
-  data.history.push({date:getTodayKey(),type:"failure",before,after:createSnapshot(data)});
-  saveData(); closeModal(); renderGame(); renderHome(); showToast(result.message);
-}
-
-function calculateFailureResult(height,failures) {
-  const number = failures + 1;
-  if (number === 1) {
-    const loss = Math.floor(height/5);
-    return {newHeight:roundToOneDecimal(Math.max(0,height-loss)),loss,message:`1回目。${formatHeight(loss)}失いました。`};
-  }
-  if (number === 2) {
-    const newHeight = floorToOneDecimal(height/2);
-    return {newHeight,loss:roundToOneDecimal(height-newHeight),message:"2回連続。高さが半分になりました。"};
-  }
-  return {newHeight:0,loss:height,message:"3回連続。豆の木は0mに戻りました。"};
-}
-
-function renderFailureRisk(data) {
-  const result = calculateFailureResult(data.height,data.consecutiveFailures);
-  $("nextFailureResult").textContent = `${formatHeight(data.height)} → ${formatHeight(result.newHeight)}`;
-  const next = data.consecutiveFailures + 1;
-  if (next === 1) $("riskDescription").textContent = `現在の高さの1/5を計算し、端数切り捨てで${formatHeight(result.loss)}減少します。`;
-  else if (next === 2) $("riskDescription").textContent = "連続2回目となり、残っている高さが半分になります。";
-  else $("riskDescription").textContent = "連続3回目となり、豆の木は0mまで戻ります。";
-  updateFailureButton(data);
-}
-
-function updateFailureButton(data) {
-  const next = data.consecutiveFailures + 1;
-  if (next === 1) $("failButtonDescription").textContent = "次は現在高の1/5を失う";
-  else if (next === 2) $("failButtonDescription").textContent = "次は現在高が半分になる";
-  else $("failButtonDescription").textContent = "次は0mに戻る";
-}
-
-function renderTodayStatus(data) {
-  if (developerMode) { $("todayPending").classList.remove("hidden"); $("todayCompleted").classList.add("hidden"); return; }
-  if (data.lastActionDate !== getTodayKey()) { $("todayPending").classList.remove("hidden"); $("todayCompleted").classList.add("hidden"); return; }
-  $("todayPending").classList.add("hidden"); $("todayCompleted").classList.remove("hidden");
-  const success = data.lastActionType === "success";
-  $("todayResultIcon").textContent = success ? "✓" : "↘";
-  $("todayResultIcon").style.background = success ? "var(--green-pale)" : "var(--red-light)";
-  $("todayResultIcon").style.color = success ? "var(--green-dark)" : "var(--red)";
-  $("todayResultTitle").textContent = success ? "今日も継続成功" : "今日の記録を保存しました";
-  $("todayResultDescription").textContent = `現在の高さは${formatHeight(data.height)}です。`;
-}
-
-function requestUndo() {
-  if (developerMode) return;
-  const data = getActiveData();
-  const index = findTodayHistoryIndex(data);
-  if (index === -1) return;
-  pendingAction = "undo";
-  $("modalIcon").textContent = "↩";
-  $("modalTitle").textContent = "今日の記録を取り消しますか？";
-  $("modalDescription").textContent = "今日の操作直前の状態へ戻します。";
-  $("modalConfirmButton").textContent = "取り消す";
-  openModal();
-}
-
-function undoTodayAction() {
-  const data = getActiveData();
-  const index = findTodayHistoryIndex(data);
-  if (index === -1) { closeModal(); return; }
-  restoreSnapshot(data,data.history[index].before);
-  data.history.splice(index,1);
-  saveData(); closeModal(); renderGame(); renderHome(); showToast("今日の記録を取り消しました。");
-}
-
-function findTodayHistoryIndex(data) {
-  for (let i=data.history.length-1;i>=0;i--) if (data.history[i].date === getTodayKey()) return i;
-  return -1;
-}
-
-function findCurrentMilestone(height) {
-  let current = MILESTONES[0];
-  for (const m of MILESTONES) { if (height >= m.h) current = m; else break; }
-  return current;
-}
-
-function findNextMilestone(height) { return MILESTONES.find(m => m.h > height) || null; }
-
-function renderMilestones(height) {
-  const current = findCurrentMilestone(height);
-  const next = findNextMilestone(height);
-
-  $("currentMilestoneIcon").textContent = current.i;
-  $("currentMilestoneName").textContent = current.n;
-  $("currentMilestoneHeight").textContent = formatHeight(current.h);
-  $("currentMilestoneDescription").textContent = current.d;
-  $("currentMilestoneDetailButton").onclick = () => openMilestoneModal(current);
-
-  $("prevMilestoneMini").innerHTML = `<strong>${current.i} ${current.n}</strong><small>${formatHeight(current.h)}</small>`;
-
-  if (!next) {
-    $("nextMilestoneCard").classList.add("hidden");
-    $("nextMilestoneMini").innerHTML = `<strong>🌌 次の宇宙へ</strong><small>月を突破</small>`;
-  } else {
-    $("nextMilestoneCard").classList.remove("hidden");
-    $("nextMilestoneIcon").textContent = next.i;
-    $("nextMilestoneName").textContent = next.n;
-    $("nextMilestoneHeight").textContent = formatHeight(next.h);
-    $("nextMilestoneDescription").textContent = next.d;
-    $("distanceToNext").textContent = formatHeight(roundToOneDecimal(next.h-height));
-    const interval = next.h-current.h;
-    let progress = interval > 0 ? ((height-current.h)/interval)*100 : 0;
-    progress = Math.max(0,Math.min(100,progress));
-    $("milestoneProgressBar").style.width = `${progress}%`;
-    $("progressText").textContent = `${current.n} → ${next.n}　${progress.toFixed(1)}%`;
-    $("nextMilestoneDetailButton").onclick = () => openMilestoneModal(next);
-    $("nextMilestoneMini").innerHTML = `<strong>${next.i} ${next.n}</strong><small>あと${formatHeight(roundToOneDecimal(next.h-height))}</small>`;
-  }
-
-  renderUpcoming(height);
-  renderAchievements(height);
-}
-
-function renderUpcoming(height) {
-  const upcoming = MILESTONES.filter(m => m.h > height).slice(0,5);
-  const box = $("upcomingList"); box.innerHTML = "";
-  upcoming.forEach(m => {
-    const button = document.createElement("button");
-    button.type = "button"; button.className = "upcoming-item";
-    button.innerHTML = `<span>${m.i}</span><div><strong>${m.n}</strong><small>${formatHeight(m.h)}</small></div><small>あと${formatHeight(roundToOneDecimal(m.h-height))}</small>`;
-    button.addEventListener("click",()=>openMilestoneModal(m));
-    box.appendChild(button);
-  });
-}
-
-function renderAchievements(height) {
-  const reached = MILESTONES.filter(m => m.h > 0 && m.h <= height);
-  $("achievementCount").textContent = reached.length;
-  const list = $("achievementList"); list.innerHTML = "";
-  if (!reached.length) {
-    const item = document.createElement("div"); item.className = "achievement-item";
-    item.innerHTML = `<span class="achievement-icon">🌱</span><span class="achievement-name">まだ未到達</span><span class="achievement-height">最初の1mへ</span>`;
-    list.appendChild(item); return;
-  }
-  reached.slice().reverse().forEach(m => {
-    const button = document.createElement("button"); button.type="button"; button.className="achievement-item";
-    button.innerHTML = `<span class="achievement-icon">${m.i}</span><span class="achievement-name">${m.n}</span><span class="achievement-height">${formatHeight(m.h)}</span>`;
-    button.addEventListener("click",()=>openMilestoneModal(m)); list.appendChild(button);
-  });
-}
-
-function openMilestoneModal(m) {
-  $("milestoneModalIcon").textContent = m.i;
-  $("milestoneModalCategory").textContent = m.c;
-  $("milestoneModalName").textContent = m.n;
-  $("milestoneModalHeight").textContent = formatHeight(m.h);
-  $("milestoneModalDescription").textContent = m.x;
-  $("milestoneModalNote").textContent = `比較メモ：${m.note}`;
-  $("milestoneModalOverlay").classList.remove("hidden");
-}
-
-function closeMilestoneModal() { $("milestoneModalOverlay").classList.add("hidden"); }
-
-function openDeveloperSelector() { $("developerModalOverlay").classList.remove("hidden"); }
-function closeDeveloperSelector() { $("developerModalOverlay").classList.add("hidden"); }
-
-function startDeveloperMode(id) {
-  currentHabitId = id; developerMode = true;
-  developerOriginalData = deepClone(appData.habits[id]);
-  developerData = deepClone(developerOriginalData);
-  developerForcedEvent = "auto";
-  $("developerEventSelect").value = "auto";
-  closeDeveloperSelector();
-  $("homeScreen").classList.remove("active"); $("gameScreen").classList.add("active");
-  renderGame(); window.scrollTo(0,0);
-}
-
-function exitDeveloperMode() {
-  developerMode = false; developerData = null; developerOriginalData = null; developerForcedEvent = "auto";
-  $("developerPanel").classList.add("hidden"); $("developerIndicator").classList.add("hidden");
-  if (currentHabitId) renderGame();
-}
-
-function renderDeveloperState() {
-  $("developerIndicator").classList.toggle("hidden",!developerMode);
-  $("developerPanel").classList.toggle("hidden",!developerMode);
-}
-
-function developerAddHeight(amount) { if (!developerMode) return; developerData.height = roundToOneDecimal(developerData.height+amount); renderGame(); }
-function developerSetHeight() {
-  if (!developerMode) return;
-  const input = Number($("developerHeightInput").value);
-  if (!Number.isFinite(input) || input < 0) { showToast("0以上の高さを入力してください。"); return; }
-  developerData.height = roundToOneDecimal(input); renderGame(); showToast(`テスト高度を${formatHeight(input)}に設定しました。`);
-}
-function developerSetFailureCount(count) { if (!developerMode) return; developerData.consecutiveFailures=count; if (count>0) developerData.currentStreak=0; renderGame(); }
-function simulateDeveloperSuccess() {
-  const event = getEventForToday(); const result = calculateSuccessResult(developerData.height,event);
-  developerData.height=result.newHeight; developerData.currentStreak+=1; developerData.totalSuccess+=1; developerData.consecutiveFailures=0;
-  renderGame(); showToast(`🧪 成功テスト：${formatHeight(result.gained)}成長`);
-}
-function simulateDeveloperFailure() {
-  const result = calculateFailureResult(developerData.height,developerData.consecutiveFailures);
-  developerData.height=result.newHeight; developerData.currentStreak=0; developerData.consecutiveFailures=Math.min(3,developerData.consecutiveFailures+1);
-  renderGame(); showToast(`🧪 ${result.message}`);
-}
-function resetDeveloperData() {
-  if (!developerMode) return;
-  developerData=deepClone(developerOriginalData); developerForcedEvent="auto"; $("developerEventSelect").value="auto"; $("developerHeightInput").value="";
-  renderGame(); showToast("テストデータを元に戻しました。");
-}
-
-function createSnapshot(data) { return {height:data.height,currentStreak:data.currentStreak,totalSuccess:data.totalSuccess,consecutiveFailures:data.consecutiveFailures,lastActionDate:data.lastActionDate,lastActionType:data.lastActionType}; }
-function restoreSnapshot(data,s) { data.height=s.height; data.currentStreak=s.currentStreak; data.totalSuccess=s.totalSuccess; data.consecutiveFailures=s.consecutiveFailures; data.lastActionDate=s.lastActionDate; data.lastActionType=s.lastActionType; }
-function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
-function roundToOneDecimal(v) { return Math.round(v*10)/10; }
-function floorToOneDecimal(v) { return Math.floor(v*10)/10; }
-function formatNumber(n) { return Number(n).toLocaleString("ja-JP",{maximumFractionDigits:1}); }
-function formatHeight(m) {
-  const v=Number(m);
-  if (v<1000) return `${formatNumber(v)}m`;
-  return `${formatNumber(v/1000)}km`;
-}
-
-let toastTimer=null;
-function showToast(message) {
-  $("toast").textContent=message; $("toast").classList.add("show");
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400);
-}
-function openModal() { $("modalOverlay").classList.remove("hidden"); }
-function closeModal() { $("modalOverlay").classList.add("hidden"); pendingAction=null; }
-
-$("backButton").addEventListener("click",goHome);
-$("successButton").addEventListener("click",recordSuccess);
-$("failButton").addEventListener("click",requestFailure);
-$("undoButton").addEventListener("click",requestUndo);
-$("modalCancelButton").addEventListener("click",closeModal);
-$("modalConfirmButton").addEventListener("click",()=>{ if (pendingAction==="failure") recordFailure(); else if (pendingAction==="undo") undoTodayAction(); });
-$("modalOverlay").addEventListener("click",e=>{ if (e.target===$("modalOverlay")) closeModal(); });
-$("milestoneModalClose").addEventListener("click",closeMilestoneModal);
-$("milestoneModalOverlay").addEventListener("click",e=>{ if (e.target===$("milestoneModalOverlay")) closeMilestoneModal(); });
-$("developerButton").addEventListener("click",openDeveloperSelector);
-$("developerModalClose").addEventListener("click",closeDeveloperSelector);
-document.querySelectorAll(".developer-habit-button").forEach(b=>b.addEventListener("click",()=>startDeveloperMode(b.dataset.developerHabit)));
-document.querySelectorAll("[data-add-height]").forEach(b=>b.addEventListener("click",()=>developerAddHeight(Number(b.dataset.addHeight))));
-$("developerSetHeightButton").addEventListener("click",developerSetHeight);
-$("developerEventSelect").addEventListener("change",e=>{ developerForcedEvent=e.target.value; renderGame(); });
-document.querySelectorAll(".dev-failure-button").forEach(b=>b.addEventListener("click",()=>developerSetFailureCount(Number(b.dataset.failureCount))));
-$("developerSuccessButton").addEventListener("click",simulateDeveloperSuccess);
-$("developerFailureButton").addEventListener("click",simulateDeveloperFailure);
-$("developerResetButton").addEventListener("click",resetDeveloperData);
-$("developerExitButton").addEventListener("click",()=>{ exitDeveloperMode(); showToast("開発者モードを終了しました。"); });
-
+$("backButton").onclick=goHome;$("successButton").onclick=recordSuccess;$("failButton").onclick=requestFailure;$("undoButton").onclick=requestUndo;$("confirmCancelButton").onclick=closeConfirm;$("confirmOkButton").onclick=()=>pendingAction==="failure"?recordFailure():pendingAction==="undo"?undoToday():null;$("confirmOverlay").onclick=e=>{if(e.target===$("confirmOverlay"))closeConfirm()};$("celebrationCloseButton").onclick=()=>$("celebrationOverlay").classList.add("hidden");$("celebrationOverlay").onclick=e=>{if(e.target===$("celebrationOverlay"))$("celebrationOverlay").classList.add("hidden")};$("milestoneModalClose").onclick=()=>$("milestoneModalOverlay").classList.add("hidden");$("milestoneModalOverlay").onclick=e=>{if(e.target===$("milestoneModalOverlay"))$("milestoneModalOverlay").classList.add("hidden")};$("openEncyclopediaButton").onclick=openEncyclopedia;$("openEncyclopediaButton2").onclick=openEncyclopedia;$("encyclopediaCloseButton").onclick=()=>$("encyclopediaOverlay").classList.add("hidden");$("openAchievementsButton").onclick=openAchievements;$("achievementsCloseButton").onclick=()=>$("achievementsOverlay").classList.add("hidden");$("developerButton").onclick=openDeveloper;$("developerModalClose").onclick=()=>$("developerModalOverlay").classList.add("hidden");document.querySelectorAll("[data-developer-habit]").forEach(b=>b.onclick=()=>startDeveloper(b.dataset.developerHabit));document.querySelectorAll("[data-add-height]").forEach(b=>b.onclick=()=>devAdd(Number(b.dataset.addHeight)));document.querySelectorAll("[data-failure-count]").forEach(b=>b.onclick=()=>{developerData.consecutiveFailures=Number(b.dataset.failureCount);if(developerData.consecutiveFailures>0)developerData.currentStreak=0;renderGame()});$("developerSetHeightButton").onclick=devSet;$("developerEventSelect").onchange=e=>{developerForcedEvent=e.target.value;renderGame()};$("developerSuccessButton").onclick=devSuccess;$("developerFailureButton").onclick=devFailure;$("developerResetButton").onclick=devReset;$("developerExitButton").onclick=()=>exitDeveloper(true);
 renderHome();
