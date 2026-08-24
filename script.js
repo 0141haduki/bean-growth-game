@@ -1,19 +1,35 @@
 "use strict";
 
-const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.9.1",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
-const HABITS={noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱"},noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺"},noSmoking:{id:"noSmoking",name:"禁煙",englishName:"NO SMOKING",icon:"🚭"}};
+const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.11",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
+const HABITS={
+noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱",description:"自慰をしない"},
+noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺",description:"飲酒をしない"},
+noSmoking:{id:"noSmoking",name:"禁煙",englishName:"NO SMOKING",icon:"🚭",description:"喫煙をしない"},
+noGambling:{id:"noGambling",name:"ギャンブル禁",englishName:"NO GAMBLING",icon:"🎰",description:"賭け事をしない"},
+noSNS:{id:"noSNS",name:"SNS禁",englishName:"NO SNS",icon:"💬",description:"SNSを使わない・決めた制限を守る"},
+noShortVideos:{id:"noShortVideos",name:"ショート動画禁",englishName:"NO SHORT VIDEOS",icon:"🎞️",description:"Shorts・TikTok・Reels等を見ない"},
+noGaming:{id:"noGaming",name:"ゲーム禁",englishName:"NO GAMING",icon:"🎮",description:"娯楽目的のゲームをしない"},
+noImpulseBuying:{id:"noImpulseBuying",name:"衝動買い禁",englishName:"NO IMPULSE BUYING",icon:"🛒",description:"予定外・衝動的な買い物をしない"},
+noSnacking:{id:"noSnacking",name:"娯楽動画禁",englishName:"NO ENTERTAINMENT VIDEOS",icon:"📺",description:"娯楽目的の長尺動画・配信・動画サイト視聴をしない"},
+noCaffeine:{id:"noCaffeine",name:"カフェイン禁",englishName:"NO CAFFEINE",icon:"☕",description:"カフェイン飲料・食品を摂らない"}
+};
 const SPECIAL_DAYS_OF_MONTH=[1,15],GUERRILLA_RATE=.08,MOON_HEIGHT=384400000;
 const TITLES=[
-{id:"seed",name:"種からの挑戦者",icon:"🫘",test:d=>d.totalSuccess===0&&d.height===0},
-{id:"sprout",name:"発芽した者",icon:"🌱",test:d=>d.totalSuccess>=1||d.height>=1},
-{id:"week",name:"七日の守り手",icon:"🔥",test:d=>d.currentStreak>=7},
-{id:"tree",name:"巨木の育成者",icon:"🌳",test:d=>d.height>=100},
-{id:"tower",name:"塔を越える者",icon:"🗼",test:d=>d.height>=333},
-{id:"sky",name:"天空への挑戦者",icon:"☁️",test:d=>d.height>=1000},
-{id:"mountain",name:"山を越える者",icon:"🗻",test:d=>d.height>=3776},
-{id:"space",name:"宇宙へ伸びる者",icon:"🚀",test:d=>d.height>=100000},
-{id:"orbital",name:"軌道を貫く者",icon:"🛰️",test:d=>d.height>=400000},
-{id:"moon",name:"月へ届く豆",icon:"🌕",test:d=>d.height>=MOON_HEIGHT}
+{id:"seed",name:"種からの挑戦者",icon:"🫘",description:"すべては0mから始まる",condition:"最初から使用可能",test:d=>true},
+{id:"sprout",name:"発芽した者",icon:"🌱",description:"最初の成功を刻んだ者",condition:"累計成功1日",test:d=>d.totalSuccess>=1||d.height>=1},
+{id:"streak3",name:"三日の芽吹き",icon:"🌿",description:"三日続けて守り抜いた者",condition:"3日連続成功",test:d=>d.currentStreak>=3||Number(d.stats?.maxStreak||0)>=3},
+{id:"week",name:"七日の守り手",icon:"🔥",description:"一週間の連続成功を達成",condition:"7日連続成功",test:d=>d.currentStreak>=7||Number(d.stats?.maxStreak||0)>=7},
+{id:"month",name:"三十日の継承者",icon:"🏅",description:"30日の連続成功を達成",condition:"30日連続成功",test:d=>d.currentStreak>=30||Number(d.stats?.maxStreak||0)>=30},
+{id:"tree",name:"巨木の育成者",icon:"🌳",description:"豆の木を100mまで育てた",condition:"最高高度100m",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=100},
+{id:"tower",name:"塔を越える者",icon:"🗼",description:"東京タワー級を突破した",condition:"最高高度333m",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=333},
+{id:"skytree",name:"天空塔の征服者",icon:"📡",description:"634mの領域を突破した",condition:"最高高度634m",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=634},
+{id:"sky",name:"天空への挑戦者",icon:"☁️",description:"高さ1kmを突破した",condition:"最高高度1km",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=1000},
+{id:"mountain",name:"山を越える者",icon:"🗻",description:"富士山の標高を突破した",condition:"最高高度3,776m",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=3776},
+{id:"everest",name:"地球最高峰を越えし者",icon:"🏔️",description:"エベレスト級を突破した",condition:"最高高度8,849m",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=8849},
+{id:"space",name:"宇宙へ伸びる者",icon:"🚀",description:"カーマン・ラインへ到達",condition:"最高高度100km",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=100000},
+{id:"orbital",name:"軌道を貫く者",icon:"🛰️",description:"ISS級の高度へ到達",condition:"最高高度400km",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=400000},
+{id:"success100",name:"百日の証明者",icon:"💯",description:"累計100日の成功を積み重ねた",condition:"累計成功100日",test:d=>d.totalSuccess>=100},
+{id:"moon",name:"月へ届く豆",icon:"🌕",description:"伝説級到達点・月へ到達",condition:"最高高度384,400km",test:d=>Math.max(d.height,Number(d.stats?.maxHeight||0))>=MOON_HEIGHT}
 ];
 const ACHIEVEMENTS=[
 {id:"first_success",icon:"🌱",name:"最初の一歩",description:"初めて成功を記録する",test:d=>d.totalSuccess>=1},
@@ -33,8 +49,8 @@ const ACHIEVEMENTS=[
 {id:"iss",icon:"🛰️",name:"ISS級",description:"400kmに到達",test:d=>d.height>=400000},
 {id:"moon",icon:"🌕",name:"月到達",description:"384,400kmに到達",test:d=>d.height>=MOON_HEIGHT}
 ];
-function initialHabit(){return{height:0,currentStreak:0,totalSuccess:0,consecutiveFailures:0,lastActionDate:null,lastActionType:null,history:[],moonBlessing:false,moonBlessingEarned:false,unlockedMilestones:[],stats:{maxHeight:0,maxStreak:0,specialSuccess:0,guerrillaSuccess:0}}}
-function initialData(){return{version:APP_VERSION,schemaVersion:2,profile:{localId:makeLocalId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString()},settings:{calendarStartSunday:true},habits:{noMasturbation:initialHabit(),noAlcohol:initialHabit(),noSmoking:initialHabit()}}}
+function initialHabit(){return{height:0,currentStreak:0,totalSuccess:0,consecutiveFailures:0,lastActionDate:null,lastActionType:null,history:[],moonBlessing:false,moonBlessingEarned:false,unlockedMilestones:[],unlockedTitles:["seed"],selectedTitleId:"seed",stats:{maxHeight:0,maxStreak:0,specialSuccess:0,guerrillaSuccess:0}}}
+function initialData(){const habits={};const visibleHabits={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true});return{version:APP_VERSION,schemaVersion:3,profile:{localId:makeLocalId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits},habits}}
 
 function makeLocalId(){return "local-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9)}
 function migrateData(data){
@@ -42,18 +58,23 @@ function migrateData(data){
   if(!data.profile.localId)data.profile.localId=makeLocalId();
   if(!data.profile.nickname)data.profile.nickname="BEAN-"+Math.floor(10000+Math.random()*90000);
   if(!data.profile.createdAt)data.profile.createdAt=new Date().toISOString();
-  data.schemaVersion=2;
+  if(!data.settings)data.settings={};
+  if(!data.settings.visibleHabits)data.settings.visibleHabits={};
+  if(!data.habits)data.habits={};
+  data.schemaVersion=3;
   Object.keys(HABITS).forEach(id=>{
+    if(!data.habits[id])data.habits[id]=initialHabit();
+    if(typeof data.settings.visibleHabits[id]!=="boolean")data.settings.visibleHabits[id]=true;
     const d=data.habits[id];
     if(!d.stats)d.stats={maxHeight:d.height||0,maxStreak:d.currentStreak||0,specialSuccess:0,guerrillaSuccess:0};
     d.stats.maxHeight=Math.max(Number(d.stats.maxHeight||0),Number(d.height||0));
-    d.stats.maxStreak=Math.max(Number(d.stats.maxStreak||0),Number(d.currentStreak||0));
+    d.stats.maxStreak=Math.max(Number(d.stats.maxStreak||0),Number(d.currentStreak||0));syncTitleUnlocks(d);if(!d.unlockedTitles.includes(d.selectedTitleId))d.selectedTitleId="seed";
   });
   return data;
 }
 function loadData(){const r=localStorage.getItem(STORAGE_KEY);if(!r)return initialData();try{return migrateData(mergeData(JSON.parse(r)))}catch(e){console.error(e);return initialData()}}
-function mergeData(s){const i=initialData(),m={...i,...s,version:APP_VERSION,habits:{...i.habits}};Object.keys(HABITS).forEach(id=>m.habits[id]={...i.habits[id],...(s.habits?.[id]||{})});return m}
-function updateStats(d,eventType=null){if(!d.stats)d.stats={maxHeight:0,maxStreak:0,specialSuccess:0,guerrillaSuccess:0};d.stats.maxHeight=Math.max(Number(d.stats.maxHeight||0),Number(d.height||0));d.stats.maxStreak=Math.max(Number(d.stats.maxStreak||0),Number(d.currentStreak||0));if(eventType==="special")d.stats.specialSuccess++;if(eventType==="guerrilla")d.stats.guerrillaSuccess++;if(eventType==="both"){d.stats.specialSuccess++;d.stats.guerrillaSuccess++;}}
+function mergeData(s){const i=initialData(),m={...i,...s,version:APP_VERSION,settings:{...i.settings,...(s.settings||{}),visibleHabits:{...i.settings.visibleHabits,...(s.settings?.visibleHabits||{})}},habits:{...i.habits}};Object.keys(HABITS).forEach(id=>m.habits[id]={...i.habits[id],...(s.habits?.[id]||{})});return m}
+function updateStats(d,eventType=null){if(!d.stats)d.stats={maxHeight:0,maxStreak:0,specialSuccess:0,guerrillaSuccess:0};d.stats.maxHeight=Math.max(Number(d.stats.maxHeight||0),Number(d.height||0));d.stats.maxStreak=Math.max(Number(d.stats.maxStreak||0),Number(d.currentStreak||0));syncTitleUnlocks(d);if(!d.unlockedTitles.includes(d.selectedTitleId))d.selectedTitleId="seed";if(eventType==="special")d.stats.specialSuccess++;if(eventType==="guerrilla")d.stats.guerrillaSuccess++;if(eventType==="both"){d.stats.specialSuccess++;d.stats.guerrillaSuccess++;}syncTitleUnlocks(d);}
 function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(appData))}function clone(v){return JSON.parse(JSON.stringify(v))}function $(id){return document.getElementById(id)}
 function todayKey(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${day}`}
 function fmt(v,max=1){return Number(v).toLocaleString("ja-JP",{maximumFractionDigits:max})}function fmtH(m){m=Number(m);return m<1000?`${fmt(m)}m`:m<1000000?`${fmt(m/1000,2)}km`:`${fmt(m/1000,1)}km`}function round1(v){return Math.round(v*10)/10}function floor1(v){return Math.floor(v*10)/10}
@@ -64,7 +85,9 @@ function eventFromType(t){if(t==="special")return{type:t,icon:"✨",title:"特�
 function eventToday(){if(developerMode&&developerForcedEvent!=="auto")return eventFromType(developerForcedEvent);if(SPECIAL_DAYS_OF_MONTH.includes(new Date().getDate()))return eventFromType("special");if(seededRandom(hashString(todayKey()))<GUERRILLA_RATE)return eventFromType("guerrilla");return eventFromType("normal")}
 function successCalc(h,e){let n=h;if(e.type==="normal")n=h+1;else if(e.type==="special")n=h+10;else if(e.type==="guerrilla")n=h===0?1:h*1.1;else n=(h+10)*1.1;n=round1(n);return{newHeight:n,gained:round1(n-h)}}
 function failureCalc(d){const h=d.height,n=d.consecutiveFailures+1;if(d.moonBlessing)return{newHeight:h,loss:0,usesMoonBlessing:true,nextFailures:Math.min(3,n),message:"🌕 月の加護が発動。高さの減少を防ぎました。"};if(n===1){const loss=Math.floor(h/5);return{newHeight:Math.max(0,round1(h-loss)),loss,usesMoonBlessing:false,nextFailures:1,message:`1回目の失敗。${fmtH(loss)}失いました。`}}if(n===2){const nh=floor1(h/2);return{newHeight:nh,loss:round1(h-nh),usesMoonBlessing:false,nextFailures:2,message:"2回連続失敗。高さが半分になりました。"}}return{newHeight:0,loss:h,usesMoonBlessing:false,nextFailures:3,message:"3回連続失敗。豆の木は0mに戻りました。"}}
-function curMilestone(h){let r=MILESTONES[0];for(const m of MILESTONES){if(h>=m.height)r=m;else break}return r}function nextMilestone(h){return MILESTONES.find(m=>m.height>h)||null}function crossed(a,b){return MILESTONES.filter(m=>m.height>a&&m.height<=b)}function titleFor(d){let t=TITLES[0];for(const x of TITLES)if(x.test(d))t=x;return t}function unlockedA(d){return ACHIEVEMENTS.filter(a=>a.test(d))}
+function curMilestone(h){let r=MILESTONES[0];for(const m of MILESTONES){if(h>=m.height)r=m;else break}return r}function nextMilestone(h){return MILESTONES.find(m=>m.height>h)||null}function crossed(a,b){return MILESTONES.filter(m=>m.height>a&&m.height<=b)}function syncTitleUnlocks(d){if(!Array.isArray(d.unlockedTitles))d.unlockedTitles=["seed"];if(!d.unlockedTitles.includes("seed"))d.unlockedTitles.push("seed");for(const t of TITLES)if(t.test(d)&&!d.unlockedTitles.includes(t.id))d.unlockedTitles.push(t.id);if(!d.selectedTitleId)d.selectedTitleId="seed"}
+function titleById(id){return TITLES.find(t=>t.id===id)||TITLES[0]}
+function titleFor(d){syncTitleUnlocks(d);return d.unlockedTitles.includes(d.selectedTitleId)?titleById(d.selectedTitleId):titleById("seed")}function unlockedA(d){return ACHIEVEMENTS.filter(a=>a.test(d))}
 function awardMoon(d){if(d.height>=MOON_HEIGHT&&!d.moonBlessingEarned){d.moonBlessing=true;d.moonBlessingEarned=true;return true}return false}function milestoneKey(m){return m.id||`${m.height}|${m.name}`}
 function syncUnlocks(d){if(!Array.isArray(d.unlockedMilestones))d.unlockedMilestones=[];for(const m of MILESTONES){if(m.height>0&&m.height<=d.height&&!d.unlockedMilestones.includes(milestoneKey(m)))d.unlockedMilestones.push(milestoneKey(m))}}
 function isUnlocked(d,m){syncUnlocks(d);return m.height===0||d.unlockedMilestones.includes(milestoneKey(m))}
@@ -130,15 +153,57 @@ function extraNonMountainDetails(m){
 }
 
 
+
+function isHabitVisible(id){return appData.settings?.visibleHabits?.[id]!==false}
+function visibleHabitIds(){return Object.keys(HABITS).filter(isHabitVisible)}
+function ensureValidSelectedHabits(){
+  const visible=visibleHabitIds();
+  const fallback=visible[0]||Object.keys(HABITS)[0];
+  if(!HABITS[calendarHabitId]||!isHabitVisible(calendarHabitId))calendarHabitId=fallback;
+  if(!HABITS[recordsHabitId]||!isHabitVisible(recordsHabitId))recordsHabitId=fallback;
+}
+function openSettings(){renderSettings();$("settingsOverlay").classList.remove("hidden");window.scrollTo({top:0,behavior:"auto"})}
+function renderSettings(){
+  const list=$("habitVisibilityList");list.innerHTML="";
+  const visibleCount=visibleHabitIds().length;
+  $("visibleHabitCount").textContent=`${visibleCount} / ${Object.keys(HABITS).length}`;
+  Object.values(HABITS).forEach(h=>{
+    const row=document.createElement("div");row.className="visibility-row";
+    const checked=isHabitVisible(h.id);
+    row.innerHTML=`<span class="visibility-icon">${h.icon}</span><span class="visibility-copy"><strong>${escapeHtml(h.name)}</strong><small>${escapeHtml(h.description||"")}</small></span><label class="switch"><input type="checkbox" data-visibility-habit="${h.id}" ${checked?"checked":""}><span class="switch-slider"></span></label>`;
+    row.querySelector("input").onchange=e=>setHabitVisibility(h.id,e.target.checked);
+    list.appendChild(row);
+  });
+}
+function setHabitVisibility(id,visible){
+  const currentlyVisible=visibleHabitIds();
+  if(!visible&&currentlyVisible.length<=1&&currentlyVisible.includes(id)){
+    toast("少なくとも1種類は表示してください。");
+    renderSettings();
+    return;
+  }
+  appData.settings.visibleHabits[id]=visible;
+  ensureValidSelectedHabits();
+  saveData();renderSettings();renderHome();
+}
+function renderDeveloperHabitButtons(){
+  const list=$("developerHabitSelect");if(!list)return;list.innerHTML="";
+  Object.values(HABITS).forEach(h=>{
+    const b=document.createElement("button");b.type="button";b.dataset.developerHabit=h.id;b.textContent=`${h.icon} ${h.name}`;
+    b.onclick=()=>startDeveloper(h.id);list.appendChild(b);
+  });
+}
+
 function renderHome(){
   homeEvent();
   const list=$("habitList");list.innerHTML="";let th=0,ts=0;
   Object.values(HABITS).forEach(h=>{
+    if(!isHabitVisible(h.id))return;
     const d=appData.habits[h.id];syncUnlocks(d);updateStats(d);th+=d.height;ts+=d.totalSuccess;
     let status="今日は未記録";if(d.lastActionDate===todayKey())status=d.lastActionType==="success"?"今日は成功済み":"今日は継続できず";
     const n=nextMilestone(d.height),e=eventToday(),r=successCalc(d.height,e),done=d.lastActionDate===todayKey();
     const card=document.createElement("div");card.className="habit-card";
-    card.innerHTML=`<span class="habit-icon">${h.icon}</span><span class="habit-copy"><strong>${h.name}</strong><small>🔥 ${d.currentStreak}日連続 ・ ${status}</small></span><span class="habit-height">${fmtH(d.height)}</span><span class="habit-next">${n?`次：${n.icon} ${n.name}まで ${fmtH(round1(n.height-d.height))}`:"登録済み最終地点を突破"}</span><button class="home-quick-success ${done?"done":""}" type="button">${done?"今日の記録を見る":"今日も継続できた"}<span class="quick-result">${done?fmtH(d.height):`${fmtH(d.height)} → ${fmtH(r.newHeight)}`}</span></button>`;
+    card.innerHTML=`<span class="habit-icon">${h.icon}</span><span class="habit-copy"><strong>${h.name}</strong><small>🔥 ${d.currentStreak}日連続 ・ ${titleFor(d).icon} ${escapeHtml(titleFor(d).name)} ・ ${status}</small></span><span class="habit-height">${fmtH(d.height)}</span><span class="habit-next">${n?`次：${n.icon} ${n.name}まで ${fmtH(round1(n.height-d.height))}`:"登録済み最終地点を突破"}</span><button class="home-quick-success ${done?"done":""}" type="button">${done?"今日の記録を見る":"今日も継続できた"}<span class="quick-result">${done?fmtH(d.height):`${fmtH(d.height)} → ${fmtH(r.newHeight)}`}</span></button>`;
     card.querySelector(".habit-copy").style.cursor="pointer";
     card.querySelector(".habit-copy").onclick=()=>openHabit(h.id);
     card.querySelector(".habit-icon").style.cursor="pointer";
@@ -188,12 +253,13 @@ function renderEncyclopedia(){const d=activeData();syncUnlocks(d);const all=MILE
 
 function historyForDate(d,date){return [...(d.history||[])].reverse().find(x=>x.date===date)||null}
 function openCalendar(){
-  if(!calendarHabitId)calendarHabitId=currentHabitId||"noMasturbation";
+  ensureValidSelectedHabits();
+  if(!calendarHabitId)calendarHabitId=currentHabitId||visibleHabitIds()[0]||"noMasturbation";
   calendarCursor=new Date();renderCalendar();$("calendarOverlay").classList.remove("hidden");window.scrollTo(0,0);
 }
 function renderHabitTabs(containerId,selected,onSelect){
   const c=$(containerId);c.innerHTML="";
-  Object.values(HABITS).forEach(h=>{const b=document.createElement("button");b.className=`calendar-habit-tab ${h.id===selected?"active":""}`;b.textContent=`${h.icon} ${h.name}`;b.onclick=()=>onSelect(h.id);c.appendChild(b)});
+  Object.values(HABITS).filter(h=>isHabitVisible(h.id)).forEach(h=>{const b=document.createElement("button");b.className=`calendar-habit-tab ${h.id===selected?"active":""}`;b.textContent=`${h.icon} ${h.name}`;b.onclick=()=>onSelect(h.id);c.appendChild(b)});
 }
 function renderCalendar(){
   renderHabitTabs("calendarHabitTabs",calendarHabitId,id=>{calendarHabitId=id;renderCalendar()});
@@ -214,7 +280,7 @@ function renderCalendar(){
 }
 function allTimeMaxHeight(d){return Math.max(Number(d.stats?.maxHeight||0),Number(d.height||0),...(d.history||[]).flatMap(x=>[Number(x.before?.height||0),Number(x.after?.height||0)]))}
 function allTimeMaxStreak(d){return Math.max(Number(d.stats?.maxStreak||0),Number(d.currentStreak||0),...(d.history||[]).flatMap(x=>[Number(x.before?.currentStreak||0),Number(x.after?.currentStreak||0)]))}
-function openRecords(){recordsHabitId=currentHabitId||recordsHabitId||"noMasturbation";renderRecords();$("recordsOverlay").classList.remove("hidden");window.scrollTo(0,0)}
+function openRecords(){ensureValidSelectedHabits();recordsHabitId=(currentHabitId&&isHabitVisible(currentHabitId))?currentHabitId:(recordsHabitId||visibleHabitIds()[0]||"noMasturbation");renderRecords();$("recordsOverlay").classList.remove("hidden");window.scrollTo(0,0)}
 function renderRecords(){
   renderHabitTabs("recordsHabitTabs",recordsHabitId,id=>{recordsHabitId=id;renderRecords()});
   const d=appData.habits[recordsHabitId],h=HABITS[recordsHabitId];syncUnlocks(d);updateStats(d);
@@ -232,6 +298,28 @@ function exportBackup(){
   const payload={app:"Bean Growth",appVersion:APP_VERSION,schemaVersion:appData.schemaVersion,exportedAt:new Date().toISOString(),data:appData};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`bean-growth-backup-${todayKey()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("JSONバックアップを書き出しました。");
 }
+
+function openTitleSelector(){
+  if(!currentHabitId){toast("先に禁欲カテゴリを開いてください。");return}
+  renderTitleSelector();$("titleSelectorOverlay").classList.remove("hidden");window.scrollTo({top:0,behavior:"auto"});
+}
+function renderTitleSelector(){
+  const d=activeData();syncTitleUnlocks(d);const current=titleFor(d);
+  $("selectedTitleCard").innerHTML=`<span class="selected-title-icon">${current.icon}</span><div><p>SELECTED TITLE</p><h3>${escapeHtml(current.name)}</h3><small>${escapeHtml(current.description||"")}</small></div>`;
+  $("unlockedTitleCount").textContent=`${d.unlockedTitles.length} / ${TITLES.length}`;
+  const list=$("titleSelectionList");list.innerHTML="";
+  TITLES.forEach(t=>{
+    const unlocked=d.unlockedTitles.includes(t.id),selected=d.selectedTitleId===t.id,b=document.createElement("button");
+    b.type="button";b.className=`title-option ${unlocked?"":"locked"} ${selected?"selected":""}`;
+    b.innerHTML=`<span class="title-option-icon">${unlocked?t.icon:"🔒"}</span><span><strong>${escapeHtml(t.name)}</strong><small>${escapeHtml(unlocked?(t.description||""):(t.condition||"条件未達成"))}</small></span><span class="title-state">${selected?"使用中":unlocked?"選択":"未獲得"}</span>`;
+    if(unlocked)b.onclick=()=>selectTitle(t.id);list.appendChild(b);
+  });
+}
+function selectTitle(id){
+  const d=activeData();syncTitleUnlocks(d);if(!d.unlockedTitles.includes(id)){toast("まだ獲得していない称号です。");return}
+  d.selectedTitleId=id;if(!developerMode)saveData();renderTitleSelector();renderStatus(d);if(!developerMode)renderHome();toast(`称号を「${titleById(id).name}」に変更しました。`);
+}
+
 function openAchievements(){const d=activeData(),t=titleFor(d);$("achievementTitleIcon").textContent=t.icon;$("achievementTitleName").textContent=t.name;$("achievementsList").innerHTML="";ACHIEVEMENTS.forEach(a=>{const ok=a.test(d),r=document.createElement("div");r.className=`achievement-row ${ok?"":"locked"}`;r.innerHTML=`<span class="a-icon">${ok?a.icon:"🔒"}</span><div><h3>${a.name}</h3><p>${a.description}</p></div><span class="achievement-state">${ok?"達成":"未達成"}</span>`;$("achievementsList").appendChild(r)});$("achievementsOverlay").classList.remove("hidden");window.scrollTo(0,0)}
 function openMilestone(m){
   $("milestoneModalIcon").textContent=m.icon;
@@ -258,6 +346,7 @@ function openMilestone(m){
 }
 
 function openDeveloper(){
+  renderDeveloperHabitButtons();
   $("developerModalOverlay").classList.remove("hidden");
 }
 function startDeveloper(id){
@@ -279,7 +368,7 @@ function exitDeveloper(show=true){developerMode=false;developerData=null;develop
 function renderDeveloper(){$("developerPanel").classList.toggle("hidden",!developerMode);$("developerIndicator").classList.toggle("hidden",!developerMode)}function devAdd(n){developerData.height=round1(developerData.height+n);syncUnlocks(developerData);awardMoon(developerData);renderGame()}function devSet(){const n=Number($("developerHeightInput").value);if(!Number.isFinite(n)||n<0){toast("0以上の高さを入力してください。");return}developerData.height=round1(n);syncUnlocks(developerData);awardMoon(developerData);renderGame()}function devSuccess(){const e=eventToday(),r=successCalc(developerData.height,e),p=crossed(developerData.height,r.newHeight);developerData.height=r.newHeight;syncUnlocks(developerData);developerData.currentStreak++;developerData.totalSuccess++;developerData.consecutiveFailures=0;updateStats(developerData,e.type);const moon=awardMoon(developerData);renderGame();celebrate(r,e,p,moon)}function devFailure(){const r=failureCalc(developerData);developerData.height=r.newHeight;developerData.currentStreak=0;developerData.consecutiveFailures=r.nextFailures;if(r.usesMoonBlessing)developerData.moonBlessing=false;renderGame();toast(`🧪 ${r.message}`)}function devReset(){developerData=clone(developerOriginalData);developerForcedEvent="auto";$("developerEventSelect").value="auto";$("developerHeightInput").value="";renderGame();toast("テストデータを元に戻しました。")}
 function toast(m){$("toast").textContent=m;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400)}function closeConfirm(){$("confirmOverlay").classList.add("hidden");pendingAction=null}
 
-$("backButton").onclick=goHome;$("successButton").onclick=recordSuccess;$("failButton").onclick=requestFailure;$("undoButton").onclick=requestUndo;$("confirmCancelButton").onclick=closeConfirm;$("confirmOkButton").onclick=()=>pendingAction==="failure"?recordFailure():pendingAction==="undo"?undoToday():null;$("confirmOverlay").onclick=e=>{if(e.target===$("confirmOverlay"))closeConfirm()};$("celebrationCloseButton").onclick=()=>$("celebrationOverlay").classList.add("hidden");$("celebrationOverlay").onclick=e=>{if(e.target===$("celebrationOverlay"))$("celebrationOverlay").classList.add("hidden")};$("milestoneModalClose").onclick=()=>$("milestoneModalOverlay").classList.add("hidden");$("milestoneModalOverlay").onclick=e=>{if(e.target===$("milestoneModalOverlay"))$("milestoneModalOverlay").classList.add("hidden")};$("openEncyclopediaButton").onclick=openEncyclopedia;$("openEncyclopediaButton2").onclick=openEncyclopedia;$("encyclopediaCloseButton").onclick=()=>$("encyclopediaOverlay").classList.add("hidden");$("openAchievementsButton").onclick=openAchievements;$("achievementsCloseButton").onclick=()=>$("achievementsOverlay").classList.add("hidden");$("developerButton").onclick=openDeveloper;$("developerModalClose").onclick=()=>$("developerModalOverlay").classList.add("hidden");document.querySelectorAll("[data-developer-habit]").forEach(b=>b.onclick=()=>startDeveloper(b.dataset.developerHabit));document.querySelectorAll("[data-add-height]").forEach(b=>b.onclick=()=>devAdd(Number(b.dataset.addHeight)));document.querySelectorAll("[data-failure-count]").forEach(b=>b.onclick=()=>{developerData.consecutiveFailures=Number(b.dataset.failureCount);if(developerData.consecutiveFailures>0)developerData.currentStreak=0;renderGame()});$("developerSetHeightButton").onclick=devSet;$("developerEventSelect").onchange=e=>{developerForcedEvent=e.target.value;renderGame()};$("developerSuccessButton").onclick=devSuccess;$("developerFailureButton").onclick=devFailure;$("developerResetButton").onclick=devReset;$("developerExitButton").onclick=()=>exitDeveloper(true);$("encyclopediaSearch").oninput=e=>{encyclopediaQuery=e.target.value;renderEncyclopedia()};$("encyclopediaUnlockFilter").onchange=e=>{encyclopediaUnlockFilter=e.target.value;renderEncyclopedia()};$("encyclopediaSort").onchange=e=>{encyclopediaSort=e.target.value;renderEncyclopedia()};
+$("backButton").onclick=goHome;$("successButton").onclick=recordSuccess;$("failButton").onclick=requestFailure;$("undoButton").onclick=requestUndo;$("confirmCancelButton").onclick=closeConfirm;$("confirmOkButton").onclick=()=>pendingAction==="failure"?recordFailure():pendingAction==="undo"?undoToday():null;$("confirmOverlay").onclick=e=>{if(e.target===$("confirmOverlay"))closeConfirm()};$("celebrationCloseButton").onclick=()=>$("celebrationOverlay").classList.add("hidden");$("celebrationOverlay").onclick=e=>{if(e.target===$("celebrationOverlay"))$("celebrationOverlay").classList.add("hidden")};$("milestoneModalClose").onclick=()=>$("milestoneModalOverlay").classList.add("hidden");$("milestoneModalOverlay").onclick=e=>{if(e.target===$("milestoneModalOverlay"))$("milestoneModalOverlay").classList.add("hidden")};$("openEncyclopediaButton").onclick=openEncyclopedia;$("openEncyclopediaButton2").onclick=openEncyclopedia;$("encyclopediaCloseButton").onclick=()=>$("encyclopediaOverlay").classList.add("hidden");$("changeTitleButton").onclick=openTitleSelector;$("titleSelectorCloseButton").onclick=()=>$("titleSelectorOverlay").classList.add("hidden");$("openAchievementsButton").onclick=openAchievements;$("achievementsCloseButton").onclick=()=>$("achievementsOverlay").classList.add("hidden");$("settingsButton").onclick=openSettings;$("settingsCloseButton").onclick=()=>$("settingsOverlay").classList.add("hidden");$("developerButton").onclick=openDeveloper;$("developerModalClose").onclick=()=>$("developerModalOverlay").classList.add("hidden");document.querySelectorAll("[data-add-height]").forEach(b=>b.onclick=()=>devAdd(Number(b.dataset.addHeight)));document.querySelectorAll("[data-failure-count]").forEach(b=>b.onclick=()=>{developerData.consecutiveFailures=Number(b.dataset.failureCount);if(developerData.consecutiveFailures>0)developerData.currentStreak=0;renderGame()});$("developerSetHeightButton").onclick=devSet;$("developerEventSelect").onchange=e=>{developerForcedEvent=e.target.value;renderGame()};$("developerSuccessButton").onclick=devSuccess;$("developerFailureButton").onclick=devFailure;$("developerResetButton").onclick=devReset;$("developerExitButton").onclick=()=>exitDeveloper(true);$("encyclopediaSearch").oninput=e=>{encyclopediaQuery=e.target.value;renderEncyclopedia()};$("encyclopediaUnlockFilter").onchange=e=>{encyclopediaUnlockFilter=e.target.value;renderEncyclopedia()};$("encyclopediaSort").onchange=e=>{encyclopediaSort=e.target.value;renderEncyclopedia()};
 
 $("openCalendarButton").onclick=openCalendar;$("openCalendarButton2").onclick=openCalendar;
 $("calendarCloseButton").onclick=()=>$("calendarOverlay").classList.add("hidden");
@@ -289,4 +378,4 @@ $("openRecordsButton").onclick=openRecords;$("openRecordsButton2").onclick=openR
 $("recordsCloseButton").onclick=()=>$("recordsOverlay").classList.add("hidden");
 $("exportDataButton").onclick=exportBackup;
 
-enrichAllUnlocks();renderHome();
+ensureValidSelectedHabits();enrichAllUnlocks();renderHome();

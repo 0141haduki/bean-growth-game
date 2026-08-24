@@ -13,9 +13,12 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.9.1</p>
+        <p class="version-label">Version 4.11</p>
       </div>
-      <button id="developerButton" class="icon-button" type="button" aria-label="開発者モード">⚙️</button>
+      <div class="header-actions">
+        <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
+        <button id="developerButton" class="icon-button developer-header-button" type="button" aria-label="開発者モード">🧪</button>
+      </div>
     </header>
 
     <main id="homeScreen" class="screen active">
@@ -136,7 +139,13 @@
       </section>
 
       <section class="status-section">
-        <div class="section-header"><div><p class="section-label">STATUS</p><h2>成長記録</h2></div><span id="currentTitleBadge" class="title-badge">🫘 種からの挑戦者</span></div>
+        <div class="section-header">
+          <div><p class="section-label">STATUS</p><h2>成長記録</h2></div>
+          <div class="title-control">
+            <span id="currentTitleBadge" class="title-badge">🫘 種からの挑戦者</span>
+            <button id="changeTitleButton" class="change-title-button" type="button">称号を変更</button>
+          </div>
+        </div>
         <div class="stats-grid">
           <div class="stat-card"><span>🔥</span><strong id="currentStreak">0</strong><small>連続成功</small></div>
           <div class="stat-card"><span>🏆</span><strong id="totalSuccess">0</strong><small>累計成功</small></div>
@@ -218,7 +227,74 @@
     </div>
   </div>
 
-  <div id="developerModalOverlay" class="modal-overlay hidden"><div class="modal"><div class="modal-icon">🧪</div><h2>開発者モード</h2><p>テストする豆の木を選んでください。本番データは変更されません。</p><div class="developer-habit-select"><button data-developer-habit="noMasturbation">🌱 オナ禁</button><button data-developer-habit="noAlcohol">🍺 禁酒</button><button data-developer-habit="noSmoking">🚭 禁煙</button></div><button id="developerModalClose" class="primary-close secondary">閉じる</button></div></div>
+
+
+  <div id="titleSelectorOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">TITLE COLLECTION</p><h2>称号を選ぶ</h2></div>
+        <button id="titleSelectorCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <section id="selectedTitleCard" class="selected-title-card"></section>
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div><p class="section-label">UNLOCKED TITLES</p><h3>獲得した称号</h3></div>
+          <span id="unlockedTitleCount" class="settings-count">0 / 0</span>
+        </div>
+        <div id="titleSelectionList" class="title-selection-list"></div>
+      </section>
+      <section class="settings-note-card">
+        <strong>称号は何度でも付け替え可能</strong>
+        <p>一度獲得した称号は、失敗で高さが下がっても失われません。未獲得の称号は条件達成後に解放されます。</p>
+      </section>
+    </div>
+  </div>
+
+  <div id="settingsOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div>
+          <p class="section-label">SETTINGS</p>
+          <h2>設定</h2>
+        </div>
+        <button id="settingsCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+
+      <section class="settings-intro-card">
+        <span>🌱</span>
+        <div>
+          <h3>表示する禁欲を選択</h3>
+          <p>使わないカテゴリは非表示にできます。記録データは消えないので、再表示すれば続きから再開できます。</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div>
+            <p class="section-label">ABSTINENCE CATEGORIES</p>
+            <h3>禁欲カテゴリ</h3>
+          </div>
+          <span id="visibleHabitCount" class="settings-count">10 / 10</span>
+        </div>
+        <div id="habitVisibilityList" class="habit-visibility-list"></div>
+      </section>
+
+      <section class="settings-note-card">
+        <strong>非表示にしても記録は保持されます</strong>
+        <p>高さ、連続成功、累計成功、図鑑、カレンダーなどは削除されません。少なくとも1種類は表示される仕様です。</p>
+      </section>
+    </div>
+  </div>
+
+  <div id="developerModalOverlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-icon">🧪</div>
+      <h2>開発者モード</h2>
+      <p>テストする豆の木を選んでください。本番データは変更されません。</p>
+      <div id="developerHabitSelect" class="developer-habit-select"></div>
+      <button id="developerModalClose" class="primary-close secondary" type="button">閉じる</button>
+    </div>
+  </div>
 
   <script src="milestones.js"></script>
   <script src="script.js"></script>
