@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.41.0</p>
+        <p class="version-label">Version 4.49.1</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -384,7 +384,7 @@
             <p class="section-label">ABSTINENCE CATEGORIES</p>
             <h3>禁欲カテゴリ</h3>
           </div>
-          <span id="visibleHabitCount" class="settings-count">10 / 10</span>
+          <span id="visibleHabitCount" class="settings-count">12 / 12</span>
         </div>
         <div id="habitVisibilityList" class="habit-visibility-list"></div>
       </section>
@@ -394,6 +394,15 @@
           <div><p class="section-label">CATEGORY MANAGEMENT</p><h3>並び順・状態</h3></div>
         </div>
         <p class="records-note">▲▼で表示順を変更できます。「休止」は記録候補から外しますが、データは保持します。</p>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div><p class="section-label">SEVERITY CLASS</p><h3>深刻度</h3></div>
+        </div>
+        <p class="records-note">各禁欲について自己申告で LIGHT / NORMAL / HEAVY を設定します。変更予約は翌月1日から有効になり、その月の区分は月末まで固定されます。</p>
+        <div id="severitySettingsList" class="severity-settings-list"></div>
+        <p class="records-note">※深刻度は自己申告です。将来の月間ランキングでは全体・LIGHT・NORMAL・HEAVYの各部門に使用します。</p>
       </section>
 
       <section class="settings-section">
