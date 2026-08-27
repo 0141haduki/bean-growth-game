@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#173d25">
+  <title>Bean Growth</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
+        <h1>Bean Growth</h1>
+        <p class="version-label">Version 4.40.1</p>
+      </div>
+      <div class="header-actions">
+        <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
+        <button id="developerButton" class="icon-button developer-header-button" type="button" aria-label="開発者モード">🧪</button>
+      </div>
+    </header>
+
+    <main id="homeScreen" class="screen active">
+      <section class="hero-card">
+        <p class="hero-label">YOUR JOURNEY</p>
+        <h2>今日の継続が、<br>豆の木を宇宙へ伸ばす。</h2>
+        <p>成功を積み重ね、現実世界のあらゆる高さを越えていく。</p>
+      </section>
+
+      <section id="homeEventCard" class="home-event-card">
+        <span id="homeEventIcon" class="home-event-icon">🌱</span>
+        <div><p class="section-label">TODAY'S EVENT</p><h3 id="homeEventTitle">通常成長日</h3><p id="homeEventDescription"></p></div>
+        <strong id="homeEventReward">+1m</strong>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div><p class="section-label">YOUR BEANS</p><h2>育てる豆の木</h2></div>
+        </div>
+        <div id="habitList" class="habit-list"></div>
+      </section>
+
+      <section class="home-summary-card">
+        <div><span class="mini-label">TOTAL HEIGHT</span><strong id="homeTotalHeight">0m</strong></div>
+        <div><span class="mini-label">TOTAL SUCCESS</span><strong id="homeTotalSuccess">0日</strong></div>
+      </section>
+      <section class="home-tools">
+        <button id="openCalendarButton" class="home-tool-button" type="button"><span>📅</span><strong>継続カレンダー</strong><small>今月の記録を見る</small></button>
+        <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>個人記録</strong><small>最高記録・図鑑進捗</small></button><button id="openReportButton" class="home-tool-button" type="button"><span>🗓️</span><strong>週間・月間</strong><small>振り返りを見る</small></button>
+      </section>
+
+      <section class="rule-card">
+        <h3>基本ルール</h3>
+        <div class="rule-list">
+          <div><b class="pill good">+1m</b><span>成功すると毎日、通常成長として+1m</span></div>
+          <div><b class="pill gold">+5m</b><span>金・土・日は「特別の日」。成功した禁欲ごとにさらに+5m</span></div>
+          <div><b class="pill purple">×1.1</b><span>🌿 成長の風：発生率20%。最低保証+10m</span></div>
+          <div><b class="pill purple">×1.15</b><span>⚡ 成長の嵐：発生率SECRET。最低保証+20m</span></div>
+          <div><b class="pill purple">×1.3</b><span>🌠 天豆の奇跡：発生率SECRET。最低保証+120m</span></div>
+          <div><b class="pill good">MAX</b><span>イベントは「最低保証」と「倍率による追加成長」の大きい方を適用</span></div>
+          <div><b class="pill gold">順序</b><span>通常+1m → 特別の日+5m → イベント効果の順に計算</span></div>
+          <div><b class="pill warn">1回目</b><span>連続失敗：現在高度の1/5を切り捨てて、その分だけ減少</span></div>
+          <div><b class="pill warn">2回目</b><span>連続失敗：残った高さを1/2にし、小数点以下を切り捨て</span></div>
+          <div><b class="pill bad">3回目</b><span>連続失敗：高さが0mにリセット</span></div>
+          <div><b class="pill good">RESET</b><span>成功すると連続失敗回数は0回に戻る</span></div>
+          <div><b class="pill good">1日1回</b><span>同じ禁欲は1日に成功・失敗のどちらか1回だけ記録。今日の記録は取り消し可能</span></div>
+          <div><b class="pill purple">遭遇</b><span>イベントの遭遇回数は1日1回。同じ日に複数の禁欲で成功しても遭遇回数は1回</span></div>
+          <div><b class="pill gold">🌕</b><span>月へ初到達すると「月の加護」を1個獲得。次の失敗時、高さの減少だけを1回防ぐ</span></div>
+        </div>
+      </section>
+    </main>
+
+    <main id="gameScreen" class="screen">
+      <button id="backButton" class="back-button" type="button">← 戻る</button>
+      <div id="developerIndicator" class="developer-indicator hidden">🧪 開発者モード<span>ここでの操作は本番データに保存されません</span></div>
+
+      <section class="game-heading">
+        <span id="gameIcon" class="game-icon">🌱</span>
+        <div><p id="gameEnglishName" class="game-english-name">CHALLENGE</p><h2 id="gameTitle">オナ禁</h2></div>
+      </section>
+
+      <section class="height-card">
+        <p class="height-label">CURRENT HEIGHT</p>
+        <div class="height-display"><span id="currentHeight">0</span><span id="currentHeightUnit" class="height-unit">m</span></div>
+        <p id="growthMessage" class="growth-message"></p>
+        <div class="tree-stage">
+          <div class="cloud c1">☁</div><div class="cloud c2">☁</div>
+          <div class="tree"><div id="treeTop" class="tree-top">🌿</div><div id="treeStem" class="tree-stem"></div><div class="ground">🌱</div></div>
+        </div>
+      </section>
+
+      <section id="eventCard" class="event-card">
+        <div id="eventIcon" class="event-icon">🌱</div>
+        <div class="event-copy"><p class="event-label">TODAY'S EVENT</p><h3 id="eventTitle">通常成長日</h3><p id="eventDescription"></p></div>
+        <strong id="eventReward" class="event-reward">+1m</strong>
+      </section>
+
+      <section class="primary-action-card">
+        <button id="successButton" class="mega-success-button" type="button"><span class="mega-success-kicker">TODAY</span><strong>今日も継続できた</strong><span id="successButtonDescription" class="mega-success-result">0m → 1m</span></button>
+        <button id="failButton" class="small-fail-button" type="button">今日は継続できなかった<span id="failButtonDescription"></span></button>
+      </section>
+
+      <section id="todayCompleted" class="today-completed hidden">
+        <div id="todayResultIcon" class="today-result-icon">✓</div>
+        <div><h3 id="todayResultTitle"></h3><p id="todayResultDescription"></p><button id="undoButton" class="text-button" type="button">今日の記録を取り消す</button></div>
+      </section>
+
+      <section class="world-section">
+        <div class="section-header">
+          <div><p class="section-label">HEIGHT JOURNEY</p><h2>現在地と次の目標</h2></div>
+          <button id="openEncyclopediaButton" class="small-outline-button" type="button">高さ図鑑</button>
+        </div>
+
+        <div class="milestone-grid">
+          <article class="milestone-card reached-card">
+            <p class="mini-label">REACHED</p>
+            <div class="milestone-row"><span id="currentMilestoneIcon" class="milestone-icon">🌍</span><div><h3 id="currentMilestoneName">地表</h3><p id="currentMilestoneHeight">0m</p></div></div>
+            <p id="currentMilestoneDescription" class="muted"></p>
+            <button id="currentMilestoneDetailButton" class="detail-button" type="button">詳しく見る</button>
+          </article>
+
+          <article id="nextMilestoneCard" class="milestone-card next-card">
+            <p class="mini-label">NEXT TARGET</p>
+            <div class="milestone-row"><span id="nextMilestoneIcon" class="milestone-icon">🎯</span><div><h3 id="nextMilestoneName"></h3><p id="nextMilestoneHeight"></p></div></div>
+            <div class="distance-line">あと <strong id="distanceToNext"></strong></div>
+            <div class="progress-track"><div id="milestoneProgressBar" class="progress-bar"></div></div>
+            <p id="progressText" class="tiny"></p>
+            <button id="nextMilestoneDetailButton" class="detail-button inverse" type="button">この目標を知る</button>
+          </article>
+        </div>
+
+        <div class="upcoming-card">
+          <div class="section-header compact"><div><p class="section-label">UP NEXT</p><h3>この先の目標</h3></div></div>
+          <div id="upcomingList" class="upcoming-list"></div>
+        </div>
+      </section>
+
+      <section class="collection-section">
+        <div class="section-header"><div><p class="section-label">COLLECTION</p><h2>図鑑・実績</h2></div></div>
+        <div class="collection-grid">
+          <button id="openEncyclopediaButton2" class="collection-card" type="button"><span>📚</span><strong>高さ図鑑</strong><small id="encyclopediaProgress">0 / 0</small></button>
+          <button id="openAchievementsButton" class="collection-card" type="button"><span>🏅</span><strong>実績・称号パーツ</strong><small id="achievementProgress">0 / 0</small></button>
+          <button id="openCalendarButton2" class="collection-card" type="button"><span>📅</span><strong>カレンダー</strong><small>継続履歴</small></button>
+          <button id="openRecordsButton2" class="collection-card" type="button"><span>📊</span><strong>個人記録</strong><small>最高記録</small></button><button id="openMissionsButton" class="collection-card" type="button"><span>🧭</span><strong>図鑑ミッション</strong><small id="missionProgress">0 / 0</small></button>
+        </div>
+      </section>
+
+      <section class="status-section">
+        <div class="section-header">
+          <div><p class="section-label">STATUS</p><h2>成長記録</h2></div>
+          <div class="title-control">
+            <span id="currentTitleBadge" class="title-badge">🫘 種からの挑戦者</span>
+            <button id="changeTitleButton" class="change-title-button" type="button">称号を変更</button>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><span>🔥</span><strong id="currentStreak">0</strong><small>連続成功</small></div>
+          <div class="stat-card"><span>🏆</span><strong id="totalSuccess">0</strong><small>累計成功</small></div>
+          <div class="stat-card"><span>⚠️</span><strong id="consecutiveFailures">0</strong><small>連続失敗</small></div>
+        </div>
+      </section>
+
+      <section id="moonBlessingCard" class="moon-card hidden"><div class="moon-icon">🌕</div><div><p class="moon-label">LEGENDARY ITEM</p><h3>月の加護</h3><p id="moonBlessingStatus"></p></div></section>
+
+      <section class="risk-card"><p class="risk-label">NEXT FAILURE RISK</p><h3>次に継続できなかった場合</h3><div id="nextFailureResult" class="risk-result"></div><p id="riskDescription"></p></section>
+
+      <section id="developerPanel" class="developer-panel hidden">
+        <div class="dev-header"><div><p>DEVELOPER MODE</p><h2>テスト操作</h2></div><span>🧪</span></div>
+        <p class="dev-note">本番データとは完全に分離されています。</p>
+        <h3>高さ変更</h3>
+        <div class="dev-grid"><button data-add-height="1">+1m</button><button data-add-height="10">+10m</button><button data-add-height="100">+100m</button><button data-add-height="1000">+1km</button><button data-add-height="100000">+100km</button><button data-add-height="384400000">+月距離</button></div>
+        <div class="dev-input-row"><input id="developerHeightInput" type="number" min="0" step="0.1" placeholder="高さをmで入力"><button id="developerSetHeightButton" type="button">設定</button></div>
+        <h3>イベント</h3>
+        <select id="developerEventSelect">
+          <option value="auto">自動判定</option>
+          <option value="normal">通常日</option>
+          <option value="wind">🌿 成長の風 ×1.1 / 発生率20% / 最低+10m</option>
+          <option value="storm">⚡ 成長の嵐 ×1.15 / 発生率SECRET / 最低+20m</option>
+          <option value="miracle">🌠 天豆の奇跡 ×1.3 / 発生率SECRET / 最低+120m</option>
+        </select>
+        <h3>連続失敗</h3><div class="dev-grid three"><button data-failure-count="0">0回</button><button data-failure-count="1">1回</button><button data-failure-count="2">2回</button></div>
+        <h3>長期バランスシミュレーション</h3>
+        <div class="dev-simulator">
+          <label>成功率 <input id="simSuccessRate" type="number" min="1" max="100" step="1" value="70"> %</label>
+          <label>期間 <select id="simYears"><option value="0.0822">30日</option><option value="1">1年</option><option value="5">5年</option><option value="10" selected>10年</option></select></label>
+          <button id="runSimulationButton" type="button">100回シミュレーション</button>
+          <div id="simulationResult" class="simulation-result">成功しなかった日は「失敗」として計算します。</div>
+        </div>
+        <h3>処理テスト</h3><button id="developerSuccessButton" class="dev-big success">🌱 成功を1回シミュレート</button><button id="developerFailureButton" class="dev-big failure">↘ 失敗を1回シミュレート</button><button id="developerResetButton" class="dev-big neutral">テストデータを元に戻す</button><button id="developerExitButton" class="dev-big exit">開発者モードを終了</button>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="celebrationOverlay" class="celebration-overlay hidden"><div class="celebration-burst"><div id="celebrationIcon" class="celebration-icon">🌱</div><p id="celebrationKicker" class="celebration-kicker">SUCCESS</p><h2 id="celebrationTitle">+1m</h2><p id="celebrationDescription"></p><div id="newMilestoneList" class="new-milestone-list"></div><button id="celebrationCloseButton" type="button">続ける</button></div></div>
+
+  <div id="confirmOverlay" class="modal-overlay hidden"><div class="modal"><div id="confirmIcon" class="modal-icon">⚠️</div><h2 id="confirmTitle">確認</h2><p id="confirmDescription"></p><div class="modal-actions"><button id="confirmCancelButton" class="secondary-button">やめる</button><button id="confirmOkButton" class="danger-button">記録する</button></div></div></div>
+
+  <div id="milestoneModalOverlay" class="modal-overlay hidden"><div class="modal detail-modal"><div id="milestoneModalIcon" class="detail-icon">🌍</div><p id="milestoneModalCategory" class="modal-category"></p><h2 id="milestoneModalName"></h2><div id="milestoneModalHeight" class="modal-height"></div><p id="milestoneModalLocation" class="detail-location"></p><p id="milestoneModalDescription" class="modal-description"></p><div id="milestoneExtraDetails" class="extra-details"></div><button id="milestoneModalClose" class="primary-close">閉じる</button></div></div>
+
+  <div id="encyclopediaOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">HEIGHT ENCYCLOPEDIA</p><h2>高さ図鑑</h2></div><button id="encyclopediaCloseButton" class="icon-button">✕</button></div><div id="encyclopediaSummary" class="encyclopedia-summary"></div><div id="categoryProgressGrid" class="category-progress-grid"></div><div class="encyclopedia-controls"><input id="encyclopediaSearch" type="search" placeholder="名前・国・地域・豆知識を検索"><select id="encyclopediaUnlockFilter"><option value="all">すべて</option><option value="unlocked">解放済み</option><option value="locked">未解放</option></select><select id="encyclopediaSort"><option value="asc">高さの低い順</option><option value="desc">高さの高い順</option></select></div><div id="categoryTabs" class="category-tabs"></div><div id="encyclopediaList" class="encyclopedia-list"></div></div></div>
+
+  <div id="achievementsOverlay" class="page-overlay hidden"><div class="overlay-page"><div class="overlay-header"><div><p class="section-label">ACHIEVEMENTS</p><h2>実績・称号</h2></div><button id="achievementsCloseButton" class="icon-button">✕</button></div><section class="title-showcase"><span id="achievementTitleIcon">🫘</span><div><p>現在の称号</p><h3 id="achievementTitleName">種からの挑戦者</h3></div></section><div id="achievementsList" class="achievements-list"></div></div></div>
+
+
+  <div id="calendarOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">CONTINUATION CALENDAR</p><h2>継続カレンダー</h2></div>
+        <button id="calendarCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <div class="calendar-habit-tabs" id="calendarHabitTabs"></div>
+      <div class="calendar-nav">
+        <button id="calendarPrevButton" type="button">←</button>
+        <strong id="calendarMonthLabel"></strong>
+        <button id="calendarNextButton" type="button">→</button>
+      </div>
+      <div class="calendar-legend"><span>● 成功</span><span>● 継続できず</span><span>○ 未記録</span></div>
+      <div class="calendar-weekdays"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+      <div id="calendarMonthStats" class="calendar-month-stats"></div>
+    </div>
+  </div>
+
+  <div id="recordsOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">PERSONAL RECORDS</p><h2>個人記録</h2></div>
+        <button id="recordsCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <section id="recordsProfileCard" class="records-profile-card"></section>
+      <div class="records-profile-actions">
+        <button id="recordsChangeTitleButton" type="button">🏅 称号を変更</button>
+      </div>
+      <section class="records-section">
+        <p class="section-label">TITLE HISTORY</p><h3>最近獲得した称号パーツ</h3>
+        <div id="recentTitleHistory" class="recent-title-history"></div>
+      </section>
+      <div id="recordsHabitTabs" class="calendar-habit-tabs"></div>
+      <section id="recordsSummary" class="records-summary"></section>
+      <section class="records-section">
+        <p class="section-label">ANALYTICS</p><h3>継続分析</h3>
+        <div id="recordsAnalytics" class="records-summary"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">EVENT RECORDS</p><h3>イベント遭遇記録</h3>
+        <p class="records-note">同じ日に複数の禁欲を成功しても「遭遇」は1回だけです。「成功適用」はイベント効果が適用された禁欲数です。</p>
+        <div id="eventRecordsGrid" class="event-records-grid"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">PUBLIC PROFILE PREVIEW</p><h3>公開プロフィール予定</h3>
+        <div id="publicProfilePreview" class="public-profile-preview"></div>
+        <p class="records-note">ランキング・フレンド機能では上の情報だけを公開する設計です。履歴・失敗日・ローカルIDなどは非公開データとして分離します。</p>
+      </section>
+      <section class="records-section">
+        <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
+        <div id="recordsCategoryProgress" class="records-category-progress"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
+        <p class="records-note">v4.39では公開プロフィール用データと端末内の詳細データを分離できる構造まで準備しています。現在はまだ端末内保存です。</p>
+        <div class="data-actions">
+          <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
+          <button id="importDataButton" type="button">JSONバックアップを読み込む</button>
+          <input id="importDataInput" type="file" accept="application/json,.json" hidden>
+        </div>
+        <div id="dataIntegrityStatus" class="data-integrity-status"></div><div id="dataSchemaInfo" class="schema-info"></div>
+      </section>
+    </div>
+  </div>
+
+
+
+
+  <div id="reportOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">WEEKLY / MONTHLY REPORT</p><h2>振り返り</h2></div>
+        <button id="reportCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <div id="reportHabitTabs" class="calendar-habit-tabs"></div>
+      <section id="weeklyReportCard" class="report-card"></section>
+      <section id="monthlyReportCard" class="report-card"></section>
+    </div>
+  </div>
+
+  <div id="missionsOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">ENCYCLOPEDIA MISSIONS</p><h2>図鑑ミッション</h2></div>
+        <button id="missionsCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+      <div id="missionList" class="mission-list"></div>
+    </div>
+  </div>
+
+  <div id="titleUnlockOverlay" class="modal-overlay hidden">
+    <div class="modal title-unlock-modal">
+      <div id="titleUnlockIcon" class="modal-icon">🏅</div>
+      <p class="section-label">NEW TITLE PART</p>
+      <h2 id="titleUnlockName">称号獲得</h2>
+      <p id="titleUnlockMeta"></p>
+      <button id="titleUnlockCloseButton" class="primary-close" type="button">受け取る</button>
+    </div>
+  </div>
+
+  <div id="titleSelectorOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">TITLE FORGE</p><h2>称号を組み立てる</h2></div>
+        <button id="titleSelectorCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+
+      <section id="selectedTitleCard" class="selected-title-card"></section>
+
+      <section class="title-forge-help">
+        <strong>前称号 × 後称号</strong>
+        <p>どの禁欲で獲得したパーツでも自由に組み合わせられます。例：「意志が強い」＋「オナ禁戦士」</p>
+      </section>
+
+      <div class="title-part-tabs">
+        <button id="modifierTabButton" class="title-part-tab active" type="button">前称号</button>
+        <button id="nounTabButton" class="title-part-tab" type="button">後称号</button>
+      </div>
+
+      <div class="title-search-tools">
+        <input id="titleSearchInput" type="search" placeholder="称号を検索">
+        <select id="titleRarityFilter">
+          <option value="all">全レアリティ</option>
+          <option value="common">COMMON</option>
+          <option value="rare">RARE</option>
+          <option value="epic">EPIC</option>
+          <option value="legendary">LEGENDARY</option>
+          <option value="black_history">BLACK HISTORY</option>
+        </select>
+      </div>
+      <div id="titleCollectionSummary" class="title-collection-summary"></div>
+      <section id="modifierPartSection" class="settings-section">
+        <div class="settings-section-heading">
+          <div><p class="section-label">MODIFIERS</p><h3>前称号を選択</h3></div>
+          <span id="unlockedModifierCount" class="settings-count">0 / 0</span>
+        </div>
+        <div id="modifierSelectionList" class="title-selection-list"></div>
+      </section>
+
+      <section id="nounPartSection" class="settings-section hidden">
+        <div class="settings-section-heading">
+          <div><p class="section-label">NOUN TITLES</p><h3>後称号を選択</h3></div>
+          <span id="unlockedNounCount" class="settings-count">0 / 0</span>
+        </div>
+        <div id="nounSourceFilters" class="title-source-filters"></div><p class="compound-title-note">「複合禁欲」には、3種類以上・5種類以上を同時に続けた実績称号が入ります。</p>
+        <div id="nounSelectionList" class="title-selection-list"></div>
+      </section>
+<section class="settings-note-card">
+        <strong>獲得した称号パーツは全禁欲で共有</strong>
+        <p>オナ禁で獲得した前称号と、ギャンブル禁で獲得した後称号などを自由に組み合わせられます。一度獲得したパーツは失われません。</p>
+      </section>
+    </div>
+  </div>
+
+  <div id="settingsOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div>
+          <p class="section-label">SETTINGS</p>
+          <h2>設定</h2>
+        </div>
+        <button id="settingsCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+
+      <section class="settings-intro-card">
+        <span>🌱</span>
+        <div>
+          <h3>表示する禁欲を選択</h3>
+          <p>使わないカテゴリは非表示にできます。記録データは消えないので、再表示すれば続きから再開できます。</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div>
+            <p class="section-label">ABSTINENCE CATEGORIES</p>
+            <h3>禁欲カテゴリ</h3>
+          </div>
+          <span id="visibleHabitCount" class="settings-count">10 / 10</span>
+        </div>
+        <div id="habitVisibilityList" class="habit-visibility-list"></div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div><p class="section-label">CATEGORY MANAGEMENT</p><h3>並び順・状態</h3></div>
+        </div>
+        <p class="records-note">▲▼で表示順を変更できます。「休止」は記録候補から外しますが、データは保持します。</p>
+      </section>
+
+      <section class="settings-note-card">
+        <strong>非表示にしても記録は保持されます</strong>
+        <p>高さ、連続成功、累計成功、図鑑、カレンダーなどは削除されません。少なくとも1種類は表示される仕様です。</p>
+      </section>
+    </div>
+  </div>
+
+  <div id="developerModalOverlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-icon">🧪</div>
+      <h2>開発者モード</h2>
+      <p>テストする豆の木を選んでください。本番データは変更されません。</p>
+      <div id="developerHabitSelect" class="developer-habit-select"></div>
+      <button id="developerModalClose" class="primary-close secondary" type="button">閉じる</button>
+    </div>
+  </div>
+
+  <script src="milestones.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
