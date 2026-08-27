@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Test</title>
+</head>
+<body>
+  <h1>Firebase 接続テスト</h1>
+  <p id="status">接続中...</p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import {
+      getAuth,
+      signInAnonymously
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAVJNFfeWeBJMUSEz_-lfcXq5Bwnvy6-90",
+      authDomain: "bean-growth.firebaseapp.com",
+      projectId: "bean-growth",
+      storageBucket: "bean-growth.firebasestorage.app",
+      messagingSenderId: "631079544812",
+      appId: "1:631079544812:web:2f8f6a961d89fe625702c9",
+      measurementId: "G-R5L9JXL3S0"
+    };
+
+    const status = document.getElementById("status");
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      const credential = await signInAnonymously(auth);
+      const uid = credential.user.uid;
+
+      await setDoc(
+        doc(db, "users", uid),
+        {
+          test: true,
+          createdAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      status.textContent = `成功！ UID: ${uid}`;
+      console.log("Firebase test success:", uid);
+
+    } catch (error) {
+      console.error(error);
+      status.textContent = `エラー: ${error.code || error.message}`;
+    }
+  </script>
+</body>
+</html>

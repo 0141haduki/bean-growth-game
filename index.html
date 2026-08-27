@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.40.1</p>
+        <p class="version-label">Version 4.41.0</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -396,6 +396,38 @@
         <p class="records-note">▲▼で表示順を変更できます。「休止」は記録候補から外しますが、データは保持します。</p>
       </section>
 
+      <section class="settings-section">
+        <div class="settings-section-heading">
+          <div>
+            <p class="section-label">CLOUD SAVE</p>
+            <h3>クラウド保存・同期</h3>
+          </div>
+        </div>
+
+        <section class="settings-note-card">
+          <strong>☁️ Firebase クラウド</strong>
+          <p id="cloudConnectionStatus">Firebaseへ接続中...</p>
+          <p class="records-note">アカウント：<span id="cloudUserId">確認中...</span></p>
+          <p class="records-note">最終クラウド保存：<span id="cloudLastBackup">未確認</span></p>
+          <p class="records-note">同期状態：<span id="cloudSyncState">確認中...</span></p>
+
+          <div class="data-actions">
+            <button id="cloudBackupButton" class="primary-button" type="button">クラウドに保存</button>
+            <button id="cloudRestoreButton" class="secondary-button" type="button">クラウドから復元</button>
+            <button id="cloudUndoRestoreButton" class="secondary-button" type="button">直前の復元を取り消す</button>
+            <button id="cloudRefreshButton" class="secondary-button" type="button">状態を再確認</button>
+          </div>
+
+          <label class="records-note" style="display:flex;gap:8px;align-items:center;margin-top:12px;">
+            <input id="cloudAutoBackupToggle" type="checkbox" style="width:auto;">
+            <span>自動クラウド保存を有効にする</span>
+          </label>
+          <p class="records-note">有効時は30秒ごとに端末データの変更を確認し、変更があった場合だけクラウドへ保存します。クラウドからの自動復元はまだ行いません。</p>
+          <p class="records-note">復元すると現在の端末データをクラウド保存時点のデータに置き換えます。復元前の端末データは安全用コピーとして端末内に退避します。</p>
+          <p id="cloudBackupStatus" class="records-note"></p>
+        </section>
+      </section>
+
       <section class="settings-note-card">
         <strong>非表示にしても記録は保持されます</strong>
         <p>高さ、連続成功、累計成功、図鑑、カレンダーなどは削除されません。少なくとも1種類は表示される仕様です。</p>
@@ -415,5 +447,6 @@
 
   <script src="milestones.js"></script>
   <script src="script.js"></script>
+  <script type="module" src="firebase-init.js"></script>
 </body>
 </html>
