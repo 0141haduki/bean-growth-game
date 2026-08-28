@@ -3,7 +3,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebas
 import {
   getAuth,
   signInAnonymously,
-  onAuthStateChanged
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  linkWithPopup,
+  signInWithPopup,
+  signInWithCredential
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -13,7 +17,10 @@ import {
   getDoc,
   getDocs,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -26,7 +33,7 @@ const firebaseConfig = {
   measurementId: "G-R5L9JXL3S0"
 };
 
-const APP_VERSION = "4.99";
+const APP_VERSION = "5.0";
 const LOCAL_STORAGE_KEY = "beanGrowthGame_v1";
 const RESTORE_SAFETY_KEY = "beanGrowthGame_beforeCloudRestore_v1";
 const AUTO_BACKUP_KEY = "beanGrowthGame_cloudAutoBackup_v1";
@@ -50,10 +57,10 @@ export const db = getFirestore(app);
 window.BeanGrowthAuthReadiness={
   firebaseReady:true,
   anonymousAuthReady:true,
-  googleProviderReady:false,
+  googleProviderReady:true,
   webGoogleFlowPrepared:true,
   androidGoogleFlowPrepared:false,
-  note:"Googleプロバイダ有効化とAndroid側の本接続はv5で実施"
+  note:"Web版Google連携をv5.0で有効化。Androidネイティブログインは次段階。"
 };
 
 const cloudBackupButton = document.getElementById("cloudBackupButton");
@@ -79,6 +86,11 @@ const syncCloudSummary = document.getElementById("syncCloudSummary");
 const useLocalDataButton = document.getElementById("useLocalDataButton");
 const useCloudDataButton = document.getElementById("useCloudDataButton");
 const syncConflictLaterButton = document.getElementById("syncConflictLaterButton");
+const onlineAuthStatus = document.getElementById("onlineAuthStatus");
+const onlinePublishStatus = document.getElementById("onlinePublishStatus");
+const onlinePlayerSearchResult = document.getElementById("onlinePlayerSearchResult");
+const onlineRankingList = document.getElementById("onlineRankingList");
+const googleConnectButton = document.getElementById("googleConnectButton");
 
 let latestCloudBackupString = null;
 let latestCloudMeta = null;
@@ -224,8 +236,145 @@ function combineContributions(items){
   return{users:items.length,records,resets,weekdays:weekdays.map(finalizeBucket),monthDays:monthDays.map(finalizeBucket),habits:habitRows,updatedAt:new Intl.DateTimeFormat("ja-JP",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date())};
 }
 
+
+function currentLocalObject(){
+  try{return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)||"null")}catch{return null}
+}
+function currentPlayerId(){return currentLocalObject()?.profile?.playerId||null}
+function normalizePublicProfile(payload){
+  const allowed=["schemaVersion","playerId","nickname","goal","firstRecordDate","representativeHabitId","representativeHabitName","title","severity","maxHeight","maxStreak","encyclopediaUnlocked","updatedAt"];
+  const out={};for(const k of allowed)if(payload?.[k]!==undefined)out[k]=payload[k];
+  out.schemaVersion=3;out.goal=String(out.goal||"").slice(0,80);return out;
+}
+async function ensurePrivateIdentity(user,playerId){
+  if(!user||!playerId)throw new Error("ログインまたはPlayer IDを確認できません。");
+  await setDoc(doc(db,"users",user.uid,"publicIdentity","main"),{
+    playerId,
+    updatedAt:serverTimestamp(),
+    clientUpdatedAt:new Date().toISOString()
+  },{merge:true});
+}
+async function publishPublicProfile(payload){
+  if(!navigator.onLine)throw new Error("オフラインです。");
+  const user=auth.currentUser||await firebaseUserReady,clean=normalizePublicProfile(payload),playerId=clean.playerId||currentPlayerId();
+  if(!playerId)throw new Error("Player IDがありません。");
+  await ensurePrivateIdentity(user,playerId);
+  await setDoc(doc(db,"publicProfiles",playerId),{
+    ...clean,
+    playerId,
+    publishedAt:serverTimestamp(),
+    appVersion:APP_VERSION
+  },{merge:false});
+  setText(onlinePublishStatus,"公開プロフィールを更新しました。");
+  return clean;
+}
+async function searchPlayer(playerId){
+  if(!navigator.onLine){if(onlinePlayerSearchResult)onlinePlayerSearchResult.innerHTML='<p class="records-note">オフラインです。</p>';return}
+  try{
+    const snap=await getDoc(doc(db,"publicProfiles",playerId));
+    if(!snap.exists()){if(onlinePlayerSearchResult)onlinePlayerSearchResult.innerHTML='<p class="records-note">このPlayer IDの公開プロフィールはまだありません。</p>';return}
+    if(onlinePlayerSearchResult&&window.renderRemoteProfileCard)onlinePlayerSearchResult.innerHTML=window.renderRemoteProfileCard(snap.data());
+    else if(onlinePlayerSearchResult)onlinePlayerSearchResult.textContent=JSON.stringify(snap.data());
+  }catch(error){
+    console.error("[Bean Growth] player search failed:",error);
+    if(onlinePlayerSearchResult)onlinePlayerSearchResult.innerHTML=`<p class="records-note">検索に失敗しました：${escapeHtml(error?.message||"")}</p>`;
+  }
+}
+async function publishRanking(preview,fingerprint){
+  if(!navigator.onLine)throw new Error("オフラインです。");
+  const user=auth.currentUser||await firebaseUserReady,data=currentLocalObject(),playerId=data?.profile?.playerId;
+  if(!playerId)throw new Error("Player IDがありません。");
+  const current=preview?.current;if(!current?.month)throw new Error("ランキングデータがありません。");
+  await ensurePrivateIdentity(user,playerId);
+  const monthHeight=Object.values(data?.habits||{}).reduce((sum,h)=>{
+    const rows=(h?.history||[]).filter(x=>x?.date?.startsWith(current.month)&&["success","failure"].includes(x.type));
+    return sum+(rows.length?Number(rows[rows.length-1]?.after?.height||0):0);
+  },0);
+  const payload={
+    playerId,
+    nickname:String(data?.profile?.nickname||"Bean Grower").slice(0,20),
+    month:current.month,
+    monthHeight:Math.max(0,Math.round(monthHeight*10)/10),
+    records:Number(current.records||0),
+    success:Number(current.success||0),
+    failure:Number(current.failure||0),
+    resets:Number(current.resets||0),
+    fingerprint:String(fingerprint||"").slice(0,32),
+    schemaVersion:2,
+    appVersion:APP_VERSION,
+    submittedAt:serverTimestamp(),
+    clientSubmittedAt:new Date().toISOString()
+  };
+  await setDoc(doc(db,"rankingBoards",current.month,"players",playerId),payload,{merge:false});
+  setText(onlinePublishStatus,`${current.month} のランキングデータを送信しました。`);
+  await loadRanking(current.month);
+}
+async function loadRanking(month=null){
+  if(!onlineRankingList)return;
+  if(!navigator.onLine){onlineRankingList.innerHTML='<p class="records-note">オフラインです。</p>';return}
+  try{
+    const d=currentLocalObject(),m=month||(()=>{
+      const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`;
+    })();
+    const q=query(collection(db,"rankingBoards",m,"players"),orderBy("monthHeight","desc"),limit(50));
+    const snap=await getDocs(q),rows=[];snap.forEach(x=>rows.push(x.data()));
+    if(window.renderOnlineRanking)window.renderOnlineRanking(rows);
+  }catch(error){
+    console.error("[Bean Growth] ranking load failed:",error);
+    onlineRankingList.innerHTML=`<p class="records-note">ランキング取得に失敗しました：${escapeHtml(error?.message||"")}</p>`;
+  }
+}
+function updateOnlineAuth(user){
+  const label=authProviderLabel(user);
+  setText(onlineAuthStatus,`${label} / ${navigator.onLine?"オンライン":"オフライン"}`);
+  if(googleConnectButton){
+    googleConnectButton.textContent=user?.providerData?.some(p=>p.providerId==="google.com")?"✓ Google連携済み":"G　Googleと連携 / ログイン";
+    googleConnectButton.disabled=Boolean(user?.providerData?.some(p=>p.providerId==="google.com"));
+  }
+}
+async function connectGoogle(){
+  if(window.Capacitor?.isNativePlatform?.()){
+    alert("Androidアプリ内のGoogleログインはネイティブ設定が必要です。現段階ではWeb版でGoogle連携してください。");
+    return;
+  }
+  if(!navigator.onLine){alert("Google連携にはインターネット接続が必要です。");return}
+  const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});
+  const before=auth.currentUser||await firebaseUserReady;
+  try{
+    let result;
+    if(before?.isAnonymous){
+      try{result=await linkWithPopup(before,provider)}
+      catch(error){
+        if(["auth/credential-already-in-use","auth/email-already-in-use"].includes(error?.code)){
+          const credential=GoogleAuthProvider.credentialFromError(error);
+          if(!credential)throw error;
+          result=await signInWithCredential(auth,credential);
+        }else throw error;
+      }
+    }else result=await signInWithPopup(auth,provider);
+    const user=result.user;
+    updateOnlineAuth(user);updateAccountPlanStatus(user);
+    setText(accountLoginStatus,authProviderLabel(user));setText(accountFirebaseUid,shortUid(user.uid));
+    const playerId=currentPlayerId();if(playerId)await ensurePrivateIdentity(user,playerId);
+    setText(onlinePublishStatus,"Googleアカウントでログインしました。クラウド状態を確認してください。");
+    await getCloudBackupInfo();await refreshDeviceList();
+  }catch(error){
+    console.error("[Bean Growth] Google auth failed:",error);
+    const msg=error?.code==="auth/popup-closed-by-user"?"Googleログインをキャンセルしました。":`Googleログインに失敗しました：${error?.message||error}`;
+    alert(msg);
+  }
+}
+window.BeanGrowthOnline={
+  connectGoogle,
+  publishPublicProfile:async payload=>{try{await publishPublicProfile(payload)}catch(e){console.error(e);setText(onlinePublishStatus,`公開プロフィール更新失敗：${e?.message||e}`)}},
+  searchPlayer,
+  publishRanking:async(preview,fingerprint)=>{try{await publishRanking(preview,fingerprint)}catch(e){console.error(e);setText(onlinePublishStatus,`ランキング送信失敗：${e?.message||e}`)}},
+  loadRanking,
+  refreshAuth:()=>updateOnlineAuth(auth.currentUser)
+};
+
 export const firebaseUserReady = new Promise((resolve,reject)=>{
-  let unsubscribe=null;unsubscribe=onAuthStateChanged(auth,async user=>{try{if(user){console.log("[Bean Growth] Firebase login:",user.uid);setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));setText(cloudConnectionStatus,"Firebase接続済み");if(googleLinkStatus)googleLinkStatus.textContent=user.isAnonymous?"基盤準備済み / 現在はゲスト":"Google連携済み";registerCurrentDevice(user).catch(error=>console.warn("[Bean Growth] Device registration skipped:",error));if(typeof unsubscribe==="function")unsubscribe();resolve(user);return}await signInAnonymously(auth)}catch(error){console.error("[Bean Growth] Firebase login failed:",error);setText(cloudConnectionStatus,"Firebase接続に失敗しました");if(typeof unsubscribe==="function")unsubscribe();reject(error)}})
+  let unsubscribe=null;unsubscribe=onAuthStateChanged(auth,async user=>{try{if(user){console.log("[Bean Growth] Firebase login:",user.uid);setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));setText(cloudConnectionStatus,"Firebase接続済み");if(googleLinkStatus)googleLinkStatus.textContent=user.isAnonymous?"ゲスト利用中 / Google連携できます":"Google連携済み";updateOnlineAuth(user);registerCurrentDevice(user).catch(error=>console.warn("[Bean Growth] Device registration skipped:",error));if(typeof unsubscribe==="function")unsubscribe();resolve(user);return}await signInAnonymously(auth)}catch(error){console.error("[Bean Growth] Firebase login failed:",error);setText(cloudConnectionStatus,"Firebase接続に失敗しました");if(typeof unsubscribe==="function")unsubscribe();reject(error)}})
 });
 
 async function writeAnalyticsContribution(user, parsedData){
@@ -297,10 +446,11 @@ window.addEventListener("offline",()=>{updateNetworkState();if(isAutoBackupEnabl
 function updateAccountPlanStatus(user=null){
   if(googleLinkStatus){
     if(user?.providerData?.some(p=>p.providerId==="google.com"))googleLinkStatus.textContent="Google連携済み";
-    else if(user?.isAnonymous)googleLinkStatus.textContent="ゲスト利用中 / Google連携はv5で有効化";
-    else googleLinkStatus.textContent="Google連携準備中";
+    else if(user?.isAnonymous)googleLinkStatus.textContent="ゲスト利用中 / Googleと連携できます";
+    else googleLinkStatus.textContent="ログイン済み";
   }
-  window.BeanGrowthAuthReadiness.googleProviderReady=Boolean(user?.providerData?.some(p=>p.providerId==="google.com"));
+  window.BeanGrowthAuthReadiness.googleProviderReady=true;
+  updateOnlineAuth(user);
 }
 
 async function initializeCloudPanel(){updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();try{const user=await firebaseUserReady;updateAccountPlanStatus(user);setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));await registerCurrentDevice(user);await getCloudBackupInfo();await refreshDeviceList();lastAutoBackedUpLocalString=latestCloudBackupString;if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error("[Bean Growth] Cloud panel initialization failed:",error);setText(cloudSyncState,"クラウド状態を取得できませんでした")}}

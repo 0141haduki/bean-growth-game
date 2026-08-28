@@ -12,11 +12,39 @@ service cloud.firestore {
                          && request.auth.uid == userId;
     }
 
-    // v4.95/v4.99 foundation: only sanitized public profile documents belong here.
-    // The client does not publish them yet; v5 will enable publication after final review.
+    // v5.0: sanitized public profiles.
+    // Ownership is verified against a private mapping under the authenticated user's document.
     match /publicProfiles/{playerId} {
       allow read: if request.auth != null;
-      allow write: if false;
+      allow create, update: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)/publicIdentity/main).data.playerId == playerId
+        && request.resource.data.playerId == playerId
+        && request.resource.data.keys().hasOnly([
+          'schemaVersion','playerId','nickname','goal','firstRecordDate',
+          'representativeHabitId','representativeHabitName','title',
+          'severity','maxHeight','maxStreak','encyclopediaUnlocked',
+          'updatedAt','publishedAt','appVersion'
+        ]);
+      allow delete: if false;
+    }
+
+    // v5.0 monthly ranking beta. Public board contains no Firebase UID.
+    match /rankingBoards/{month}/players/{playerId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)/publicIdentity/main).data.playerId == playerId
+        && request.resource.data.playerId == playerId
+        && request.resource.data.month == month
+        && request.resource.data.keys().hasOnly([
+          'playerId','nickname','month','monthHeight','records','success','failure',
+          'resets','fingerprint','schemaVersion','appVersion','submittedAt','clientSubmittedAt'
+        ])
+        && request.resource.data.monthHeight >= 0
+        && request.resource.data.records >= 0
+        && request.resource.data.success >= 0
+        && request.resource.data.failure >= 0
+        && request.resource.data.resets >= 0;
+      allow delete: if false;
     }
 
     // v4.69: raw daily records are NOT published here.

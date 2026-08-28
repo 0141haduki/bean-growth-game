@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.99</p>
+        <p class="version-label">Version 5.0</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -51,6 +51,7 @@
         <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>記録・分析</strong><small>履歴と傾向を見る</small></button>
         <button id="openReportButton" class="home-tool-button" type="button"><span>🗓️</span><strong>週間・月間</strong><small>振り返りを見る</small></button>
         <button id="openProfileButton" class="home-tool-button profile-tool-button" type="button"><span>👤</span><strong>プロフィール</strong><small>個人情報・公開情報</small></button>
+        <button id="openOnlineButton" class="home-tool-button online-tool-button" type="button"><span>🌐</span><strong>オンライン</strong><small>ランキング・検索</small></button>
       </section>
 
       <section class="rule-card">
@@ -232,6 +233,49 @@
   </div>
 
 
+
+  <div id="onlineOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">BEAN GROWTH ONLINE</p><h2>オンライン</h2></div>
+        <button id="onlineCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+
+      <section class="records-section online-status-section">
+        <p class="section-label">YOUR ONLINE STATUS</p><h3>オンライン状態</h3>
+        <div id="onlineAuthStatus" class="online-auth-status">Firebase認証を確認中...</div>
+        <div id="onlineLocalSummary" class="online-local-summary"></div>
+        <div class="online-publish-actions">
+          <button id="publishOnlineProfileButton" class="secondary-button" type="button">公開プロフィールを更新</button>
+          <button id="publishOnlineRankingButton" class="primary-button" type="button">今月のランキングデータを送信</button>
+        </div>
+        <p id="onlinePublishStatus" class="records-note">公開プロフィールには、プロフィール画面で公開を許可した情報だけを送信します。</p>
+      </section>
+
+      <section class="records-section">
+        <p class="section-label">PLAYER SEARCH</p><h3>Player ID検索</h3>
+        <div class="online-search-line">
+          <input id="onlinePlayerSearchInput" type="text" maxlength="12" placeholder="BG-XXXX-XXXX" autocomplete="off">
+          <button id="onlineSearchPlayerButton" class="primary-button" type="button">検索</button>
+        </div>
+        <div id="onlinePlayerSearchResult" class="online-player-result">
+          <p class="records-note">Player IDを入力すると、そのプレイヤーの公開プロフィールを確認できます。</p>
+        </div>
+      </section>
+
+      <section class="records-section">
+        <div class="section-header">
+          <div><p class="section-label">MONTHLY RANKING BETA</p><h3>今月のランキング</h3></div>
+          <button id="refreshOnlineRankingButton" class="small-outline-button" type="button">更新</button>
+        </div>
+        <div id="onlineRankingList" class="online-ranking-list">
+          <p class="records-note">ランキングを取得中...</p>
+        </div>
+        <p class="records-note">v5.0のランキングはオンラインβ版です。現在はクライアントから送信した整合性情報付きデータを表示します。サーバー側で履歴を再計算する完全な不正対策は次段階で実装します。</p>
+      </section>
+    </div>
+  </div>
+
   <div id="profileOverlay" class="page-overlay hidden">
     <div class="overlay-page">
       <div class="overlay-header">
@@ -269,9 +313,13 @@
 
           <div class="google-link-plan">
             <strong>Google連携</strong>
-            <p>ゲストの記録を維持したままGoogleアカウントへ連携し、Web・Androidの複数端末で同じデータを利用する設計です。</p>
-            <span id="googleLinkStatus" class="account-plan-badge">Google認証UI準備済み / 本接続はWi-Fi環境で実施</span>
-            <span id="accountTypeBadge" class="settings-count">GUEST</span>
+            <p>Web版ではGoogleアカウントとの連携・ログインを利用できます。同じGoogleアカウントでログインすれば、別端末から同じクラウドデータへアクセスできます。</p>
+            <div class="google-link-actions">
+              <button id="googleConnectButton" class="google-connect-button" type="button">G　Googleと連携 / ログイン</button>
+              <span id="googleLinkStatus" class="account-plan-badge">状態を確認中...</span>
+              <span id="accountTypeBadge" class="settings-count">GUEST</span>
+            </div>
+            <p class="records-note">Androidアプリ内のGoogleネイティブログインは別途設定が必要です。Web版での連携を先に利用できます。</p>
           </div>
           <div id="profileOnlineFoundation" class="foundation-preview profile-online-foundation"></div>
         </section>
@@ -354,9 +402,9 @@
         <div id="rankingSubmissionPreview" class="foundation-preview"></div>
       </section>
       <section class="records-section">
-        <p class="section-label">V4.99 RELEASE CHECK</p><h3>総合診断</h3>
+        <p class="section-label">V5.0 ONLINE CHECK</p><h3>総合診断</h3>
         <div id="releaseReadiness" class="release-readiness"></div>
-        <button id="runV499DiagnosticsButton" class="secondary-button" type="button">総合診断を再実行</button>
+        <button id="runV499DiagnosticsButton" class="secondary-button" type="button">v5.0診断を再実行</button>
       </section>
       <section class="records-section">
         <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
@@ -364,7 +412,7 @@
       </section>
       <section class="records-section">
         <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
-        <p class="records-note">v4.99ではプロフィール・深刻度・複数端末同期・フレンド検索用Player ID・ランキング送信形式・整合性診断までv5向け基盤を整理しています。Google本接続とサーバー権威ランキングはv5で有効化します。</p>
+        <p class="records-note">v5.0ではWeb版Google連携、公開プロフィール、Player ID検索、月間オンラインランキングβを有効化します。AndroidネイティブGoogleログインとサーバー権威ランキングは次段階で実装します。</p>
         <div class="data-actions">
           <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
           <button id="importDataButton" type="button">JSONバックアップを読み込む</button>

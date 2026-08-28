@@ -1,57 +1,39 @@
-Bean Growth v4.99
+Bean Growth v5.0
 
-v4.91 プロフィール仕上げ
-- 個人情報 / 公開情報の役割を明確化
-- 公開プロフィールとPlayer ID検索基盤を整理
-- 目標80文字・記録開始日・公開項目設定を維持
+ONLINE START
 
-v4.92 深刻度フロー仕上げ
-- 未開始中はLIGHT/NORMAL/HEAVYを即時変更可
-- 最初の成功または失敗時に開始時深刻度を確定
-- 開始後の変更は翌月1日
-- ランキング途中参加に日数補正なし
+1. Web版Googleログイン / 連携
+- ゲスト（匿名）からGoogleアカウントへ linkWithPopup で連携
+- すでに別端末で使っているGoogleアカウントの場合は、そのGoogleユーザーへログイン
+- Googleのメールアドレスは公開プロフィールに含めない
+- Androidアプリ内のネイティブGoogleログインは次段階（Web版を先行）
 
-v4.93 クラウド同期安定化
-- 自動保存 / オフライン保留 / 競合時選択 / 自動復元なし、をUIで明示
-- 既存の端末↔クラウド比較と安全用復元コピーを維持
+2. オンライン画面
+- ホームに「オンライン」を追加
+- オンライン認証状態
+- 公開プロフィール更新
+- 月間ランキングデータ送信
+- Player ID検索
+- 今月ランキングβ（上位50）
 
-v4.94 Googleログイン準備
-- Firebase匿名認証を継続
-- Google連携用のデータ構造とUIを準備
-- Googleプロバイダ本接続とAndroid認証はv5で実施
-- 現時点ではGoogle連携ボタンを実動作させない（誤移行防止）
+3. 公開プロフィール
+- publicProfiles/{playerId}
+- 公開許可された項目だけを送信
+- Firebase UID / Googleメール / 詳細履歴 / 端末情報は非公開
+- privateな users/{uid}/publicIdentity/main で所有Player IDを確認
 
-v4.95 Player ID / フレンド基盤
-- 公開プロフィールだけを抽出するsanitized payloadを実装
-- Player ID検索キーを生成
-- Firebase UID / Googleメール / 詳細履歴 / 端末情報を公開payloadへ含めない
-- Firestore publicProfilesはv5まで書き込み禁止ルール
+4. 月間ランキングβ
+- rankingBoards/{YYYY-MM}/players/{playerId}
+- Player ID / nickname / monthHeight / records / success / failure / resets / fingerprint
+- Firebase UIDは公開ランキング文書に保存しない
+- Firestore Rulesで自分のPlayer ID以外には書けない
+- v5.0時点ではクライアント計算値のβ版
+- 完全な不正対策（サーバー側履歴再計算）は次段階
 
-v4.96 ランキング送信形式
-- 今月 / 前月 / 12カテゴリの月次スナップショット
-- 成功 / 失敗 / リセット / 記録件数 / 深刻度を送信可能な形式へ整理
-- 前月ランキングは翌月3日確定
+5. データ
+- schemaVersion 17
+- dataRevision 26
 
-v4.97 不正対策基盤
-- 履歴から整合性フィンガープリントを生成
-- 基本構造・重複日・開始日・開始時深刻度を診断
-- v5ではサーバー側で履歴を再検証し、端末の高さ値をそのまま信用しない方針
-
-v4.98 UI整理
-- ホームの「個人記録」を「記録・分析」へ変更
-- プロフィール / 設定 / 図鑑 / 記録分析の役割を整理
-- v4.90のコンパクトなTODAY'S EVENT / YOUR JOURNEYを維持
-
-v4.99 v5直前総合診断
-- Schema / Player ID / Nickname / データ構造 / 深刻度 / 公開情報分離 /
-  ランキング形式 / フィンガープリントをまとめてチェック
-- 総合診断の再実行ボタンを追加
-- v4.90で残っていたmigrateDataのschemaVersion=13固定を修正
-- schemaVersion 16
-- dataRevision 25
-
-v5予定
-- Googleアカウント本接続
-- サーバー権威ランキング
-- 月間 / 累計 / 禁欲別 / LIGHT-NORMAL-HEAVY別ランキング
-- Player ID検索 / フレンド / 公開プロフィール
+重要:
+Googleログインを使うにはFirebase Console > Authentication > Sign-in methodでGoogleを有効化してください。
+Firestoreのオンラインプロフィール/ランキングを使う前に新しいfirestore.rulesをdeployしてください。
