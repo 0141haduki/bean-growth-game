@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.83</p>
+        <p class="version-label">Version 4.89</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -251,6 +251,7 @@
       <section class="records-section">
         <p class="section-label">PERSONAL ANALYTICS</p><h3>曜日・記録傾向</h3>
         <p class="records-note">未記録日は失敗ではありませんが、成功ストリークはそこで途切れます。分析では成功・失敗・未記録を分けて集計します。</p>
+        <div id="personalOverallAnalytics" class="analysis-summary-card personal-overall-analytics"></div>
         <div id="personalWeekdayAnalytics" class="weekday-analytics-grid"></div>
         <div id="personalRiskSummary" class="analysis-summary-card"></div>
         <h4 class="analysis-subheading">月内日付の傾向</h4>
@@ -271,9 +272,25 @@
         <div id="eventRecordsGrid" class="event-records-grid"></div>
       </section>
       <section class="records-section">
-        <p class="section-label">PUBLIC PROFILE PREVIEW</p><h3>公開プロフィール予定</h3>
+        <p class="section-label">PUBLIC PROFILE</p><h3>公開プロフィール</h3>
+        <div class="public-profile-settings">
+          <label>代表禁欲<select id="publicRepresentativeHabit"></select></label>
+          <label><input id="sharePublicHeight" type="checkbox"> 最高高度を公開</label>
+          <label><input id="sharePublicStreak" type="checkbox"> 最高連続日数を公開</label>
+          <label><input id="sharePublicEncyclopedia" type="checkbox"> 図鑑解放数を公開</label>
+          <label><input id="sharePublicSeverity" type="checkbox"> 深刻度を公開</label>
+          <button id="savePublicProfileButton" class="secondary-button" type="button">公開設定を保存</button>
+        </div>
         <div id="publicProfilePreview" class="public-profile-preview"></div>
-        <p class="records-note">ランキング・フレンド機能では上の情報だけを公開する設計です。履歴・失敗日・ローカルIDなどは非公開データとして分離します。</p>
+        <p class="records-note">Player ID・ニックネーム・選択した公開項目だけをランキング/フレンド向けに使用します。詳細履歴、失敗日、Googleメールアドレス、Firebase UID、端末情報は非公開です。</p>
+      </section>
+      <section class="records-section">
+        <p class="section-label">ENCYCLOPEDIA QUALITY</p><h3>図鑑品質チェック</h3>
+        <div id="encyclopediaQualityAudit" class="foundation-preview"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">V5 RANKING FOUNDATION</p><h3>ランキング基盤</h3>
+        <div id="rankingFoundationPreview" class="foundation-preview"></div>
       </section>
       <section class="records-section">
         <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
@@ -281,7 +298,7 @@
       </section>
       <section class="records-section">
         <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
-        <p class="records-note">v4.69ではクラウド同期・匿名集計・個人分析の基盤まで実装しています。ランキング確定処理やサーバー集計はv5系で実装予定です。</p>
+        <p class="records-note">v4.89では遡り記録・個人/全体分析・公開プロフィール・ランキング用月次スナップショットまで準備済みです。v5ではサーバー検証付きランキングとフレンド機能へ進みます。</p>
         <div class="data-actions">
           <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
           <button id="importDataButton" type="button">JSONバックアップを読み込む</button>
