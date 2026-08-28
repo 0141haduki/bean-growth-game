@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.79.1</p>
+        <p class="version-label">Version 4.83</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -426,6 +426,47 @@
         <p class="records-note">※深刻度は自己申告です。将来の月間ランキングでは全体・LIGHT・NORMAL・HEAVYの各部門に使用します。</p>
       </section>
 
+      <section class="settings-section account-settings-section">
+        <div class="settings-section-heading">
+          <div>
+            <p class="section-label">ACCOUNT</p>
+            <h3>アカウント</h3>
+          </div>
+          <span id="accountTypeBadge" class="settings-count">GUEST</span>
+        </div>
+
+        <section class="settings-note-card account-card">
+          <div class="account-row">
+            <div>
+              <span class="account-label">Player ID</span>
+              <strong id="playerIdDisplay" class="account-value">発行中...</strong>
+              <p class="records-note">自動発行・変更不可。将来のフレンド検索や問い合わせに使います。</p>
+            </div>
+            <button id="copyPlayerIdButton" class="secondary-button compact-button" type="button">コピー</button>
+          </div>
+
+          <label class="account-field">
+            <span class="account-label">ニックネーム</span>
+            <div class="account-edit-line">
+              <input id="nicknameInput" type="text" maxlength="20" autocomplete="off" placeholder="1〜20文字">
+              <button id="saveNicknameButton" class="primary-button compact-button" type="button">保存</button>
+            </div>
+          </label>
+          <p id="nicknameStatus" class="records-note"></p>
+
+          <div class="account-status-grid">
+            <div><span>ログイン状態</span><strong id="accountLoginStatus">確認中...</strong></div>
+            <div><span>Firebase UID</span><strong id="accountFirebaseUid">確認中...</strong></div>
+          </div>
+
+          <div class="google-link-plan">
+            <strong>Google連携</strong>
+            <p>ゲストで始めた記録を維持したままGoogleアカウントへ連携し、Web・Androidの複数端末で同じデータを使う方式を採用します。</p>
+            <span id="googleLinkStatus" class="account-plan-badge">基盤準備済み / OAuth接続は次フェーズ</span>
+          </div>
+        </section>
+      </section>
+
       <section class="settings-section">
         <div class="settings-section-heading">
           <div>
@@ -458,12 +499,49 @@
           <p class="records-note">復元すると現在の端末データをクラウド保存時点のデータに置き換えます。復元前の端末データは安全用コピーとして端末内に退避します。</p>
           <p id="cloudBackupStatus" class="records-note"></p>
         </section>
+
+        <section class="settings-note-card device-card">
+          <div class="settings-section-heading compact-heading">
+            <div>
+              <p class="section-label">DEVICES</p>
+              <strong>このアカウントを使った端末</strong>
+            </div>
+            <button id="refreshDevicesButton" class="secondary-button compact-button" type="button">更新</button>
+          </div>
+          <p class="records-note">同じGoogleアカウントでの複数端末利用を想定した管理基盤です。現在は匿名Firebaseユーザー単位で端末を記録します。</p>
+          <div id="deviceList" class="device-list"><p class="records-note">端末情報を確認中...</p></div>
+        </section>
       </section>
 
       <section class="settings-note-card">
         <strong>非表示にしても記録は保持されます</strong>
         <p>高さ、連続成功、累計成功、図鑑、カレンダーなどは削除されません。少なくとも1種類は表示される仕様です。</p>
       </section>
+    </div>
+  </div>
+
+  <div id="syncConflictOverlay" class="modal-overlay hidden">
+    <div class="modal sync-conflict-modal">
+      <div class="modal-icon">🔀</div>
+      <p class="section-label">SYNC CONFLICT</p>
+      <h2>どちらのデータを使いますか？</h2>
+      <p class="modal-description">端末とクラウドの両方に変更があります。自動では上書きしません。内容を比較して選択してください。</p>
+
+      <div class="sync-compare-grid">
+        <section class="sync-compare-card local">
+          <span class="sync-source-label">📱 この端末</span>
+          <div id="syncLocalSummary"></div>
+          <button id="useLocalDataButton" class="primary-button" type="button">この端末を使う</button>
+        </section>
+        <section class="sync-compare-card cloud">
+          <span class="sync-source-label">☁️ クラウド</span>
+          <div id="syncCloudSummary"></div>
+          <button id="useCloudDataButton" class="primary-button" type="button">クラウドを使う</button>
+        </section>
+      </div>
+
+      <p class="records-note sync-conflict-note">選ばなかった側は即削除されません。クラウド復元時は現在の端末データを安全用コピーとして一時保存します。</p>
+      <button id="syncConflictLaterButton" class="primary-close secondary" type="button">あとで決める</button>
     </div>
   </div>
 

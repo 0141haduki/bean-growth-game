@@ -26,12 +26,14 @@ const firebaseConfig = {
   measurementId: "G-R5L9JXL3S0"
 };
 
-const APP_VERSION = "4.79";
+const APP_VERSION = "4.83";
 const LOCAL_STORAGE_KEY = "beanGrowthGame_v1";
 const RESTORE_SAFETY_KEY = "beanGrowthGame_beforeCloudRestore_v1";
 const AUTO_BACKUP_KEY = "beanGrowthGame_cloudAutoBackup_v1";
 const LAST_SYNC_HASH_KEY = "beanGrowthGame_lastSyncHash_v1";
 const PENDING_SYNC_KEY = "beanGrowthGame_pendingCloudSync_v1";
+const DEVICE_ID_KEY = "beanGrowthGame_deviceId_v1";
+const DEVICE_LABEL_KEY = "beanGrowthGame_deviceLabel_v1";
 const MAX_BACKUP_BYTES = 900 * 1024;
 const AUTO_BACKUP_INTERVAL_MS = 60 * 1000;
 const AUTO_BACKUP_DEBOUNCE_MS = 2500;
@@ -58,6 +60,17 @@ const cloudUserId = document.getElementById("cloudUserId");
 const cloudLastBackup = document.getElementById("cloudLastBackup");
 const cloudSyncState = document.getElementById("cloudSyncState");
 const cloudRuntimeStatus = document.getElementById("cloudRuntimeStatus");
+const accountLoginStatus = document.getElementById("accountLoginStatus");
+const accountFirebaseUid = document.getElementById("accountFirebaseUid");
+const googleLinkStatus = document.getElementById("googleLinkStatus");
+const deviceList = document.getElementById("deviceList");
+const refreshDevicesButton = document.getElementById("refreshDevicesButton");
+const syncConflictOverlay = document.getElementById("syncConflictOverlay");
+const syncLocalSummary = document.getElementById("syncLocalSummary");
+const syncCloudSummary = document.getElementById("syncCloudSummary");
+const useLocalDataButton = document.getElementById("useLocalDataButton");
+const useCloudDataButton = document.getElementById("useCloudDataButton");
+const syncConflictLaterButton = document.getElementById("syncConflictLaterButton");
 
 let latestCloudBackupString = null;
 let latestCloudMeta = null;
@@ -69,6 +82,21 @@ let autoBackupRunning = false;
 
 function setText(element, text) { if (element) element.textContent = text; }
 function shortUid(uid) { return !uid ? "未取得" : uid.length <= 16 ? uid : `${uid.slice(0, 8)}…${uid.slice(-6)}`; }
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function deviceId(){
+  let id=localStorage.getItem(DEVICE_ID_KEY);if(id)return id;
+  const bytes=new Uint8Array(8);if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);else for(let i=0;i<8;i++)bytes[i]=Math.floor(Math.random()*256);
+  id="dev-"+Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");localStorage.setItem(DEVICE_ID_KEY,id);return id;
+}
+function defaultDeviceLabel(){
+  if(window.Capacitor?.isNativePlatform?.())return "Androidアプリ";
+  if(/Android/i.test(navigator.userAgent))return "Androidブラウザ";
+  if(/Macintosh|Mac OS X/i.test(navigator.userAgent))return "Mac / Web";
+  if(/Windows/i.test(navigator.userAgent))return "Windows / Web";
+  return "Web端末";
+}
+function deviceLabel(){let v=localStorage.getItem(DEVICE_LABEL_KEY);if(!v){v=defaultDeviceLabel();localStorage.setItem(DEVICE_LABEL_KEY,v)}return v}
+function authProviderLabel(user){if(!user)return "未ログイン";if(user.isAnonymous)return "ゲスト（匿名）";if(user.providerData?.some(p=>p.providerId==="google.com"))return "Google連携済み";return "ログイン済み"}
 function getLocalDataString() { return localStorage.getItem(LOCAL_STORAGE_KEY); }
 function simpleHash(text) {
   let h = 2166136261;
@@ -111,6 +139,34 @@ function setCloudButtonsDisabled(disabled) {
   [cloudBackupButton, cloudRestoreButton, cloudRefreshButton, cloudDiagnosticsButton].forEach(button => { if (button) button.disabled = disabled; });
   if (cloudUndoRestoreButton) cloudUndoRestoreButton.disabled = disabled || !localStorage.getItem(RESTORE_SAFETY_KEY);
 }
+function summarizeGameData(data){
+  const habits=Object.values(data?.habits||{}),height=habits.reduce((s,h)=>s+Number(h?.height||0),0),records=habits.reduce((s,h)=>s+(h?.history||[]).filter(x=>["success","failure"].includes(x?.type)).length,0),maxStreak=Math.max(0,...habits.map(h=>Number(h?.stats?.maxStreak||h?.currentStreak||0)));
+  return{playerId:data?.profile?.playerId||"未発行",nickname:data?.profile?.nickname||"未設定",updatedAt:localUpdatedAt(data),height,records,maxStreak,schemaVersion:data?.schemaVersion??"-",appVersion:data?.version||"-"};
+}
+function summaryHtml(summary){
+  const when=summary.updatedAt?formatDate(summary.updatedAt):"不明";
+  return `<dl class="sync-summary-list"><div><dt>Player ID</dt><dd>${escapeHtml(summary.playerId)}</dd></div><div><dt>ニックネーム</dt><dd>${escapeHtml(summary.nickname)}</dd></div><div><dt>最終変更</dt><dd>${escapeHtml(when)}</dd></div><div><dt>合計の高さ</dt><dd>${Number(summary.height||0).toLocaleString("ja-JP",{maximumFractionDigits:1})}m</dd></div><div><dt>記録件数</dt><dd>${Number(summary.records||0).toLocaleString("ja-JP")}</dd></div><div><dt>最高連続</dt><dd>${Number(summary.maxStreak||0).toLocaleString("ja-JP")}日</dd></div><div><dt>データ版</dt><dd>Schema ${escapeHtml(summary.schemaVersion)} / ${escapeHtml(summary.appVersion)}</dd></div></dl>`;
+}
+function openConflictDialog(){
+  if(!syncConflictOverlay||!latestCloudBackupString)return;
+  let local=null,cloud=null;try{local=JSON.parse(getLocalDataString()||"null");cloud=JSON.parse(latestCloudBackupString||"null")}catch{}
+  if(syncLocalSummary)syncLocalSummary.innerHTML=summaryHtml(summarizeGameData(local));
+  if(syncCloudSummary)syncCloudSummary.innerHTML=summaryHtml(summarizeGameData(cloud));
+  syncConflictOverlay.classList.remove("hidden");
+}
+function closeConflictDialog(){syncConflictOverlay?.classList.add("hidden")}
+function maybeShowConflict(state){if(state==="conflict"||state==="cloud-newer")window.dispatchEvent(new CustomEvent("bean-growth:sync-attention",{detail:{state}}))}
+async function registerCurrentDevice(user){
+  if(!navigator.onLine||!user)return;
+  const ref=doc(db,"users",user.uid,"devices",deviceId());
+  await setDoc(ref,{deviceId:deviceId(),label:deviceLabel(),runtime:runtimeLabel(),appVersion:APP_VERSION,lastSeenAt:serverTimestamp(),clientLastSeenAt:new Date().toISOString()},{merge:true});
+}
+async function refreshDeviceList(){
+  if(!deviceList)return;if(!navigator.onLine){deviceList.innerHTML='<p class="records-note">オフラインのため端末一覧を取得できません。</p>';return}
+  const user=await firebaseUserReady;await registerCurrentDevice(user);const snap=await getDocs(collection(db,"users",user.uid,"devices")),items=[];
+  snap.forEach(d=>items.push(d.data()));items.sort((a,b)=>String(b.clientLastSeenAt||"").localeCompare(String(a.clientLastSeenAt||"")));
+  deviceList.innerHTML=items.length?items.slice(0,12).map(x=>`<div class="device-item"><div><strong>${escapeHtml(x.label||"端末")}</strong><span>${escapeHtml(x.runtime||"")}</span></div><small>${x.deviceId===deviceId()?"この端末 ・ ":""}最終確認 ${escapeHtml(formatDate(x.lastSeenAt??x.clientLastSeenAt))}</small></div>`).join(""):'<p class="records-note">登録済み端末はありません。</p>';
+}
 function updateSyncState() {
   const localString = getLocalDataString();
   if (!localString) { latestSyncState="no-local"; setText(cloudSyncState, "端末データなし"); return latestSyncState; }
@@ -118,7 +174,7 @@ function updateSyncState() {
   const localHash=simpleHash(localString), cloudHash=simpleHash(latestCloudBackupString), baseline=localStorage.getItem(LAST_SYNC_HASH_KEY);
   if (localHash===cloudHash) { latestSyncState="synced"; localStorage.setItem(LAST_SYNC_HASH_KEY,localHash); localStorage.removeItem(PENDING_SYNC_KEY); setText(cloudSyncState,"端末とクラウドは一致しています"); return latestSyncState; }
   const localChanged=Boolean(baseline&&localHash!==baseline), cloudChanged=Boolean(baseline&&cloudHash!==baseline);
-  if (localChanged&&cloudChanged) { latestSyncState="conflict"; setText(cloudSyncState,"⚠ 端末とクラウドの両方に変更があります。どちらを使うか選んでください"); return latestSyncState; }
+  if (localChanged&&cloudChanged) { latestSyncState="conflict"; setText(cloudSyncState,"⚠ 端末とクラウドの両方に変更があります。どちらを使うか選んでください"); maybeShowConflict(latestSyncState); return latestSyncState; }
   const localTime=parseDate(localUpdatedAt()), cloudTime=parseDate(latestCloudMeta?.localUpdatedAt || latestCloudMeta?.clientBackedUpAt || latestCloudMeta?.backedUpAt);
   if (cloudTime&&(!localTime||cloudTime>localTime)) { latestSyncState="cloud-newer"; setText(cloudSyncState,"クラウドの方が新しい可能性があります"); }
   else { latestSyncState="local-newer"; setText(cloudSyncState,"端末の方が新しいため、クラウド保存できます"); }
@@ -161,7 +217,7 @@ function combineContributions(items){
 }
 
 export const firebaseUserReady = new Promise((resolve,reject)=>{
-  let unsubscribe=null;unsubscribe=onAuthStateChanged(auth,async user=>{try{if(user){console.log("[Bean Growth] Firebase login:",user.uid);setText(cloudUserId,shortUid(user.uid));setText(cloudConnectionStatus,"Firebase接続済み");if(typeof unsubscribe==="function")unsubscribe();resolve(user);return}await signInAnonymously(auth)}catch(error){console.error("[Bean Growth] Firebase login failed:",error);setText(cloudConnectionStatus,"Firebase接続に失敗しました");if(typeof unsubscribe==="function")unsubscribe();reject(error)}})
+  let unsubscribe=null;unsubscribe=onAuthStateChanged(auth,async user=>{try{if(user){console.log("[Bean Growth] Firebase login:",user.uid);setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));setText(cloudConnectionStatus,"Firebase接続済み");if(googleLinkStatus)googleLinkStatus.textContent=user.isAnonymous?"基盤準備済み / 現在はゲスト":"Google連携済み";registerCurrentDevice(user).catch(error=>console.warn("[Bean Growth] Device registration skipped:",error));if(typeof unsubscribe==="function")unsubscribe();resolve(user);return}await signInAnonymously(auth)}catch(error){console.error("[Bean Growth] Firebase login failed:",error);setText(cloudConnectionStatus,"Firebase接続に失敗しました");if(typeof unsubscribe==="function")unsubscribe();reject(error)}})
 });
 
 async function writeAnalyticsContribution(user, parsedData){
@@ -211,17 +267,23 @@ export async function runFirebaseDiagnostics(){
 
 window.backupBeanGrowthToCloud=backupBeanGrowthToCloud;window.restoreBeanGrowthFromCloud=restoreBeanGrowthFromCloud;window.undoLastCloudRestore=undoLastCloudRestore;window.getCloudBackupInfo=getCloudBackupInfo;window.runFirebaseDiagnostics=runFirebaseDiagnostics;
 
-if(cloudBackupButton)cloudBackupButton.addEventListener("click",async()=>{setCloudButtonsDisabled(true);setText(cloudBackupStatus,"保存中...");try{updateSyncState();let force=false;if(latestSyncState==="cloud-newer"||latestSyncState==="conflict")force=window.confirm("クラウド側にも変更があります。端末データでクラウドを上書きしますか？");if((latestSyncState==="cloud-newer"||latestSyncState==="conflict")&&!force){setText(cloudBackupStatus,"保存をキャンセルしました。");return}await backupBeanGrowthToCloud({force})}catch(error){console.error(error);setText(cloudBackupStatus,`クラウド保存に失敗しました。 ${error?.message||""}`)}finally{setCloudButtonsDisabled(false)}});
-if(cloudRestoreButton)cloudRestoreButton.addEventListener("click",async()=>{const state=updateSyncState(),warning=state==="local-newer"||state==="conflict"?"\n\n⚠ 端末側にも新しい変更があります。":"";if(!confirm(`クラウド保存時点のデータで現在のBean Growthデータを置き換えます。${warning}\n\n復元前の端末データは安全用コピーとして残します。\n\n復元しますか？`))return;setCloudButtonsDisabled(true);setText(cloudBackupStatus,"クラウドから復元中...");try{await restoreBeanGrowthFromCloud();setText(cloudBackupStatus,"復元が完了しました。画面を更新します...");setTimeout(()=>location.reload(),700)}catch(error){setText(cloudBackupStatus,`クラウド復元に失敗しました。 ${error?.message||""}`);setCloudButtonsDisabled(false)}});
+if(cloudBackupButton)cloudBackupButton.addEventListener("click",async()=>{setCloudButtonsDisabled(true);setText(cloudBackupStatus,"保存中...");try{updateSyncState();if(latestSyncState==="cloud-newer"||latestSyncState==="conflict"){openConflictDialog();setText(cloudBackupStatus,"端末とクラウドを比較して、使うデータを選択してください。");return}await backupBeanGrowthToCloud()}catch(error){console.error(error);setText(cloudBackupStatus,`クラウド保存に失敗しました。 ${error?.message||""}`)}finally{setCloudButtonsDisabled(false)}});
+if(cloudRestoreButton)cloudRestoreButton.addEventListener("click",async()=>{const state=updateSyncState();if(state==="local-newer"||state==="conflict"){openConflictDialog();setText(cloudBackupStatus,"端末とクラウドを比較して、使うデータを選択してください。");return}if(!confirm("クラウド保存時点のデータで現在のBean Growthデータを置き換えます。\n\n復元前の端末データは安全用コピーとして残します。\n\n復元しますか？"))return;setCloudButtonsDisabled(true);setText(cloudBackupStatus,"クラウドから復元中...");try{await restoreBeanGrowthFromCloud();setText(cloudBackupStatus,"復元が完了しました。画面を更新します...");setTimeout(()=>location.reload(),700)}catch(error){setText(cloudBackupStatus,`クラウド復元に失敗しました。 ${error?.message||""}`);setCloudButtonsDisabled(false)}});
 if(cloudUndoRestoreButton)cloudUndoRestoreButton.addEventListener("click",()=>{if(!confirm("直前のクラウド復元を取り消し、復元前の端末データへ戻しますか？"))return;try{undoLastCloudRestore();setText(cloudBackupStatus,"復元前の端末データへ戻しました。画面を更新します...");setTimeout(()=>location.reload(),500)}catch(error){setText(cloudBackupStatus,error.message)}});
 if(cloudRefreshButton)cloudRefreshButton.addEventListener("click",async()=>{setCloudButtonsDisabled(true);setText(cloudBackupStatus,"クラウド状態を確認中...");try{await getCloudBackupInfo();setText(cloudBackupStatus,"クラウド状態を更新しました。")}catch(error){setText(cloudBackupStatus,`確認に失敗しました。 ${error?.message||""}`)}finally{setCloudButtonsDisabled(false)}});
 if(cloudDiagnosticsButton)cloudDiagnosticsButton.addEventListener("click",async()=>{setCloudButtonsDisabled(true);setText(cloudBackupStatus,"Firebase診断中...");try{const r=await runFirebaseDiagnostics();setText(cloudBackupStatus,`✓ 診断成功：${r.runtime} / Authentication OK / Firestore READ・WRITE OK`)}catch(error){setText(cloudBackupStatus,`診断失敗：${error?.message||"不明なエラー"}`)}finally{setCloudButtonsDisabled(false)}});
 if(cloudAutoBackupToggle){cloudAutoBackupToggle.checked=isAutoBackupEnabled();cloudAutoBackupToggle.addEventListener("change",()=>{setAutoBackupEnabled(cloudAutoBackupToggle.checked);setText(cloudBackupStatus,cloudAutoBackupToggle.checked?"自動クラウド保存を有効にしました。":"自動クラウド保存を無効にしました。")})}
 
+window.addEventListener("bean-growth:sync-attention",()=>{if(latestSyncState==="conflict")setText(cloudBackupStatus,"同期競合を検出しました。『クラウドに保存』または『クラウドから復元』で比較できます。")});
+if(refreshDevicesButton)refreshDevicesButton.addEventListener("click",async()=>{refreshDevicesButton.disabled=true;try{await refreshDeviceList()}catch(error){if(deviceList)deviceList.innerHTML=`<p class="records-note">端末一覧の取得に失敗しました。 ${escapeHtml(error?.message||"")}</p>`}finally{refreshDevicesButton.disabled=false}});
+if(syncConflictLaterButton)syncConflictLaterButton.addEventListener("click",closeConflictDialog);
+if(syncConflictOverlay)syncConflictOverlay.addEventListener("click",e=>{if(e.target===syncConflictOverlay)closeConflictDialog()});
+if(useLocalDataButton)useLocalDataButton.addEventListener("click",async()=>{useLocalDataButton.disabled=true;useCloudDataButton&&(useCloudDataButton.disabled=true);setText(cloudBackupStatus,"この端末のデータをクラウドへ保存中...");try{await backupBeanGrowthToCloud({force:true});closeConflictDialog();setText(cloudBackupStatus,"この端末のデータを採用し、クラウドへ保存しました。")}catch(error){setText(cloudBackupStatus,`保存に失敗しました。 ${error?.message||""}`)}finally{useLocalDataButton.disabled=false;useCloudDataButton&&(useCloudDataButton.disabled=false)}});
+if(useCloudDataButton)useCloudDataButton.addEventListener("click",async()=>{if(!confirm("クラウドのデータをこの端末に採用しますか？\\n復元前の端末データは安全用コピーとして残します。"))return;useCloudDataButton.disabled=true;useLocalDataButton&&(useLocalDataButton.disabled=true);setText(cloudBackupStatus,"クラウドデータをこの端末へ復元中...");try{await restoreBeanGrowthFromCloud();closeConflictDialog();setText(cloudBackupStatus,"クラウドデータを採用しました。画面を更新します...");setTimeout(()=>location.reload(),650)}catch(error){setText(cloudBackupStatus,`復元に失敗しました。 ${error?.message||""}`);useCloudDataButton.disabled=false;useLocalDataButton&&(useLocalDataButton.disabled=false)}});
 window.addEventListener("bean-growth:data-saved",()=>{localStorage.setItem(PENDING_SYNC_KEY,"true");scheduleAutoBackup();updateSyncState()});
 window.addEventListener("bean-growth:request-global-analytics",publishGlobalAnalytics);
 window.addEventListener("online",async()=>{updateNetworkState();try{await getCloudBackupInfo();if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error(error)}});
 window.addEventListener("offline",()=>{updateNetworkState();if(isAutoBackupEnabled())localStorage.setItem(PENDING_SYNC_KEY,"true")});
 
-async function initializeCloudPanel(){updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();try{const user=await firebaseUserReady;setText(cloudUserId,shortUid(user.uid));await getCloudBackupInfo();lastAutoBackedUpLocalString=latestCloudBackupString;if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error("[Bean Growth] Cloud panel initialization failed:",error);setText(cloudSyncState,"クラウド状態を取得できませんでした")}}
+async function initializeCloudPanel(){updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();try{const user=await firebaseUserReady;setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));await registerCurrentDevice(user);await getCloudBackupInfo();await refreshDeviceList();lastAutoBackedUpLocalString=latestCloudBackupString;if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error("[Bean Growth] Cloud panel initialization failed:",error);setText(cloudSyncState,"クラウド状態を取得できませんでした")}}
 initializeCloudPanel();
