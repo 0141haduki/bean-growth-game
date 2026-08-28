@@ -1,0 +1,17 @@
+Bean Growth v4.69 - Android / Firebase test
+
+1. ルート側ファイルを更新する
+2. sync-web.command をダブルクリック
+   またはターミナルで: ./sync-web.command
+3. Android Studioで実機を接続
+4. Run ▶
+5. Bean Growth > 設定 > クラウド保存・同期
+6. 「Android / Firebase診断」を押す
+7. 次が表示されればOK
+   - Android / Capacitor
+   - Authentication OK
+   - Firestore READ・WRITE OK
+
+注意:
+- ZIPには www フォルダを入れていません。
+- www は既存の1個だけを残し、sync-web.command で中身を上書きします。

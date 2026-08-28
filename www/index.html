@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.59</p>
+        <p class="version-label">Version 4.79</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -179,7 +179,7 @@
           <option value="storm">⚡ 成長の嵐 ×1.15 / 発生率SECRET / 最低+20m</option>
           <option value="miracle">🌠 天豆の奇跡 ×1.3 / 発生率SECRET / 最低+120m</option>
         </select>
-        <h3>連続失敗</h3><div class="dev-grid three"><button data-failure-count="0">0回</button><button data-failure-count="1">1回</button><button data-failure-count="2">2回</button></div>
+        <h3>連続失敗</h3><div class="dev-grid three"><button data-failure-count="0">0回</button><button data-failure-count="1">1回</button><button data-failure-count="2">2回</button></div><div id="developerTitleTestResult" class="developer-title-test">称号テスト：まだ条件未達成</div>
         <h3>長期バランスシミュレーション</h3>
         <div class="dev-simulator">
           <label>成功率 <input id="simSuccessRate" type="number" min="1" max="100" step="1" value="70"> %</label>
@@ -253,11 +253,16 @@
         <p class="records-note">未記録日は失敗ではありませんが、成功ストリークはそこで途切れます。分析では成功・失敗・未記録を分けて集計します。</p>
         <div id="personalWeekdayAnalytics" class="weekday-analytics-grid"></div>
         <div id="personalRiskSummary" class="analysis-summary-card"></div>
+        <h4 class="analysis-subheading">月内日付の傾向</h4>
+        <p class="records-note">同じ「○日」の記録が複数月にたまると、失敗率が高い日付を表示します。</p>
+        <div id="personalMonthDayAnalytics" class="analysis-list"></div>
+        <h4 class="analysis-subheading">12カテゴリ比較</h4>
+        <div id="personalCategoryAnalytics" class="analysis-list"></div>
       </section>
       <section class="records-section">
         <p class="section-label">GLOBAL ANALYTICS</p><h3>全プレイヤー分析</h3>
         <div id="globalAnalyticsPreview" class="global-analytics-preview"></div>
-        <p class="records-note">グローバル統計は、参加ユーザー数・記録件数・リセット件数などの母数を必ず併記して公開する設計です。</p>
+        <p class="records-note">グローバル統計Beta。匿名集計のみを使い、参加ユーザー数・記録件数・リセット件数の母数を必ず併記します。30人未満は参考値として表示します。</p>
       </section>
 
       <section class="records-section">
@@ -276,7 +281,7 @@
       </section>
       <section class="records-section">
         <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
-        <p class="records-note">v4.39では公開プロフィール用データと端末内の詳細データを分離できる構造まで準備しています。現在はまだ端末内保存です。</p>
+        <p class="records-note">v4.69ではクラウド同期・匿名集計・個人分析の基盤まで実装しています。ランキング確定処理やサーバー集計はv5系で実装予定です。</p>
         <div class="data-actions">
           <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
           <button id="importDataButton" type="button">JSONバックアップを読み込む</button>
@@ -435,19 +440,21 @@
           <p class="records-note">アカウント：<span id="cloudUserId">確認中...</span></p>
           <p class="records-note">最終クラウド保存：<span id="cloudLastBackup">未確認</span></p>
           <p class="records-note">同期状態：<span id="cloudSyncState">確認中...</span></p>
+          <p class="records-note">実行環境：<span id="cloudRuntimeStatus">確認中...</span></p>
 
           <div class="data-actions">
             <button id="cloudBackupButton" class="primary-button" type="button">クラウドに保存</button>
             <button id="cloudRestoreButton" class="secondary-button" type="button">クラウドから復元</button>
             <button id="cloudUndoRestoreButton" class="secondary-button" type="button">直前の復元を取り消す</button>
             <button id="cloudRefreshButton" class="secondary-button" type="button">状態を再確認</button>
+            <button id="cloudDiagnosticsButton" class="secondary-button" type="button">Android / Firebase診断</button>
           </div>
 
           <label class="records-note" style="display:flex;gap:8px;align-items:center;margin-top:12px;">
             <input id="cloudAutoBackupToggle" type="checkbox" style="width:auto;">
             <span>自動クラウド保存を有効にする</span>
           </label>
-          <p class="records-note">有効時は30秒ごとに端末データの変更を確認し、変更があった場合だけクラウドへ保存します。クラウドからの自動復元はまだ行いません。</p>
+          <p class="records-note">有効時は端末データの変更を検出して自動保存します。オフライン中の変更は保留し、再接続後に同期します。クラウドからの自動復元は行いません。</p>
           <p class="records-note">復元すると現在の端末データをクラウド保存時点のデータに置き換えます。復元前の端末データは安全用コピーとして端末内に退避します。</p>
           <p id="cloudBackupStatus" class="records-note"></p>
         </section>
