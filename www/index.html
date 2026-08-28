@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.89</p>
+        <p class="version-label">Version 4.90</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -22,16 +22,17 @@
     </header>
 
     <main id="homeScreen" class="screen active">
-      <section class="hero-card">
+      <section class="hero-card hero-card-compact">
         <p class="hero-label">YOUR JOURNEY</p>
-        <h2>今日の継続が、<br>豆の木を宇宙へ伸ばす。</h2>
-        <p>成功を積み重ね、現実世界のあらゆる高さを越えていく。</p>
+        <div class="journey-line"><strong id="homeJourneyMessage">今日の継続が豆の木を伸ばす。</strong><span>🌱 CONTINUE & GROW</span></div>
       </section>
 
-      <section id="homeEventCard" class="home-event-card">
+      <section id="homeEventCard" class="home-event-card home-event-compact">
+        <span class="home-event-label">TODAY'S EVENT</span>
         <span id="homeEventIcon" class="home-event-icon">🌱</span>
-        <div><p class="section-label">TODAY'S EVENT</p><h3 id="homeEventTitle">通常成長日</h3><p id="homeEventDescription"></p></div>
-        <strong id="homeEventReward">+1m</strong>
+        <strong id="homeEventTitle">通常成長日</strong>
+        <span id="homeEventDescription" class="hidden"></span>
+        <b id="homeEventReward">+1m</b>
       </section>
 
       <section class="section">
@@ -47,7 +48,9 @@
       </section>
       <section class="home-tools">
         <button id="openCalendarButton" class="home-tool-button" type="button"><span>📅</span><strong>継続カレンダー</strong><small>今月の記録を見る</small></button>
-        <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>個人記録</strong><small>最高記録・図鑑進捗</small></button><button id="openReportButton" class="home-tool-button" type="button"><span>🗓️</span><strong>週間・月間</strong><small>振り返りを見る</small></button>
+        <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>個人記録</strong><small>記録・分析を見る</small></button>
+        <button id="openReportButton" class="home-tool-button" type="button"><span>🗓️</span><strong>週間・月間</strong><small>振り返りを見る</small></button>
+        <button id="openProfileButton" class="home-tool-button profile-tool-button" type="button"><span>👤</span><strong>プロフィール</strong><small>個人情報・公開情報</small></button>
       </section>
 
       <section class="rule-card">
@@ -228,6 +231,75 @@
     </div>
   </div>
 
+
+  <div id="profileOverlay" class="page-overlay hidden">
+    <div class="overlay-page">
+      <div class="overlay-header">
+        <div><p class="section-label">PROFILE</p><h2>プロフィール</h2></div>
+        <button id="profileCloseButton" class="icon-button" type="button">✕</button>
+      </div>
+
+      <section class="records-section profile-section">
+        <p class="section-label">PERSONAL INFORMATION</p><h3>個人情報</h3>
+        <section class="settings-note-card account-card">
+          <div class="account-row">
+            <div>
+              <span class="account-label">Player ID</span>
+              <strong id="playerIdDisplay" class="account-value">発行中...</strong>
+              <p class="records-note">自動発行・変更不可。フレンド検索や問い合わせに使用します。</p>
+            </div>
+            <button id="copyPlayerIdButton" class="secondary-button compact-button" type="button">コピー</button>
+          </div>
+
+          <label class="account-field">
+            <span class="account-label">ニックネーム</span>
+            <div class="account-edit-line">
+              <input id="nicknameInput" type="text" maxlength="20" autocomplete="off" placeholder="1〜20文字">
+              <button id="saveNicknameButton" class="primary-button compact-button" type="button">保存</button>
+            </div>
+          </label>
+          <p id="nicknameStatus" class="records-note"></p>
+
+          <div class="account-status-grid profile-personal-grid">
+            <div><span>アカウント作成</span><strong id="profileAccountCreated">—</strong></div>
+            <div><span>最初の記録</span><strong id="profileFirstRecordDate">未開始</strong></div>
+            <div><span>ログイン状態</span><strong id="accountLoginStatus">確認中...</strong></div>
+            <div><span>Firebase UID</span><strong id="accountFirebaseUid">確認中...</strong></div>
+          </div>
+
+          <div class="google-link-plan">
+            <strong>Google連携</strong>
+            <p>ゲストの記録を維持したままGoogleアカウントへ連携し、Web・Androidの複数端末で同じデータを利用する予定です。</p>
+            <span id="googleLinkStatus" class="account-plan-badge">基盤準備済み / OAuth接続は次フェーズ</span>
+            <span id="accountTypeBadge" class="settings-count">GUEST</span>
+          </div>
+        </section>
+      </section>
+
+      <section class="records-section profile-section">
+        <p class="section-label">PUBLIC INFORMATION</p><h3>公開情報</h3>
+
+        <label class="profile-goal-field">
+          <span><strong>目標</strong><small id="profileGoalCount">0 / 80</small></span>
+          <textarea id="profileGoalInput" maxlength="80" rows="4" placeholder="例：禁酒100日を達成する"></textarea>
+        </label>
+        <button id="saveProfileGoalButton" class="primary-button" type="button">目標を保存</button>
+
+        <div class="public-profile-settings">
+          <label>代表禁欲<select id="publicRepresentativeHabit"></select></label>
+          <label><input id="sharePublicHeight" type="checkbox"> 最高高度を公開</label>
+          <label><input id="sharePublicStreak" type="checkbox"> 最高連続日数を公開</label>
+          <label><input id="sharePublicEncyclopedia" type="checkbox"> 図鑑解放数を公開</label>
+          <label><input id="sharePublicSeverity" type="checkbox"> 深刻度を公開</label>
+          <button id="savePublicProfileButton" class="secondary-button" type="button">公開設定を保存</button>
+        </div>
+
+        <div id="profilePublicPreview" class="public-profile-preview"></div>
+        <p class="records-note">目標・Player ID・ニックネーム・記録開始日・選択した公開項目だけを他プレイヤー向けに表示します。詳細履歴、失敗日、Googleメールアドレス、Firebase UID、端末情報は公開しません。</p>
+      </section>
+    </div>
+  </div>
+
   <div id="recordsOverlay" class="page-overlay hidden">
     <div class="overlay-page">
       <div class="overlay-header">
@@ -270,19 +342,6 @@
         <p class="section-label">EVENT RECORDS</p><h3>イベント遭遇記録</h3>
         <p class="records-note">同じ日に複数の禁欲を成功しても「遭遇」は1回だけです。「成功適用」はイベント効果が適用された禁欲数です。</p>
         <div id="eventRecordsGrid" class="event-records-grid"></div>
-      </section>
-      <section class="records-section">
-        <p class="section-label">PUBLIC PROFILE</p><h3>公開プロフィール</h3>
-        <div class="public-profile-settings">
-          <label>代表禁欲<select id="publicRepresentativeHabit"></select></label>
-          <label><input id="sharePublicHeight" type="checkbox"> 最高高度を公開</label>
-          <label><input id="sharePublicStreak" type="checkbox"> 最高連続日数を公開</label>
-          <label><input id="sharePublicEncyclopedia" type="checkbox"> 図鑑解放数を公開</label>
-          <label><input id="sharePublicSeverity" type="checkbox"> 深刻度を公開</label>
-          <button id="savePublicProfileButton" class="secondary-button" type="button">公開設定を保存</button>
-        </div>
-        <div id="publicProfilePreview" class="public-profile-preview"></div>
-        <p class="records-note">Player ID・ニックネーム・選択した公開項目だけをランキング/フレンド向けに使用します。詳細履歴、失敗日、Googleメールアドレス、Firebase UID、端末情報は非公開です。</p>
       </section>
       <section class="records-section">
         <p class="section-label">ENCYCLOPEDIA QUALITY</p><h3>図鑑品質チェック</h3>
@@ -438,50 +497,9 @@
         <div class="settings-section-heading">
           <div><p class="section-label">SEVERITY CLASS</p><h3>深刻度</h3></div>
         </div>
-        <p class="records-note">各禁欲について自己申告で LIGHT / NORMAL / HEAVY を設定します。変更予約は翌月1日から有効になり、その月の区分は月末まで固定されます。</p>
+        <p class="records-note">各禁欲について自己申告で LIGHT / NORMAL / HEAVY を設定します。記録開始前はいつでも変更できます。最初の記録時に開始時深刻度として確定し、その後の変更は翌月1日から有効です。</p>
         <div id="severitySettingsList" class="severity-settings-list"></div>
-        <p class="records-note">※深刻度は自己申告です。将来の月間ランキングでは全体・LIGHT・NORMAL・HEAVYの各部門に使用します。</p>
-      </section>
-
-      <section class="settings-section account-settings-section">
-        <div class="settings-section-heading">
-          <div>
-            <p class="section-label">ACCOUNT</p>
-            <h3>アカウント</h3>
-          </div>
-          <span id="accountTypeBadge" class="settings-count">GUEST</span>
-        </div>
-
-        <section class="settings-note-card account-card">
-          <div class="account-row">
-            <div>
-              <span class="account-label">Player ID</span>
-              <strong id="playerIdDisplay" class="account-value">発行中...</strong>
-              <p class="records-note">自動発行・変更不可。将来のフレンド検索や問い合わせに使います。</p>
-            </div>
-            <button id="copyPlayerIdButton" class="secondary-button compact-button" type="button">コピー</button>
-          </div>
-
-          <label class="account-field">
-            <span class="account-label">ニックネーム</span>
-            <div class="account-edit-line">
-              <input id="nicknameInput" type="text" maxlength="20" autocomplete="off" placeholder="1〜20文字">
-              <button id="saveNicknameButton" class="primary-button compact-button" type="button">保存</button>
-            </div>
-          </label>
-          <p id="nicknameStatus" class="records-note"></p>
-
-          <div class="account-status-grid">
-            <div><span>ログイン状態</span><strong id="accountLoginStatus">確認中...</strong></div>
-            <div><span>Firebase UID</span><strong id="accountFirebaseUid">確認中...</strong></div>
-          </div>
-
-          <div class="google-link-plan">
-            <strong>Google連携</strong>
-            <p>ゲストで始めた記録を維持したままGoogleアカウントへ連携し、Web・Androidの複数端末で同じデータを使う方式を採用します。</p>
-            <span id="googleLinkStatus" class="account-plan-badge">基盤準備済み / OAuth接続は次フェーズ</span>
-          </div>
-        </section>
+        <p class="records-note">※深刻度は自己申告です。途中からランキングへ参加した場合も日数補正は行いません。実際に記録した期間の成績で競います。</p>
       </section>
 
       <section class="settings-section">
@@ -559,6 +577,28 @@
 
       <p class="records-note sync-conflict-note">選ばなかった側は即削除されません。クラウド復元時は現在の端末データを安全用コピーとして一時保存します。</p>
       <button id="syncConflictLaterButton" class="primary-close secondary" type="button">あとで決める</button>
+    </div>
+  </div>
+
+
+  <div id="startSeverityOverlay" class="modal-overlay hidden">
+    <div class="modal start-severity-modal">
+      <div class="modal-icon">⚖️</div>
+      <p class="section-label">BEFORE YOU START</p>
+      <h2>最初に深刻度を選択</h2>
+      <h3 id="startSeverityHabit"></h3>
+      <p id="startSeverityDescription" class="modal-description"></p>
+      <p class="records-note">LIGHT / NORMAL / HEAVY は医学的な診断ではなく自己申告です。記録開始前はいつでも変更できます。最初の記録後に変更した場合は翌月1日から反映されます。</p>
+      <div class="start-severity-buttons">
+        <button type="button" data-start-severity="LIGHT">LIGHT<small>比較的軽い</small></button>
+        <button type="button" data-start-severity="NORMAL">NORMAL<small>標準</small></button>
+        <button type="button" data-start-severity="HEAVY">HEAVY<small>かなり深刻</small></button>
+      </div>
+      <strong id="startSeverityCurrent" class="start-severity-current">現在の選択：NORMAL</strong>
+      <div class="modal-action-row">
+        <button id="startSeverityCancelButton" class="secondary-button" type="button">戻る</button>
+        <button id="startSeverityConfirmButton" class="primary-button" type="button">この深刻度で記録を開始</button>
+      </div>
     </div>
   </div>
 
