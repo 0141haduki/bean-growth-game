@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.90</p>
+        <p class="version-label">Version 4.99</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -48,7 +48,7 @@
       </section>
       <section class="home-tools">
         <button id="openCalendarButton" class="home-tool-button" type="button"><span>📅</span><strong>継続カレンダー</strong><small>今月の記録を見る</small></button>
-        <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>個人記録</strong><small>記録・分析を見る</small></button>
+        <button id="openRecordsButton" class="home-tool-button" type="button"><span>📊</span><strong>記録・分析</strong><small>履歴と傾向を見る</small></button>
         <button id="openReportButton" class="home-tool-button" type="button"><span>🗓️</span><strong>週間・月間</strong><small>振り返りを見る</small></button>
         <button id="openProfileButton" class="home-tool-button profile-tool-button" type="button"><span>👤</span><strong>プロフィール</strong><small>個人情報・公開情報</small></button>
       </section>
@@ -145,7 +145,7 @@
           <button id="openEncyclopediaButton2" class="collection-card" type="button"><span>📚</span><strong>高さ図鑑</strong><small id="encyclopediaProgress">0 / 0</small></button>
           <button id="openAchievementsButton" class="collection-card" type="button"><span>🏅</span><strong>実績・称号パーツ</strong><small id="achievementProgress">0 / 0</small></button>
           <button id="openCalendarButton2" class="collection-card" type="button"><span>📅</span><strong>カレンダー</strong><small>継続履歴</small></button>
-          <button id="openRecordsButton2" class="collection-card" type="button"><span>📊</span><strong>個人記録</strong><small>最高記録</small></button><button id="openMissionsButton" class="collection-card" type="button"><span>🧭</span><strong>図鑑ミッション</strong><small id="missionProgress">0 / 0</small></button>
+          <button id="openRecordsButton2" class="collection-card" type="button"><span>📊</span><strong>記録・分析</strong><small>履歴・統計</small></button><button id="openMissionsButton" class="collection-card" type="button"><span>🧭</span><strong>図鑑ミッション</strong><small id="missionProgress">0 / 0</small></button>
         </div>
       </section>
 
@@ -269,10 +269,11 @@
 
           <div class="google-link-plan">
             <strong>Google連携</strong>
-            <p>ゲストの記録を維持したままGoogleアカウントへ連携し、Web・Androidの複数端末で同じデータを利用する予定です。</p>
-            <span id="googleLinkStatus" class="account-plan-badge">基盤準備済み / OAuth接続は次フェーズ</span>
+            <p>ゲストの記録を維持したままGoogleアカウントへ連携し、Web・Androidの複数端末で同じデータを利用する設計です。</p>
+            <span id="googleLinkStatus" class="account-plan-badge">Google認証UI準備済み / 本接続はWi-Fi環境で実施</span>
             <span id="accountTypeBadge" class="settings-count">GUEST</span>
           </div>
+          <div id="profileOnlineFoundation" class="foundation-preview profile-online-foundation"></div>
         </section>
       </section>
 
@@ -350,6 +351,12 @@
       <section class="records-section">
         <p class="section-label">V5 RANKING FOUNDATION</p><h3>ランキング基盤</h3>
         <div id="rankingFoundationPreview" class="foundation-preview"></div>
+        <div id="rankingSubmissionPreview" class="foundation-preview"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">V4.99 RELEASE CHECK</p><h3>総合診断</h3>
+        <div id="releaseReadiness" class="release-readiness"></div>
+        <button id="runV499DiagnosticsButton" class="secondary-button" type="button">総合診断を再実行</button>
       </section>
       <section class="records-section">
         <p class="section-label">COLLECTION</p><h3>カテゴリ別図鑑進捗</h3>
@@ -357,7 +364,7 @@
       </section>
       <section class="records-section">
         <p class="section-label">DATA FOUNDATION</p><h3>オンライン化準備</h3>
-        <p class="records-note">v4.89では遡り記録・個人/全体分析・公開プロフィール・ランキング用月次スナップショットまで準備済みです。v5ではサーバー検証付きランキングとフレンド機能へ進みます。</p>
+        <p class="records-note">v4.99ではプロフィール・深刻度・複数端末同期・フレンド検索用Player ID・ランキング送信形式・整合性診断までv5向け基盤を整理しています。Google本接続とサーバー権威ランキングはv5で有効化します。</p>
         <div class="data-actions">
           <button id="exportDataButton" type="button">JSONバックアップを書き出す</button>
           <button id="importDataButton" type="button">JSONバックアップを読み込む</button>
@@ -531,6 +538,7 @@
             <span>自動クラウド保存を有効にする</span>
           </label>
           <p class="records-note">有効時は端末データの変更を検出して自動保存します。オフライン中の変更は保留し、再接続後に同期します。クラウドからの自動復元は行いません。</p>
+          <div class="sync-policy-strip"><span>✓ 自動保存</span><span>✓ オフライン保留</span><span>✓ 競合時は選択</span><span>× 自動復元なし</span></div>
           <p class="records-note">復元すると現在の端末データをクラウド保存時点のデータに置き換えます。復元前の端末データは安全用コピーとして端末内に退避します。</p>
           <p id="cloudBackupStatus" class="records-note"></p>
         </section>

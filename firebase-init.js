@@ -26,7 +26,7 @@ const firebaseConfig = {
   measurementId: "G-R5L9JXL3S0"
 };
 
-const APP_VERSION = "4.90";
+const APP_VERSION = "4.99";
 const LOCAL_STORAGE_KEY = "beanGrowthGame_v1";
 const RESTORE_SAFETY_KEY = "beanGrowthGame_beforeCloudRestore_v1";
 const AUTO_BACKUP_KEY = "beanGrowthGame_cloudAutoBackup_v1";
@@ -47,6 +47,14 @@ const HABIT_LABELS = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+window.BeanGrowthAuthReadiness={
+  firebaseReady:true,
+  anonymousAuthReady:true,
+  googleProviderReady:false,
+  webGoogleFlowPrepared:true,
+  androidGoogleFlowPrepared:false,
+  note:"Googleプロバイダ有効化とAndroid側の本接続はv5で実施"
+};
 
 const cloudBackupButton = document.getElementById("cloudBackupButton");
 const cloudRestoreButton = document.getElementById("cloudRestoreButton");
@@ -285,5 +293,15 @@ window.addEventListener("bean-growth:request-global-analytics",publishGlobalAnal
 window.addEventListener("online",async()=>{updateNetworkState();try{await getCloudBackupInfo();if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error(error)}});
 window.addEventListener("offline",()=>{updateNetworkState();if(isAutoBackupEnabled())localStorage.setItem(PENDING_SYNC_KEY,"true")});
 
-async function initializeCloudPanel(){updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();try{const user=await firebaseUserReady;setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));await registerCurrentDevice(user);await getCloudBackupInfo();await refreshDeviceList();lastAutoBackedUpLocalString=latestCloudBackupString;if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error("[Bean Growth] Cloud panel initialization failed:",error);setText(cloudSyncState,"クラウド状態を取得できませんでした")}}
+
+function updateAccountPlanStatus(user=null){
+  if(googleLinkStatus){
+    if(user?.providerData?.some(p=>p.providerId==="google.com"))googleLinkStatus.textContent="Google連携済み";
+    else if(user?.isAnonymous)googleLinkStatus.textContent="ゲスト利用中 / Google連携はv5で有効化";
+    else googleLinkStatus.textContent="Google連携準備中";
+  }
+  window.BeanGrowthAuthReadiness.googleProviderReady=Boolean(user?.providerData?.some(p=>p.providerId==="google.com"));
+}
+
+async function initializeCloudPanel(){updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();try{const user=await firebaseUserReady;updateAccountPlanStatus(user);setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));await registerCurrentDevice(user);await getCloudBackupInfo();await refreshDeviceList();lastAutoBackedUpLocalString=latestCloudBackupString;if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error("[Bean Growth] Cloud panel initialization failed:",error);setText(cloudSyncState,"クラウド状態を取得できませんでした")}}
 initializeCloudPanel();

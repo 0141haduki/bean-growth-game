@@ -1,6 +1,6 @@
 "use strict";
 
-const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.90",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
+const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.99",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
 const HABITS={
 noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱",description:"自慰をしない"},
 noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺",description:"飲酒をしない"},
@@ -308,7 +308,7 @@ function validPlayerId(v){return /^BG-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/.test
 function normalizeNickname(v){return String(v??"").trim().replace(/\s+/g," ").slice(0,20)}
 function validNickname(v){const s=normalizeNickname(v);return s.length>=1&&s.length<=20}
 function initialHabit(){return{height:0,currentStreak:0,totalSuccess:0,consecutiveFailures:0,lastActionDate:null,lastActionType:null,history:[],startedAt:null,startSeverity:null,moonBlessing:false,moonBlessingEarned:false,unlockedMilestones:[],unlockedTitles:["seed"],selectedTitleId:"seed",stats:{maxHeight:0,maxStreak:0,weekendSuccess:0,eventApplications:{wind:0,storm:0,miracle:0}}}}
-function initialData(){const habits={};const visibleHabits={},habitSeverity={},severityReservations={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true;habitSeverity[id]="NORMAL"});return{version:APP_VERSION,schemaVersion:15,profile:{localId:makeLocalId(),playerId:makePlayerId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString(),account:{mode:"guest",googleLinked:false},publicProfile:{representativeHabitId:"noMasturbation",shareHeight:true,shareStreak:true,shareEncyclopedia:true,shareSeverity:true,goal:""},onlineFoundation:{rankingVersion:1,profileVersion:1,lastRankingSubmissionAt:null},titleInventory:{modifiers:{},nouns:{}},selectedTitle:{modifierId:null,nounId:"bean_challenger"},titleHistory:[],missionRewards:[],dataRevision:16,lastMigratedAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits,habitOrder:Object.keys(HABITS),habitPaused:{},habitSeverity,severityReservations,rewardEditUnlockedDates:{}},ranking:{finalizedMonths:{},pendingSubmissions:{}},habits}}
+function initialData(){const habits={};const visibleHabits={},habitSeverity={},severityReservations={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true;habitSeverity[id]="NORMAL"});return{version:APP_VERSION,schemaVersion:16,profile:{localId:makeLocalId(),playerId:makePlayerId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString(),account:{mode:"guest",googleLinked:false},publicProfile:{representativeHabitId:"noMasturbation",shareHeight:true,shareStreak:true,shareEncyclopedia:true,shareSeverity:true,goal:""},onlineFoundation:{rankingVersion:2,profileVersion:2,friendVersion:1,integrityVersion:1,googleAuthReady:false,lastRankingSubmissionAt:null},titleInventory:{modifiers:{},nouns:{}},selectedTitle:{modifierId:null,nounId:"bean_challenger"},titleHistory:[],missionRewards:[],dataRevision:25,lastMigratedAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits,habitOrder:Object.keys(HABITS),habitPaused:{},habitSeverity,severityReservations,rewardEditUnlockedDates:{}},ranking:{finalizedMonths:{},pendingSubmissions:{}},habits}}
 
 function makeLocalId(){return "local-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9)}
 function migrateData(data){
@@ -328,17 +328,22 @@ function migrateData(data){
   if(typeof data.profile.publicProfile.shareSeverity!=="boolean")data.profile.publicProfile.shareSeverity=true;
   if(typeof data.profile.publicProfile.goal!=="string")data.profile.publicProfile.goal="";
   data.profile.publicProfile.goal=data.profile.publicProfile.goal.slice(0,80);
-  if(!data.profile.onlineFoundation||typeof data.profile.onlineFoundation!=="object")data.profile.onlineFoundation={rankingVersion:1,profileVersion:1,lastRankingSubmissionAt:null};
+  if(!data.profile.onlineFoundation||typeof data.profile.onlineFoundation!=="object")data.profile.onlineFoundation={rankingVersion:2,profileVersion:2,friendVersion:1,integrityVersion:1,googleAuthReady:false,lastRankingSubmissionAt:null};
   if(!data.ranking||typeof data.ranking!=="object")data.ranking={finalizedMonths:{},pendingSubmissions:{}};
   if(!data.ranking.finalizedMonths)data.ranking.finalizedMonths={};
   if(!data.ranking.pendingSubmissions)data.ranking.pendingSubmissions={};
+  data.profile.onlineFoundation.rankingVersion=Math.max(Number(data.profile.onlineFoundation.rankingVersion||1),2);
+  data.profile.onlineFoundation.profileVersion=Math.max(Number(data.profile.onlineFoundation.profileVersion||1),2);
+  data.profile.onlineFoundation.friendVersion=Math.max(Number(data.profile.onlineFoundation.friendVersion||0),1);
+  data.profile.onlineFoundation.integrityVersion=Math.max(Number(data.profile.onlineFoundation.integrityVersion||0),1);
+  data.profile.onlineFoundation.googleAuthReady=Boolean(data.profile.onlineFoundation.googleAuthReady);
   if(!data.profile.titleInventory)data.profile.titleInventory={modifiers:{},nouns:{}};
   if(!data.profile.titleInventory.modifiers)data.profile.titleInventory.modifiers={};
   if(!data.profile.titleInventory.nouns)data.profile.titleInventory.nouns={};
   if(!data.profile.selectedTitle)data.profile.selectedTitle={modifierId:null,nounId:"bean_challenger"};
   if(!Array.isArray(data.profile.titleHistory))data.profile.titleHistory=[];
   if(!Array.isArray(data.profile.missionRewards))data.profile.missionRewards=[];
-  if(!data.profile.dataRevision)data.profile.dataRevision=1;data.profile.dataRevision=Math.max(Number(data.profile.dataRevision||1),16);
+  if(!data.profile.dataRevision)data.profile.dataRevision=1;data.profile.dataRevision=Math.max(Number(data.profile.dataRevision||1),25);
   if(!data.profile.lastMigratedAt)data.profile.lastMigratedAt=new Date().toISOString();
   if(!data.settings)data.settings={};
   if(!Array.isArray(data.settings.habitOrder))data.settings.habitOrder=Object.keys(HABITS);
@@ -349,7 +354,7 @@ function migrateData(data){
   if(!data.settings.severityReservations)data.settings.severityReservations={};
   if(!data.settings.rewardEditUnlockedDates||typeof data.settings.rewardEditUnlockedDates!=="object")data.settings.rewardEditUnlockedDates={};
   if(!data.habits)data.habits={};
-  data.schemaVersion=13;
+  data.schemaVersion=Math.max(Number(data.schemaVersion||0),16);
   Object.keys(HABITS).forEach(id=>{
     if(!data.habits[id])data.habits[id]=initialHabit();
     if(typeof data.settings.visibleHabits[id]!=="boolean")data.settings.visibleHabits[id]=true;
@@ -368,7 +373,7 @@ function migrateData(data){
 function loadData(){const r=localStorage.getItem(STORAGE_KEY);if(!r)return initialData();try{return migrateData(mergeData(JSON.parse(r)))}catch(e){console.error(e);return initialData()}}
 function mergeData(s){const i=initialData(),m={...i,...s,version:APP_VERSION,settings:{...i.settings,...(s.settings||{}),visibleHabits:{...i.settings.visibleHabits,...(s.settings?.visibleHabits||{})},habitPaused:{...i.settings.habitPaused,...(s.settings?.habitPaused||{})},habitSeverity:{...i.settings.habitSeverity,...(s.settings?.habitSeverity||{})},severityReservations:{...i.settings.severityReservations,...(s.settings?.severityReservations||{})},rewardEditUnlockedDates:{...i.settings.rewardEditUnlockedDates,...(s.settings?.rewardEditUnlockedDates||{})}},habits:{...i.habits}};Object.keys(HABITS).forEach(id=>m.habits[id]={...i.habits[id],...(s.habits?.[id]||{})});return m}
 function updateStats(d,event=null,dateKey=todayKey()){if(!d.stats)d.stats={maxHeight:0,maxStreak:0,weekendSuccess:0,eventApplications:{wind:0,storm:0,miracle:0}};if(!d.stats.eventApplications)d.stats.eventApplications={wind:0,storm:0,miracle:0};d.stats.maxHeight=Math.max(Number(d.stats.maxHeight||0),Number(d.height||0));d.stats.maxStreak=Math.max(Number(d.stats.maxStreak||0),Number(d.currentStreak||0));if(event&&GUERRILLA_EVENTS[event.type])d.stats.eventApplications[event.type]=Number(d.stats.eventApplications[event.type]||0)+1;if(isWeekendDate(dateKey))d.stats.weekendSuccess=Number(d.stats.weekendSuccess||0)+1;}
-function saveData(){const before=pendingTitleUnlocks.length;syncGlobalTitleUnlocks();appData.version=APP_VERSION;appData.schemaVersion=Math.max(Number(appData.schemaVersion||0),15);appData.profile.lastLocalChangeAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(appData));window.dispatchEvent(new CustomEvent("bean-growth:data-saved",{detail:{updatedAt:appData.profile.lastLocalChangeAt}}));if(pendingTitleUnlocks.length>before)setTimeout(showNextTitleUnlock,120)}function clone(v){return JSON.parse(JSON.stringify(v))}function $(id){return document.getElementById(id)}
+function saveData(){const before=pendingTitleUnlocks.length;syncGlobalTitleUnlocks();appData.version=APP_VERSION;appData.schemaVersion=Math.max(Number(appData.schemaVersion||0),16);appData.profile.lastLocalChangeAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(appData));window.dispatchEvent(new CustomEvent("bean-growth:data-saved",{detail:{updatedAt:appData.profile.lastLocalChangeAt}}));if(pendingTitleUnlocks.length>before)setTimeout(showNextTitleUnlock,120)}function clone(v){return JSON.parse(JSON.stringify(v))}function $(id){return document.getElementById(id)}
 function todayKey(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${day}`}
 function fmt(v,max=1){return Number(v).toLocaleString("ja-JP",{maximumFractionDigits:max})}function fmtH(m){m=Number(m);return m<1000?`${fmt(m)}m`:m<1000000?`${fmt(m/1000,2)}km`:`${fmt(m/1000,1)}km`}function round1(v){return Math.round(v*10)/10}function floor1(v){return Math.floor(v*10)/10}
 let appData=loadData(),currentHabitId=null,pendingAction=null,developerMode=false,developerData=null,developerOriginalData=null,developerForcedEvent="auto",encyclopediaCategory="すべて",encyclopediaQuery="",encyclopediaUnlockFilter="all",encyclopediaSort="asc",toastTimer=null,calendarHabitId="noMasturbation",calendarCursor=new Date(),recordsHabitId="noMasturbation";
@@ -1045,6 +1050,119 @@ function personalOverallStats(d){
 }
 
 
+
+function publicProfilePayload(){
+  const pub=appData.profile.publicProfile||{},repId=HABITS[pub.representativeHabitId]?pub.representativeHabitId:"noMasturbation",rep=appData.habits[repId],title=equippedTitle();
+  const payload={
+    schemaVersion:2,
+    playerId:appData.profile.playerId,
+    nickname:appData.profile.nickname,
+    goal:String(pub.goal||"").slice(0,80),
+    firstRecordDate:firstEverRecordDate(),
+    representativeHabitId:repId,
+    representativeHabitName:HABITS[repId].name,
+    title:{icon:title.icon,text:title.text},
+    updatedAt:appData.profile.lastLocalChangeAt||new Date().toISOString()
+  };
+  if(pub.shareSeverity!==false)payload.severity=severityOf(repId);
+  if(pub.shareHeight!==false)payload.maxHeight=allTimeMaxHeight(rep);
+  if(pub.shareStreak!==false)payload.maxStreak=allTimeMaxStreak(rep);
+  if(pub.shareEncyclopedia!==false)payload.encyclopediaUnlocked=globalUnlockedMilestoneCount();
+  return payload;
+}
+function playerSearchKey(){return String(appData.profile.playerId||"").replace(/-/g,"").toUpperCase()}
+function friendFoundationSummary(){
+  const p=publicProfilePayload();
+  return{
+    playerId:p.playerId,
+    searchKey:playerSearchKey(),
+    publicFields:Object.keys(p).filter(k=>!["schemaVersion","updatedAt"].includes(k)),
+    ready:Boolean(validPlayerId(p.playerId)&&validNickname(p.nickname)),
+    googleLinked:Boolean(appData.profile.account?.googleLinked)
+  };
+}
+function rankingOverallSnapshot(base=new Date()){
+  const rows=Object.keys(HABITS).map(id=>monthlyRankingSnapshot(id,base));
+  return{
+    month:currentMonthKey(base),
+    playerId:appData.profile.playerId,
+    totalHeight:rows.reduce((s,x)=>s+Number(x.maxHeight||0),0),
+    records:rows.reduce((s,x)=>s+Number(x.records||0),0),
+    success:rows.reduce((s,x)=>s+Number(x.success||0),0),
+    failure:rows.reduce((s,x)=>s+Number(x.failure||0),0),
+    resets:rows.reduce((s,x)=>s+Number(x.resets||0),0),
+    habits:rows,
+    generatedAt:new Date().toISOString()
+  };
+}
+function rankingSubmissionPreview(){
+  const now=new Date(),current=rankingOverallSnapshot(now),prevBase=previousMonthBase(now),previous=rankingOverallSnapshot(prevBase),info=rankingFinalizeInfo(now);
+  return{
+    schemaVersion:2,
+    playerId:appData.profile.playerId,
+    current,
+    previous,
+    previousFinalized:info.finalized,
+    previousFinalizeDate:info.finalizeDate
+  };
+}
+function integrityFingerprint(){
+  const summary={
+    playerId:appData.profile.playerId,
+    schemaVersion:appData.schemaVersion,
+    habits:Object.fromEntries(Object.keys(HABITS).map(id=>{
+      const d=appData.habits[id],rows=normalizedHistoryRows(d).map(x=>[x.date,x.type,Number(x.after?.height??0),Number(x.after?.currentStreak??0),Number(x.after?.consecutiveFailures??0)]);
+      return[id,{startedAt:d.startedAt,startSeverity:d.startSeverity,rows}];
+    }))
+  };
+  return hashString(JSON.stringify(summary)).toString(16).padStart(8,"0");
+}
+function runRegressionSuite(){
+  const tests=[];
+  const add=(name,ok,detail="")=>tests.push({name,ok:Boolean(ok),detail});
+  add("Schema",Number(appData.schemaVersion)>=16,`v${appData.schemaVersion}`);
+  add("Player ID",validPlayerId(appData.profile.playerId),appData.profile.playerId||"missing");
+  add("Nickname",validNickname(appData.profile.nickname),appData.profile.nickname||"missing");
+  const structure=validateAppData(appData);add("基本データ構造",structure.ok,structure.ok?"OK":structure.errors.slice(0,2).join(" / "));
+  const startMeta=Object.keys(HABITS).every(id=>{const d=appData.habits[id],rows=normalizedHistoryRows(d);return rows.length?Boolean(d.startedAt&&SEVERITY_LEVELS.includes(d.startSeverity)):!d.startedAt});
+  add("開始日・開始時深刻度",startMeta,startMeta?"整合":"要確認");
+  const severity=Object.keys(HABITS).every(id=>SEVERITY_LEVELS.includes(severityOf(id)));add("深刻度",severity,severity?"全12カテゴリ正常":"要確認");
+  const publicPayload=publicProfilePayload(),leak=["localId","firebaseUid","email","history","devices"].some(k=>Object.prototype.hasOwnProperty.call(publicPayload,k));
+  add("公開プロフィール分離",!leak,!leak?"非公開情報なし":"公開情報に不要項目あり");
+  const rank=rankingSubmissionPreview();add("ランキング送信形式",Boolean(rank.current?.habits?.length===Object.keys(HABITS).length),"12カテゴリ");
+  add("整合性フィンガープリント",/^[0-9a-f]{8}$/.test(integrityFingerprint()),integrityFingerprint());
+  return{ok:tests.every(x=>x.ok),tests,checkedAt:new Date().toISOString()};
+}
+function renderProfileFoundation(){
+  const el=$("profileOnlineFoundation");if(!el)return;
+  const f=friendFoundationSummary(),auth=window.BeanGrowthAuthReadiness||null;
+  const google=appData.profile.account?.googleLinked?"Google連携済み":auth?.googleProviderReady?"Google認証コード準備済み":"Google認証接続は次フェーズ";
+  el.innerHTML=`<div class="foundation-grid">
+    <div><small>Player ID検索キー</small><strong>${escapeHtml(f.searchKey)}</strong></div>
+    <div><small>公開プロフィール</small><strong>${f.ready?"READY":"CHECK"}</strong></div>
+    <div><small>Google連携</small><strong>${escapeHtml(google)}</strong></div>
+    <div><small>複数端末</small><strong>SYNC READY</strong></div>
+  </div><p class="records-note">フレンド検索ではPlayer IDを使用し、Googleアカウント情報・Firebase UID・詳細履歴は公開しません。</p>`;
+}
+function renderRankingSubmissionPreview(){
+  const el=$("rankingSubmissionPreview");if(!el)return;
+  const p=rankingSubmissionPreview(),info=rankingFinalizeInfo(new Date());
+  const current=p.current;
+  el.innerHTML=`<div class="foundation-grid">
+    <div><small>今月</small><strong>${escapeHtml(current.month)}</strong></div>
+    <div><small>記録件数</small><strong>${current.records}</strong></div>
+    <div><small>成功 / 失敗</small><strong>${current.success} / ${current.failure}</strong></div>
+    <div><small>前月確定</small><strong>${info.finalized?"確定済み":`${escapeHtml(info.finalizeDate)}に確定`}</strong></div>
+  </div><p class="records-note">v5では端末値をそのまま信用せず、履歴をサーバー側で再検証してランキング値を確定する設計です。</p>`;
+}
+function renderReleaseReadiness(){
+  const el=$("releaseReadiness");if(!el)return;
+  const r=runRegressionSuite(),ok=r.tests.filter(x=>x.ok).length;
+  el.innerHTML=`<div class="release-score ${r.ok?"ready":"check"}"><strong>${ok} / ${r.tests.length}</strong><span>${r.ok?"v5基盤チェック OK":"要確認項目あり"}</span></div>`+
+    r.tests.map(x=>`<div class="diagnostic-row ${x.ok?"ok":"ng"}"><span>${x.ok?"✓":"!"}</span><strong>${escapeHtml(x.name)}</strong><small>${escapeHtml(x.detail||"")}</small></div>`).join("");
+}
+function refreshV499Diagnostics(){renderReleaseReadiness();renderIntegrityStatus();renderRankingSubmissionPreview();toast("v4.99総合診断を更新しました。")}
+
 function renderProfile(){
   renderAccountSettings();
   const title=equippedTitle(),pub=appData.profile.publicProfile||{},first=firstEverRecordDate();
@@ -1054,6 +1172,7 @@ function renderProfile(){
   const goal=$("profileGoalInput");if(goal&&document.activeElement!==goal)goal.value=pub.goal||"";
   updateProfileGoalCount();
   renderPublicProfileControls();
+  renderProfileFoundation();
   const repId=HABITS[pub.representativeHabitId]?pub.representativeHabitId:"noMasturbation",rep=appData.habits[repId],rh=HABITS[repId];
   $("profilePublicPreview").innerHTML=`<p class="section-label">PUBLIC VIEW</p><h4>${escapeHtml(appData.profile.nickname)}　${title.icon} ${escapeHtml(title.text)}</h4>
   <p class="profile-goal-preview"><span>目標</span>${pub.goal?escapeHtml(pub.goal):"まだ目標は設定されていません。"}</p>
@@ -1097,11 +1216,11 @@ function renderRecords(){
   renderPersonalAnalytics(d);renderGlobalAnalyticsPreview();
   const es=eventStatsSummary();
   $("eventRecordsGrid").innerHTML=Object.values(GUERRILLA_EVENTS).map(e=>{const st=es[e.type];return `<div class="event-record-card"><span class="event-big-icon">${e.icon}</span><strong>${e.title}</strong><small>遭遇 ${st.encounters}回<br>成功適用 ${st.applications}回<br>${st.first?`初遭遇 ${escapeHtml(st.first)}`:"未遭遇"}</small></div>`}).join("");
-  renderRankingFoundation();renderEncyclopediaQuality();
+  renderRankingFoundation();renderRankingSubmissionPreview();renderEncyclopediaQuality();renderReleaseReadiness();
   const cats=[...new Set(all.map(m=>m.category))];$("recordsCategoryProgress").innerHTML="";
   cats.forEach(c=>{const items=all.filter(m=>m.category===c),done=items.filter(m=>isUnlocked(d,m)).length,p=Math.round(done/items.length*100);$("recordsCategoryProgress").insertAdjacentHTML("beforeend",`<div class="record-category-row"><div><span>${escapeHtml(c)}</span><span>${done}/${items.length}</span></div><div class="mini-progress"><span style="width:${p}%"></span></div></div>`)});
   const hist=(appData.profile.titleHistory||[]).slice(0,8);$("recentTitleHistory").innerHTML=hist.length?hist.map(x=>`<div class="title-history-row"><span>${x.icon||"🏅"}</span><span><strong>${escapeHtml(x.text)}</strong><small>${titleRarityLabel(x.rarity)} ・ ${escapeHtml(x.sourceHabitId?HABITS[x.sourceHabitId]?.name||"": "複合・全体実績")}</small></span><time>${new Date(x.earnedAt).toLocaleDateString("ja-JP")}</time></div>`).join(""):`<div class="records-note">まだ新しい称号パーツはありません。</div>`;
-  renderIntegrityStatus();$("dataSchemaInfo").textContent=`localId: ${appData.profile.localId} / schemaVersion: ${appData.schemaVersion} / appVersion: ${APP_VERSION} / public-private-ready: yes / ranking-foundation: v1`;
+  renderIntegrityStatus();$("dataSchemaInfo").textContent=`localId: ${appData.profile.localId} / schemaVersion: ${appData.schemaVersion} / appVersion: ${APP_VERSION} / public-private-ready: yes / ranking-foundation: v2 / friend-foundation: v1 / integrity: v1`;
 }
 function validateAppData(data){
   const errors=[];if(!data||typeof data!=="object")errors.push("データ本体がありません");if(!data?.profile?.localId)errors.push("localIdがありません");if(!data?.habits||typeof data.habits!=="object")errors.push("habitsがありません");
@@ -1314,7 +1433,7 @@ $("calendarPrevButton").onclick=()=>{calendarCursor=new Date(calendarCursor.getF
 $("calendarNextButton").onclick=()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1);renderCalendar()};
 $("openRecordsButton").onclick=openRecords;$("openRecordsButton2").onclick=openRecords;
 $("recordsCloseButton").onclick=()=>$("recordsOverlay").classList.add("hidden");
-$("exportDataButton").onclick=exportBackup;$("importDataButton").onclick=requestImportBackup;$("importDataInput").onchange=e=>importBackupFile(e.target.files?.[0]);
+$("runV499DiagnosticsButton").onclick=refreshV499Diagnostics;$("exportDataButton").onclick=exportBackup;$("importDataButton").onclick=requestImportBackup;$("importDataInput").onchange=e=>importBackupFile(e.target.files?.[0]);
 
 migrateLegacyTitleSelection();
 cleanupRewardEditUnlocks();
