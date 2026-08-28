@@ -1,6 +1,6 @@
 "use strict";
 
-const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.49.1",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
+const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="4.59",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
 const HABITS={
 noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱",description:"自慰をしない"},
 noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺",description:"飲酒をしない"},
@@ -226,7 +226,7 @@ const ACHIEVEMENTS=[
 {id:"moon",icon:"🌕",name:"月到達",description:"384,400kmに到達",test:d=>d.height>=MOON_HEIGHT}
 ];
 function initialHabit(){return{height:0,currentStreak:0,totalSuccess:0,consecutiveFailures:0,lastActionDate:null,lastActionType:null,history:[],moonBlessing:false,moonBlessingEarned:false,unlockedMilestones:[],unlockedTitles:["seed"],selectedTitleId:"seed",stats:{maxHeight:0,maxStreak:0,weekendSuccess:0,eventApplications:{wind:0,storm:0,miracle:0}}}}
-function initialData(){const habits={};const visibleHabits={},habitSeverity={},severityReservations={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true;habitSeverity[id]="NORMAL"});return{version:APP_VERSION,schemaVersion:9,profile:{localId:makeLocalId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString(),publicProfile:{representativeHabitId:"noMasturbation",shareHeight:true,shareStreak:true},titleInventory:{modifiers:{},nouns:{}},selectedTitle:{modifierId:null,nounId:"bean_challenger"},titleHistory:[],missionRewards:[],dataRevision:4,lastMigratedAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits,habitOrder:Object.keys(HABITS),habitPaused:{},habitSeverity,severityReservations},habits}}
+function initialData(){const habits={};const visibleHabits={},habitSeverity={},severityReservations={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true;habitSeverity[id]="NORMAL"});return{version:APP_VERSION,schemaVersion:10,profile:{localId:makeLocalId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString(),publicProfile:{representativeHabitId:"noMasturbation",shareHeight:true,shareStreak:true},titleInventory:{modifiers:{},nouns:{}},selectedTitle:{modifierId:null,nounId:"bean_challenger"},titleHistory:[],missionRewards:[],dataRevision:5,lastMigratedAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits,habitOrder:Object.keys(HABITS),habitPaused:{},habitSeverity,severityReservations},habits}}
 
 function makeLocalId(){return "local-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9)}
 function migrateData(data){
@@ -252,7 +252,7 @@ function migrateData(data){
   if(!data.settings.habitSeverity)data.settings.habitSeverity={};
   if(!data.settings.severityReservations)data.settings.severityReservations={};
   if(!data.habits)data.habits={};
-  data.schemaVersion=9;
+  data.schemaVersion=10;
   Object.keys(HABITS).forEach(id=>{
     if(!data.habits[id])data.habits[id]=initialHabit();
     if(typeof data.settings.visibleHabits[id]!=="boolean")data.settings.visibleHabits[id]=true;
@@ -278,6 +278,22 @@ let appData=loadData(),currentHabitId=null,pendingAction=null,developerMode=fals
 
 function hashString(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}function seededRandom(s){let x=s;x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}
 function dateFromKey(k){const [y,m,d]=String(k).split("-").map(Number);return new Date(y,m-1,d,12,0,0)}
+function dateKeyFromDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function daysAgoFromKey(k){const a=dateFromKey(todayKey()),b=dateFromKey(k);return Math.round((a-b)/86400000)}
+function isEditableRecordDate(k){const n=daysAgoFromKey(k);return n>=0&&n<=2}
+function requiresRewardAdForEdit(k){return daysAgoFromKey(k)===2}
+function previousDateKey(k){const d=dateFromKey(k);d.setDate(d.getDate()-1);return dateKeyFromDate(d)}
+function monthRankingFinalizeKey(y,mZero){const d=new Date(y,mZero+1,3,12,0,0);return dateKeyFromDate(d)}
+function recordRateForMonth(d,base=new Date()){
+  const y=base.getFullYear(),m=base.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),today=dateFromKey(todayKey());
+  const end=(y===today.getFullYear()&&m===today.getMonth())?today:last;
+  const profileStart=new Date(appData.profile.createdAt||first);const start=profileStart>first?new Date(profileStart.getFullYear(),profileStart.getMonth(),profileStart.getDate(),12):first;
+  if(start>end)return{recorded:0,eligible:0,rate:0};
+  const eligible=Math.floor((end-start)/86400000)+1;
+  const prefix=`${y}-${String(m+1).padStart(2,"0")}`;
+  const recorded=new Set((d.history||[]).filter(x=>String(x.date||"").startsWith(prefix)&&dateFromKey(x.date)>=start&&dateFromKey(x.date)<=end).map(x=>x.date)).size;
+  return{recorded,eligible,rate:eligible?Math.round(recorded/eligible*100):0};
+}
 function isWeekendDate(k=todayKey()){const day=dateFromKey(k).getDay();return day===5||day===6||day===0}
 function weekendLabel(k=todayKey()){const day=dateFromKey(k).getDay();return day===5?"金曜日":day===6?"土曜日":day===0?"日曜日":""}
 function specialDayLabel(k=todayKey()){return isWeekendDate(k)?`🎉 特別の日・${weekendLabel(k)}`:""}
@@ -533,7 +549,7 @@ function renderHome(){
 function quickHomeSuccess(id){
   currentHabitId=id;const d=appData.habits[id];if(d.lastActionDate===todayKey()){openHabit(id);return}
   const before=snap(d),e=eventToday(),r=successCalc(d.height,e),p=crossed(d.height,r.newHeight);
-  d.height=r.newHeight;syncUnlocks(d);d.currentStreak++;d.totalSuccess++;d.consecutiveFailures=0;d.lastActionDate=todayKey();d.lastActionType="success";updateStats(d,e);
+  d.height=r.newHeight;syncUnlocks(d);const continues=historyForDate(d,previousDateKey(todayKey()))?.type==="success";d.currentStreak=continues?d.currentStreak+1:1;d.totalSuccess++;d.consecutiveFailures=0;d.lastActionDate=todayKey();d.lastActionType="success";updateStats(d,e);
   const moon=awardMoon(d);d.history.push({id:"act-"+Date.now().toString(36),date:todayKey(),timestamp:new Date().toISOString(),type:"success",eventType:e.type,weekendBonus:r.weekendBonus,eventMode:r.mode,eventBonus:r.eventBonus,before,after:snap(d)});
   saveData();renderHome();celebrate(r,e,p,moon);
 }
@@ -558,7 +574,7 @@ function renderMoon(d){if(!d.moonBlessingEarned){$("moonBlessingCard").classList
 function renderRisk(d){const r=failureCalc(d);$("nextFailureResult").textContent=`${fmtH(d.height)} → ${fmtH(r.newHeight)}`;if(r.usesMoonBlessing)$("riskDescription").textContent="月の加護が自動発動し、高さの減少を防ぎます。ただし連続失敗は1回増えます。";else if(d.consecutiveFailures===0)$("riskDescription").textContent=`1回目の失敗。現在の高さの1/5（${fmtH(r.loss)}）を失います。`;else if(d.consecutiveFailures===1)$("riskDescription").textContent="2回連続失敗。残っている高さが半分になります。";else $("riskDescription").textContent="3回連続失敗。豆の木は0mに戻ります。";$("failButtonDescription").textContent=r.usesMoonBlessing?"月の加護が発動":d.consecutiveFailures===0?"高さの1/5を失う":d.consecutiveFailures===1?"高さが半分になる":"0mに戻る"}
 
 function snap(d){return{height:d.height,currentStreak:d.currentStreak,totalSuccess:d.totalSuccess,consecutiveFailures:d.consecutiveFailures,lastActionDate:d.lastActionDate,lastActionType:d.lastActionType,moonBlessing:d.moonBlessing,moonBlessingEarned:d.moonBlessingEarned}}function restore(d,s){Object.assign(d,s)}
-function recordSuccess(){if(developerMode){devSuccess();return}const d=activeData();if(d.lastActionDate===todayKey()){toast("今日はすでに記録されています。");return}const before=snap(d),e=eventToday(),r=successCalc(d.height,e),passed=crossed(d.height,r.newHeight);d.height=r.newHeight;syncUnlocks(d);d.currentStreak++;d.totalSuccess++;d.consecutiveFailures=0;d.lastActionDate=todayKey();d.lastActionType="success";updateStats(d,e);const moon=awardMoon(d);d.history.push({id:"act-"+Date.now().toString(36),date:todayKey(),timestamp:new Date().toISOString(),type:"success",eventType:e.type,weekendBonus:r.weekendBonus,eventMode:r.mode,eventBonus:r.eventBonus,before,after:snap(d)});saveData();renderGame();renderHome();celebrate(r,e,passed,moon)}
+function recordSuccess(){if(developerMode){devSuccess();return}const d=activeData();if(d.lastActionDate===todayKey()){toast("今日はすでに記録されています。");return}const before=snap(d),e=eventToday(),r=successCalc(d.height,e),passed=crossed(d.height,r.newHeight);d.height=r.newHeight;syncUnlocks(d);const continues=historyForDate(d,previousDateKey(todayKey()))?.type==="success";d.currentStreak=continues?d.currentStreak+1:1;d.totalSuccess++;d.consecutiveFailures=0;d.lastActionDate=todayKey();d.lastActionType="success";updateStats(d,e);const moon=awardMoon(d);d.history.push({id:"act-"+Date.now().toString(36),date:todayKey(),timestamp:new Date().toISOString(),type:"success",eventType:e.type,weekendBonus:r.weekendBonus,eventMode:r.mode,eventBonus:r.eventBonus,before,after:snap(d)});saveData();renderGame();renderHome();celebrate(r,e,passed,moon)}
 function requestFailure(){if(developerMode){devFailure();return}const d=activeData();if(d.lastActionDate===todayKey()){toast("今日はすでに記録されています。");return}const r=failureCalc(d);pendingAction="failure";$("confirmIcon").textContent=r.usesMoonBlessing?"🌕":"⚠️";$("confirmTitle").textContent="継続できなかった日を記録しますか？";$("confirmDescription").textContent=r.usesMoonBlessing?`月の加護が発動します。高さは${fmtH(d.height)}のままですが、連続失敗は1回増えます。`:`${fmtH(d.height)} → ${fmtH(r.newHeight)}になります。`;$("confirmOkButton").textContent="記録する";$("confirmOverlay").classList.remove("hidden")}
 function recordFailure(){const d=activeData(),before=snap(d),r=failureCalc(d);d.height=r.newHeight;d.currentStreak=0;d.consecutiveFailures=r.nextFailures;d.lastActionDate=todayKey();d.lastActionType="failure";if(r.usesMoonBlessing)d.moonBlessing=false;d.history.push({id:"act-"+Date.now().toString(36),date:todayKey(),timestamp:new Date().toISOString(),type:"failure",usedMoonBlessing:r.usesMoonBlessing,before,after:snap(d)});saveData();closeConfirm();renderGame();renderHome();toast(r.message)}
 function requestUndo(){if(developerMode)return;const d=activeData(),i=todayHistoryIndex(d);if(i<0)return;pendingAction="undo";$("confirmIcon").textContent="↩";$("confirmTitle").textContent="今日の記録を取り消しますか？";$("confirmDescription").textContent="今日の操作直前の状態へ戻します。";$("confirmOkButton").textContent="取り消す";$("confirmOverlay").classList.remove("hidden")}
@@ -603,6 +619,69 @@ function renderEncyclopedia(){const d=activeData();syncUnlocks(d);const all=MILE
   categoryNames.forEach(c=>{const items=all.filter(m=>m.category===c),done=items.filter(m=>isUnlocked(d,m)).length,pct=Math.round(done/items.length*100);const card=document.createElement("div");card.className="category-progress-card";card.innerHTML=`<strong>${escapeHtml(c)}　${done}/${items.length}</strong><small>${pct}% 解放</small><div class="mini-progress"><span style="width:${pct}%"></span></div>`;$("categoryProgressGrid").appendChild(card)});
   const cats=["すべて",...categoryNames];$("categoryTabs").innerHTML="";cats.forEach(c=>{const b=document.createElement("button");b.className=`category-tab ${c===encyclopediaCategory?"active":""}`;b.textContent=c;b.onclick=()=>{encyclopediaCategory=c;renderEncyclopedia()};$("categoryTabs").appendChild(b)});let rows=all.filter(m=>encyclopediaCategory==="すべて"||m.category===encyclopediaCategory);if(encyclopediaUnlockFilter==="unlocked")rows=rows.filter(m=>isUnlocked(d,m));if(encyclopediaUnlockFilter==="locked")rows=rows.filter(m=>!isUnlocked(d,m));const q=encyclopediaQuery.trim().toLowerCase();if(q)rows=rows.filter(m=>[m.name,m.category,m.country,m.region,m.description,...(m.trivia||[]),...(m.wildlife||[]),...(m.risks||[])].filter(Boolean).join(" ").toLowerCase().includes(q));rows.sort((a,b)=>encyclopediaSort==="desc"?b.height-a.height:a.height-b.height);$("encyclopediaList").innerHTML="";if(!rows.length){$("encyclopediaList").innerHTML='<div class="encyclopedia-empty">条件に一致する項目はありません。</div>';return}rows.forEach(m=>{const ok=isUnlocked(d,m),row=document.createElement("button");row.type="button";row.className=`encyclopedia-item ${ok?"":"locked"}`;row.innerHTML=`<span class="e-icon">${ok?m.icon:"❓"}</span><div><h3>${ok?m.name:"？？？"}</h3><p>${ok?m.category:"未到達"}${m.approximate&&ok?"・概算比較":""}</p>${ok&&(m.country||m.region)?`<p class="e-sub e-place">${[m.country,m.region].filter(Boolean).join(" / ")}</p>`:""}</div><span class="e-height">${fmtH(m.height)}</span>`;if(ok)row.onclick=()=>openMilestone(m);$("encyclopediaList").appendChild(row)})}
 
+function recalcHabitStatsFromHistory(d){
+  const rows=d.history||[];let maxHeight=Number(d.height||0),maxStreak=Number(d.currentStreak||0),weekendSuccess=0;const eventApplications={wind:0,storm:0,miracle:0};
+  rows.forEach(x=>{maxHeight=Math.max(maxHeight,Number(x.before?.height||0),Number(x.after?.height||0));maxStreak=Math.max(maxStreak,Number(x.before?.currentStreak||0),Number(x.after?.currentStreak||0));if(x.type==="success"){if(isWeekendDate(x.date))weekendSuccess++;if(eventApplications[x.eventType]!==undefined)eventApplications[x.eventType]++}});
+  d.stats={maxHeight,maxStreak,weekendSuccess,eventApplications};
+}
+function rebuildHabitFromDate(habitId,startDate){
+  const d=appData.habits[habitId];if(!d)return;
+  const oldUnlocked=Array.isArray(d.unlockedMilestones)?d.unlockedMilestones.slice():[];
+  const rows=(d.history||[]).filter(x=>x&&x.date&&["success","failure"].includes(x.type)).sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.timestamp||"").localeCompare(String(b.timestamp||"")));
+  const unique=[];const seen=new Set();for(let i=rows.length-1;i>=0;i--){if(!seen.has(rows[i].date)){seen.add(rows[i].date);unique.unshift(rows[i])}}
+  const prior=unique.filter(x=>x.date<startDate).slice(-1)[0]||null;
+  const state=initialHabit();if(prior?.after)restore(state,prior.after);
+  const replay=unique.filter(x=>x.date>=startDate);let prevRow=prior;
+  replay.forEach(row=>{
+    const before=snap(state);
+    if(row.type==="success"){
+      const e=eventForDate(row.date),r=successCalc(state.height,e,row.date);state.height=r.newHeight;
+      const continuous=prevRow?.type==="success"&&prevRow.date===previousDateKey(row.date);state.currentStreak=continuous?Number(state.currentStreak||0)+1:1;
+      state.totalSuccess=Number(state.totalSuccess||0)+1;state.consecutiveFailures=0;state.lastActionDate=row.date;state.lastActionType="success";syncUnlocks(state);awardMoon(state);
+      Object.assign(row,{eventType:e.type,weekendBonus:r.weekendBonus,eventMode:r.mode,eventBonus:r.eventBonus,before,after:snap(state)});
+    }else{
+      const r=failureCalc(state);state.height=r.newHeight;state.currentStreak=0;state.consecutiveFailures=r.nextFailures;state.lastActionDate=row.date;state.lastActionType="failure";if(r.usesMoonBlessing)state.moonBlessing=false;
+      Object.assign(row,{usedMoonBlessing:r.usesMoonBlessing,before,after:snap(state)});
+    }
+    prevRow=row;
+  });
+  d.history=unique;d.height=state.height;d.currentStreak=state.currentStreak;d.totalSuccess=state.totalSuccess;d.consecutiveFailures=state.consecutiveFailures;d.lastActionDate=state.lastActionDate;d.lastActionType=state.lastActionType;d.moonBlessing=state.moonBlessing;d.moonBlessingEarned=state.moonBlessingEarned;
+  syncUnlocks(d);d.unlockedMilestones=[...new Set([...oldUnlocked,...(d.unlockedMilestones||[])])];recalcHabitStatsFromHistory(d);d.currentStreak=calendarSuccessStreak(d);
+}
+function calendarSuccessStreak(d){
+  const rows=(d.history||[]).filter(x=>x?.date&&["success","failure"].includes(x.type)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));if(!rows.length)return 0;
+  const last=rows[rows.length-1],ago=daysAgoFromKey(last.date);if(last.type!=="success"||ago>1)return 0;
+  let count=1,expected=previousDateKey(last.date);for(let i=rows.length-2;i>=0;i--){const x=rows[i];if(x.date!==expected||x.type!=="success")break;count++;expected=previousDateKey(x.date)}return count;
+}
+function refreshStreaksForElapsedGaps(){Object.values(appData.habits||{}).forEach(d=>{const c=calendarSuccessStreak(d);d.currentStreak=c;if(d.lastActionDate&&daysAgoFromKey(d.lastActionDate)>1&&d.lastActionType==="success")d.currentStreak=0})}
+function recomputeAllHabits(){Object.keys(HABITS).forEach(id=>rebuildHabitFromDate(id,(appData.habits[id].history||[])[0]?.date||todayKey()))}
+let recordEditContext=null;
+async function requestRewardAdRecordEdit(dateKey){
+  if(!requiresRewardAdForEdit(dateKey))return true;
+  if(window.BeanGrowthAds&&typeof window.BeanGrowthAds.showRewardedRecordEdit==="function"){
+    try{return Boolean(await window.BeanGrowthAds.showRewardedRecordEdit({date:dateKey,placement:"record_edit_day_minus_2"}))}catch(e){console.error(e);return false}
+  }
+  return confirm("一昨日の記録変更にはリワード広告が必要です。\n\n現在は広告SDK接続前の開発版のため、テスト解放して続けますか？");
+}
+function openRecordEdit(habitId,dateKey){
+  if(!isEditableRecordDate(dateKey)){toast("3日前以前の記録は確定済みです。");return}
+  const h=HABITS[habitId],d=appData.habits[habitId],rec=historyForDate(d,dateKey),ago=daysAgoFromKey(dateKey);
+  recordEditContext={habitId,dateKey};
+  $("recordEditTitle").textContent=`${h.icon} ${h.name}・${dateKey}`;
+  $("recordEditDescription").textContent=rec?`現在の記録：${rec.type==="success"?"成功":"継続できず"}`:"現在の記録：未記録";
+  const notice=$("recordEditAdNotice");notice.classList.toggle("hidden",ago!==2);notice.textContent=ago===2?"🎬 一昨日の変更はリワード広告を1回見ると、その日全体の編集が解放されます。":"";
+  $("recordEditOverlay").classList.remove("hidden");
+}
+function closeRecordEdit(){$("recordEditOverlay").classList.add("hidden");recordEditContext=null}
+async function applyRecordEdit(type){
+  if(!recordEditContext)return;const {habitId,dateKey}=recordEditContext;
+  if(!isEditableRecordDate(dateKey)){closeRecordEdit();toast("編集期限を過ぎています。");return}
+  if(!(await requestRewardAdRecordEdit(dateKey))){toast("編集はキャンセルされました。");return}
+  const d=appData.habits[habitId],existing=historyForDate(d,dateKey);
+  d.history=(d.history||[]).filter(x=>x.date!==dateKey);
+  if(type){d.history.push({id:existing?.id||"edit-"+Date.now().toString(36),date:dateKey,timestamp:existing?.timestamp||new Date().toISOString(),editedAt:new Date().toISOString(),editType:daysAgoFromKey(dateKey)===2?"rewarded":"standard",type})}
+  rebuildHabitFromDate(habitId,dateKey);saveData();renderCalendar();renderHome();if(currentHabitId===habitId)renderGame();closeRecordEdit();toast(type?`${dateKey}を${type==="success"?"成功":"継続できず"}に更新しました。`:`${dateKey}を未記録に戻しました。`);
+}
 function historyForDate(d,date){return [...(d.history||[])].reverse().find(x=>x.date===date)||null}
 
 let reportHabitId="noMasturbation";
@@ -620,7 +699,8 @@ function renderReport(){
   const ms=new Date(now.getFullYear(),now.getMonth(),1),me=new Date(now.getFullYear(),now.getMonth()+1,0);
   const w=statsForRange(d,ws,we),m=statsForRange(d,ms,me);
   $("weeklyReportCard").innerHTML=`<h3>今週</h3><div class="report-grid"><div class="report-stat"><strong>${w.success}日</strong><small>成功</small></div><div class="report-stat"><strong>${w.failure}日</strong><small>失敗</small></div><div class="report-stat"><strong>${fmtH(w.gain)}</strong><small>高さ増減</small></div><div class="report-stat"><strong>${d.currentStreak}日</strong><small>現在連続</small></div></div>`;
-  $("monthlyReportCard").innerHTML=`<h3>${now.getFullYear()}年${now.getMonth()+1}月</h3><div class="report-grid"><div class="report-stat"><strong>${m.success}日</strong><small>成功</small></div><div class="report-stat"><strong>${m.failure}日</strong><small>失敗</small></div><div class="report-stat"><strong>${fmtH(m.gain)}</strong><small>高さ増減</small></div><div class="report-stat"><strong>${(d.history||[]).filter(x=>x.date?.startsWith(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`)).length}日</strong><small>記録日数</small></div></div>`;
+  const rr=recordRateForMonth(d,now),finalize=monthRankingFinalizeKey(now.getFullYear(),now.getMonth());
+  $("monthlyReportCard").innerHTML=`<h3>${now.getFullYear()}年${now.getMonth()+1}月</h3><div class="report-grid"><div class="report-stat"><strong>${m.success}日</strong><small>成功</small></div><div class="report-stat"><strong>${m.failure}日</strong><small>失敗</small></div><div class="report-stat"><strong>${fmtH(m.gain)}</strong><small>高さ増減</small></div><div class="report-stat"><strong>${rr.rate}%</strong><small>記録率 ${rr.recorded}/${rr.eligible}</small></div></div><p class="records-note">月間ランキングは月末の遡り修正を待ち、翌月3日に前月分を確定・発表する予定です。</p>`;
 }
 
 function openCalendar(){
@@ -638,16 +718,20 @@ function renderCalendar(){
   $("calendarMonthLabel").textContent=`${y}年${m+1}月`;
   const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),today=new Date(),grid=$("calendarGrid");grid.innerHTML="";
   for(let i=0;i<first.getDay();i++){const x=document.createElement("div");x.className="calendar-day blank";grid.appendChild(x)}
-  let s=0,f=0,u=0;
+  let sCount=0,f=0,u=0;
   for(let day=1;day<=days;day++){
     const date=new Date(y,m,day),key=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`,rec=historyForDate(d,key),future=date>new Date(today.getFullYear(),today.getMonth(),today.getDate());
-    const cell=document.createElement("div");let state=rec?.type==="success"?"success":rec?.type==="failure"?"failure":"unrecorded";
-    if(state==="success")s++;else if(state==="failure")f++;else if(!future)u++;
-    cell.className=`calendar-day ${state} ${future?"future":""} ${key===todayKey()?"today":""}`;
-    cell.innerHTML=`<strong>${day}</strong><span class="day-mark">${rec?.type==="success"?"✓":rec?.type==="failure"?"×":"·"}</span>`;
+    const cell=document.createElement("button");cell.type="button";let state=rec?.type==="success"?"success":rec?.type==="failure"?"failure":"unrecorded";
+    if(state==="success")sCount++;else if(state==="failure")f++;else if(!future)u++;
+    const editable=!future&&isEditableRecordDate(key);
+    cell.className=`calendar-day ${state} ${future?"future":""} ${key===todayKey()?"today":""} ${editable?"editable":"locked"}`;
+    cell.disabled=future;
+    cell.innerHTML=`<strong>${day}</strong><span class="day-mark">${rec?.type==="success"?"✓":rec?.type==="failure"?"×":"·"}</span>${requiresRewardAdForEdit(key)?'<span class="edit-lock">🎬</span>':editable?'<span class="edit-lock">✎</span>':""}`;
+    if(editable)cell.onclick=()=>openRecordEdit(calendarHabitId,key);
     grid.appendChild(cell);
   }
-  $("calendarMonthStats").innerHTML=`<div><strong>${s}</strong><small>成功</small></div><div><strong>${f}</strong><small>継続できず</small></div><div><strong>${u}</strong><small>未記録</small></div>`;
+  const rr=recordRateForMonth(d,new Date(y,m,1));
+  $("calendarMonthStats").innerHTML=`<div><strong>${sCount}</strong><small>成功</small></div><div><strong>${f}</strong><small>継続できず</small></div><div><strong>${u}</strong><small>未記録</small></div><div><strong>${rr.rate}%</strong><small>記録率 ${rr.recorded}/${rr.eligible}</small></div>`;
 }
 function allTimeMaxHeight(d){return Math.max(Number(d.stats?.maxHeight||0),Number(d.height||0),...(d.history||[]).flatMap(x=>[Number(x.before?.height||0),Number(x.after?.height||0)]))}
 function allTimeMaxStreak(d){return Math.max(Number(d.stats?.maxStreak||0),Number(d.currentStreak||0),...(d.history||[]).flatMap(x=>[Number(x.before?.currentStreak||0),Number(x.after?.currentStreak||0)]))}
@@ -672,6 +756,21 @@ function bestSimultaneousHabitCount(){
   return Math.max(0,...Object.values(counts));
 }
 
+const WEEKDAY_NAMES=["日","月","火","水","木","金","土"];
+function personalWeekdayStats(d){
+  const startRaw=new Date(appData.profile.createdAt||Date.now()),start=new Date(startRaw.getFullYear(),startRaw.getMonth(),startRaw.getDate(),12),end=dateFromKey(todayKey());
+  const out=WEEKDAY_NAMES.map(name=>({name,eligible:0,success:0,failure:0,unrecorded:0,resets:0}));
+  const byDate=new Map((d.history||[]).map(x=>[x.date,x]));
+  for(let cur=new Date(start);cur<=end;cur.setDate(cur.getDate()+1)){const key=dateKeyFromDate(cur),x=byDate.get(key),w=out[cur.getDay()];w.eligible++;if(x?.type==="success")w.success++;else if(x?.type==="failure"){w.failure++;if(Number(x.after?.consecutiveFailures||0)>=3&&Number(x.after?.height||0)===0)w.resets++}else w.unrecorded++}
+  out.forEach(w=>{w.recordRate=w.eligible?Math.round((w.success+w.failure)/w.eligible*100):0;w.failureRate=(w.success+w.failure)?Math.round(w.failure/(w.success+w.failure)*100):0});return out;
+}
+function renderPersonalAnalytics(d){
+  const rows=personalWeekdayStats(d),el=$("personalWeekdayAnalytics");if(!el)return;
+  el.innerHTML=rows.map(w=>`<div class="weekday-stat"><strong>${w.name}</strong><span>成功 ${w.success}</span><span>失敗 ${w.failure}</span><span>未記録 ${w.unrecorded}</span><small>失敗率 ${w.failureRate}% / 記録率 ${w.recordRate}% / リセット ${w.resets}</small></div>`).join("");
+  const risk=rows.filter(x=>x.success+x.failure>0).sort((a,b)=>b.failureRate-a.failureRate)[0],stable=rows.filter(x=>x.success+x.failure>0).sort((a,b)=>a.failureRate-b.failureRate)[0],reset=rows.slice().sort((a,b)=>b.resets-a.resets)[0];
+  $("personalRiskSummary").innerHTML=`<div><small>失敗率が高い曜日</small><strong>${risk?risk.name+"曜日 "+risk.failureRate+"%":"データ不足"}</strong></div><div><small>安定している曜日</small><strong>${stable?stable.name+"曜日 "+stable.failureRate+"%":"データ不足"}</strong></div><div><small>リセット最多</small><strong>${reset&&reset.resets?reset.name+"曜日 "+reset.resets+"回":"まだありません"}</strong></div>`;
+}
+function renderGlobalAnalyticsPreview(){const el=$("globalAnalyticsPreview");if(!el)return;el.innerHTML=`<div class="global-placeholder"><strong>🌐 グローバル集計基盤を準備済み</strong><p>正式オンライン集計はv5系で有効化します。公開時は「参加ユーザー数」「記録件数」「リセット件数」を必ず表示し、母数の小さい統計は参考値として明示します。</p><div class="global-sample"><span>例：対象 128人</span><span>記録 4,231件</span><span>リセット 94件</span></div></div>`}
 function openRecords(){ensureValidSelectedHabits();recordsHabitId=(currentHabitId&&isHabitVisible(currentHabitId))?currentHabitId:(recordsHabitId||visibleHabitIds()[0]||"noMasturbation");renderRecords();$("recordsOverlay").classList.remove("hidden");window.scrollTo(0,0)}
 function renderRecords(){
   renderHabitTabs("recordsHabitTabs",recordsHabitId,id=>{recordsHabitId=id;renderRecords()});
@@ -689,6 +788,7 @@ function renderRecords(){
     ["🔄","失敗後の平均復帰",recovery===null?"—":`${recovery}日`],
     ["🤝","1日の最大同時成功",`${bestMulti}種類`]
   ].map(x=>`<div class="record-stat"><span>${x[0]}</span><strong>${x[2]}</strong><small>${x[1]}</small></div>`).join("");
+  renderPersonalAnalytics(d);renderGlobalAnalyticsPreview();
   const es=eventStatsSummary();
   $("eventRecordsGrid").innerHTML=Object.values(GUERRILLA_EVENTS).map(e=>{const st=es[e.type];return `<div class="event-record-card"><span class="event-big-icon">${e.icon}</span><strong>${e.title}</strong><small>遭遇 ${st.encounters}回<br>成功適用 ${st.applications}回<br>${st.first?`初遭遇 ${escapeHtml(st.first)}`:"未遭遇"}</small></div>`}).join("");
   const pub=appData.profile.publicProfile||{},repId=HABITS[pub.representativeHabitId]?pub.representativeHabitId:recordsHabitId,rep=appData.habits[repId],rh=HABITS[repId];
@@ -808,6 +908,7 @@ function toast(m){$("toast").textContent=m;$("toast").classList.add("show");clea
 
 $("backButton").onclick=goHome;$("successButton").onclick=recordSuccess;$("failButton").onclick=requestFailure;$("undoButton").onclick=requestUndo;$("confirmCancelButton").onclick=closeConfirm;$("confirmOkButton").onclick=()=>pendingAction==="failure"?recordFailure():pendingAction==="undo"?undoToday():null;$("confirmOverlay").onclick=e=>{if(e.target===$("confirmOverlay"))closeConfirm()};$("celebrationCloseButton").onclick=()=>$("celebrationOverlay").classList.add("hidden");$("celebrationOverlay").onclick=e=>{if(e.target===$("celebrationOverlay"))$("celebrationOverlay").classList.add("hidden")};$("milestoneModalClose").onclick=()=>$("milestoneModalOverlay").classList.add("hidden");$("milestoneModalOverlay").onclick=e=>{if(e.target===$("milestoneModalOverlay"))$("milestoneModalOverlay").classList.add("hidden")};$("openEncyclopediaButton").onclick=openEncyclopedia;$("openEncyclopediaButton2").onclick=openEncyclopedia;$("encyclopediaCloseButton").onclick=()=>$("encyclopediaOverlay").classList.add("hidden");$("changeTitleButton").onclick=openTitleSelector;$("titleSelectorCloseButton").onclick=()=>$("titleSelectorOverlay").classList.add("hidden");$("modifierTabButton").onclick=()=>setTitlePartTab("modifier");$("nounTabButton").onclick=()=>setTitlePartTab("noun");$("titleSearchInput").oninput=e=>{titleSearchQuery=e.target.value;renderTitleSelector()};$("titleRarityFilter").onchange=e=>{titleRarityFilter=e.target.value;renderTitleSelector()};$("openAchievementsButton").onclick=openAchievements;$("achievementsCloseButton").onclick=()=>$("achievementsOverlay").classList.add("hidden");$("settingsButton").onclick=openSettings;$("settingsCloseButton").onclick=()=>$("settingsOverlay").classList.add("hidden");$("developerButton").onclick=openDeveloper;$("developerModalClose").onclick=()=>$("developerModalOverlay").classList.add("hidden");document.querySelectorAll("[data-add-height]").forEach(b=>b.onclick=()=>devAdd(Number(b.dataset.addHeight)));document.querySelectorAll("[data-failure-count]").forEach(b=>b.onclick=()=>{developerData.consecutiveFailures=Number(b.dataset.failureCount);if(developerData.consecutiveFailures>0)developerData.currentStreak=0;renderGame()});$("developerSetHeightButton").onclick=devSet;$("developerEventSelect").onchange=e=>{developerForcedEvent=e.target.value;renderGame()};$("runSimulationButton").onclick=runBalanceSimulation;$("developerSuccessButton").onclick=devSuccess;$("developerFailureButton").onclick=devFailure;$("developerResetButton").onclick=devReset;$("developerExitButton").onclick=()=>exitDeveloper(true);$("encyclopediaSearch").oninput=e=>{encyclopediaQuery=e.target.value;renderEncyclopedia()};$("encyclopediaUnlockFilter").onchange=e=>{encyclopediaUnlockFilter=e.target.value;renderEncyclopedia()};$("encyclopediaSort").onchange=e=>{encyclopediaSort=e.target.value;renderEncyclopedia()};
 
+$("recordEditCloseButton").onclick=closeRecordEdit;$("recordEditSuccessButton").onclick=()=>applyRecordEdit("success");$("recordEditFailureButton").onclick=()=>applyRecordEdit("failure");$("recordEditUnrecordedButton").onclick=()=>applyRecordEdit(null);$("recordEditOverlay").onclick=e=>{if(e.target===$("recordEditOverlay"))closeRecordEdit()};
 $("openReportButton").onclick=openReport;$("reportCloseButton").onclick=()=>$("reportOverlay").classList.add("hidden");
 $("openMissionsButton").onclick=openMissions;$("missionsCloseButton").onclick=()=>$("missionsOverlay").classList.add("hidden");
 $("recordsChangeTitleButton").onclick=openTitleSelector;$("titleUnlockCloseButton").onclick=closeTitleUnlock;
@@ -820,6 +921,7 @@ $("recordsCloseButton").onclick=()=>$("recordsOverlay").classList.add("hidden");
 $("exportDataButton").onclick=exportBackup;$("importDataButton").onclick=requestImportBackup;$("importDataInput").onchange=e=>importBackupFile(e.target.files?.[0]);
 
 migrateLegacyTitleSelection();
+refreshStreaksForElapsedGaps();
 syncGlobalTitleUnlocks();
 syncMissionRewards();
 pendingTitleUnlocks=[];

@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 4.49.1</p>
+        <p class="version-label">Version 4.59</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -218,6 +218,10 @@
         <button id="calendarNextButton" type="button">→</button>
       </div>
       <div class="calendar-legend"><span>● 成功</span><span>● 継続できず</span><span>○ 未記録</span></div>
+      <div class="calendar-edit-guide">
+        <strong>記録の修正</strong>
+        <span>今日・昨日はそのまま編集できます。一昨日はリワード広告視聴で編集を解放。3日前以前は確定済みです。</span>
+      </div>
       <div class="calendar-weekdays"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
       <div id="calendarGrid" class="calendar-grid"></div>
       <div id="calendarMonthStats" class="calendar-month-stats"></div>
@@ -244,6 +248,18 @@
         <p class="section-label">ANALYTICS</p><h3>継続分析</h3>
         <div id="recordsAnalytics" class="records-summary"></div>
       </section>
+      <section class="records-section">
+        <p class="section-label">PERSONAL ANALYTICS</p><h3>曜日・記録傾向</h3>
+        <p class="records-note">未記録日は失敗ではありませんが、成功ストリークはそこで途切れます。分析では成功・失敗・未記録を分けて集計します。</p>
+        <div id="personalWeekdayAnalytics" class="weekday-analytics-grid"></div>
+        <div id="personalRiskSummary" class="analysis-summary-card"></div>
+      </section>
+      <section class="records-section">
+        <p class="section-label">GLOBAL ANALYTICS</p><h3>全プレイヤー分析</h3>
+        <div id="globalAnalyticsPreview" class="global-analytics-preview"></div>
+        <p class="records-note">グローバル統計は、参加ユーザー数・記録件数・リセット件数などの母数を必ず併記して公開する設計です。</p>
+      </section>
+
       <section class="records-section">
         <p class="section-label">EVENT RECORDS</p><h3>イベント遭遇記録</h3>
         <p class="records-note">同じ日に複数の禁欲を成功しても「遭遇」は1回だけです。「成功適用」はイベント効果が適用された禁欲数です。</p>
@@ -441,6 +457,22 @@
         <strong>非表示にしても記録は保持されます</strong>
         <p>高さ、連続成功、累計成功、図鑑、カレンダーなどは削除されません。少なくとも1種類は表示される仕様です。</p>
       </section>
+    </div>
+  </div>
+
+  <div id="recordEditOverlay" class="modal-overlay hidden">
+    <div class="modal record-edit-modal">
+      <div class="modal-icon">📅</div>
+      <p class="section-label">RECORD EDIT</p>
+      <h2 id="recordEditTitle">記録を編集</h2>
+      <p id="recordEditDescription" class="modal-description"></p>
+      <div id="recordEditAdNotice" class="reward-ad-notice hidden"></div>
+      <div class="record-edit-actions">
+        <button id="recordEditSuccessButton" class="primary-button" type="button">✓ 成功にする</button>
+        <button id="recordEditFailureButton" class="danger-button" type="button">× 継続できずにする</button>
+        <button id="recordEditUnrecordedButton" class="secondary-button" type="button">○ 未記録に戻す</button>
+      </div>
+      <button id="recordEditCloseButton" class="primary-close secondary" type="button">閉じる</button>
     </div>
   </div>
 
