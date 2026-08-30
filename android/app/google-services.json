@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "631079544812",
+    "project_id": "bean-growth",
+    "storage_bucket": "bean-growth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631079544812:android:a95d668f3149e6fd5702c9",
+        "android_client_info": {
+          "package_name": "com.beangrowth.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "631079544812-6hbd4i0mo5pgnlkopbgv30e44ga48q5v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.beangrowth.app",
+            "certificate_hash": "72e7627a8be366af4021fcb29241a4449996bc8f"
+          }
+        },
+        {
+          "client_id": "631079544812-t299nl8msv2oc6g5hri8co11mbdj8184.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYFXYFNmMmGpU7k20KuBXMlAKg3fO-dKk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "631079544812-t299nl8msv2oc6g5hri8co11mbdj8184.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,7 +33,7 @@ const firebaseConfig = {
   measurementId: "G-R5L9JXL3S0"
 };
 
-const APP_VERSION = "5.0";
+const APP_VERSION = "5.1";
 const LOCAL_STORAGE_KEY = "beanGrowthGame_v1";
 const RESTORE_SAFETY_KEY = "beanGrowthGame_beforeCloudRestore_v1";
 const AUTO_BACKUP_KEY = "beanGrowthGame_cloudAutoBackup_v1";
@@ -59,8 +59,8 @@ window.BeanGrowthAuthReadiness={
   anonymousAuthReady:true,
   googleProviderReady:true,
   webGoogleFlowPrepared:true,
-  androidGoogleFlowPrepared:false,
-  note:"Web版Google連携をv5.0で有効化。Androidネイティブログインは次段階。"
+  androidGoogleFlowPrepared:true,
+  note:"v5.1: WebはPopup、AndroidはCredential Manager経由でGoogle連携"
 };
 
 const cloudBackupButton = document.getElementById("cloudBackupButton");
@@ -334,8 +334,40 @@ function updateOnlineAuth(user){
 }
 async function connectGoogle(){
   if(window.Capacitor?.isNativePlatform?.()){
-    alert("Androidアプリ内のGoogleログインはネイティブ設定が必要です。現段階ではWeb版でGoogle連携してください。");
-    return;
+    if(!navigator.onLine){alert("Google連携にはインターネット接続が必要です。");return}
+    try{
+      const nativeGoogle=window.Capacitor?.Plugins?.BeanGrowthGoogleAuth;
+      if(!nativeGoogle?.signIn)throw new Error("Android Google認証プラグインが未導入です。install-android-google.command を実行してください。");
+      const nativeResult=await nativeGoogle.signIn({});
+      const idToken=nativeResult?.idToken;
+      if(!idToken)throw new Error("Google IDトークンを取得できませんでした。");
+      const credential=GoogleAuthProvider.credential(idToken);
+      const before=auth.currentUser||await firebaseUserReady;
+      let result;
+      if(before?.isAnonymous){
+        try{
+          result=await linkWithCredential(before,credential);
+        }catch(error){
+          if(["auth/credential-already-in-use","auth/account-exists-with-different-credential"].includes(error?.code)){
+            result=await signInWithCredential(auth,credential);
+          }else throw error;
+        }
+      }else{
+        result=await signInWithCredential(auth,credential);
+      }
+      const user=result.user;
+      updateOnlineAuth(user);updateAccountPlanStatus(user);
+      setText(accountLoginStatus,authProviderLabel(user));setText(accountFirebaseUid,shortUid(user.uid));
+      const playerId=currentPlayerId();if(playerId)await ensurePrivateIdentity(user,playerId);
+      setText(onlinePublishStatus,"AndroidでGoogleアカウントに連携しました。クラウド状態を確認してください。");
+      await getCloudBackupInfo();await refreshDeviceList();
+      return;
+    }catch(error){
+      console.error("[Bean Growth] Android Google auth failed:",error);
+      const msg=error?.message||String(error);
+      alert(`Android Googleログインに失敗しました：${msg}`);
+      return;
+    }
   }
   if(!navigator.onLine){alert("Google連携にはインターネット接続が必要です。");return}
   const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});
