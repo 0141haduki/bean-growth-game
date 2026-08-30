@@ -8,7 +8,8 @@ import {
   linkWithPopup,
   linkWithCredential,
   signInWithPopup,
-  signInWithCredential
+  signInWithCredential,
+  unlink
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -21,7 +22,12 @@ import {
   serverTimestamp,
   query,
   orderBy,
-  limit
+  limit,
+  where,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -34,12 +40,17 @@ const firebaseConfig = {
   measurementId: "G-R5L9JXL3S0"
 };
 
-const APP_VERSION = "5.1.1";
+const APP_VERSION = "5.9";
 const LOCAL_STORAGE_KEY = "beanGrowthGame_v1";
 const RESTORE_SAFETY_KEY = "beanGrowthGame_beforeCloudRestore_v1";
 const AUTO_BACKUP_KEY = "beanGrowthGame_cloudAutoBackup_v1";
 const LAST_SYNC_HASH_KEY = "beanGrowthGame_lastSyncHash_v1";
 const PENDING_SYNC_KEY = "beanGrowthGame_pendingCloudSync_v1";
+const ACCOUNT_CONFLICT_KEY = "beanGrowthGoogleAccountConflict_v1";
+const CANONICAL_REVISION_KEY = "beanGrowthCanonicalRevision_v1";
+const CANONICAL_HASH_KEY = "beanGrowthCanonicalHash_v1";
+const CANONICAL_RELOAD_GUARD_KEY = "beanGrowthCanonicalReloadGuard_v1";
+const BACKUP_SLOT_COUNT = 5;
 const DEVICE_ID_KEY = "beanGrowthGame_deviceId_v1";
 const DEVICE_LABEL_KEY = "beanGrowthGame_deviceLabel_v1";
 const MAX_BACKUP_BYTES = 900 * 1024;
@@ -92,6 +103,19 @@ const onlinePublishStatus = document.getElementById("onlinePublishStatus");
 const onlinePlayerSearchResult = document.getElementById("onlinePlayerSearchResult");
 const onlineRankingList = document.getElementById("onlineRankingList");
 const googleConnectButton = document.getElementById("googleConnectButton");
+const accountAlignmentStatus = document.getElementById("accountAlignmentStatus");
+const accountConflictOverlay = document.getElementById("accountConflictOverlay");
+const accountConflictLocalSummary = document.getElementById("accountConflictLocalSummary");
+const accountConflictCloudSummary = document.getElementById("accountConflictCloudSummary");
+const accountUseLocalButton = document.getElementById("accountUseLocalButton");
+const accountUseGoogleButton = document.getElementById("accountUseGoogleButton");
+const accountConflictLaterButton = document.getElementById("accountConflictLaterButton");
+const backupHistoryList = document.getElementById("backupHistoryList");
+const googleUnlinkButton = document.getElementById("googleUnlinkButton");
+const googleUnlinkHelp = document.getElementById("googleUnlinkHelp");
+const rankingDivisionSelect = document.getElementById("rankingDivisionSelect");
+const incomingFriendRequests = document.getElementById("incomingFriendRequests");
+const friendList = document.getElementById("friendList");
 
 let latestCloudBackupString = null;
 let latestCloudMeta = null;
@@ -119,6 +143,9 @@ function defaultDeviceLabel(){
 function deviceLabel(){let v=localStorage.getItem(DEVICE_LABEL_KEY);if(!v){v=defaultDeviceLabel();localStorage.setItem(DEVICE_LABEL_KEY,v)}return v}
 function authProviderLabel(user){if(!user)return "未ログイン";if(user.isAnonymous)return "ゲスト（匿名）";if(user.providerData?.some(p=>p.providerId==="google.com"))return "Google連携済み";return "ログイン済み"}
 function getLocalDataString() { return localStorage.getItem(LOCAL_STORAGE_KEY); }
+async function currentAuthUser(){ return auth.currentUser || await firebaseUserReady; }
+function accountConflictPending(){ return localStorage.getItem(ACCOUNT_CONFLICT_KEY)==="true"; }
+function setAccountConflictPending(value){ if(value)localStorage.setItem(ACCOUNT_CONFLICT_KEY,"true"); else localStorage.removeItem(ACCOUNT_CONFLICT_KEY); }
 function simpleHash(text) {
   let h = 2166136261;
   for (let i = 0; i < String(text || "").length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -184,7 +211,7 @@ async function registerCurrentDevice(user){
 }
 async function refreshDeviceList(){
   if(!deviceList)return;if(!navigator.onLine){deviceList.innerHTML='<p class="records-note">オフラインのため端末一覧を取得できません。</p>';return}
-  const user=await firebaseUserReady;await registerCurrentDevice(user);const snap=await getDocs(collection(db,"users",user.uid,"devices")),items=[];
+  const user=await currentAuthUser();await registerCurrentDevice(user);const snap=await getDocs(collection(db,"users",user.uid,"devices")),items=[];
   snap.forEach(d=>items.push(d.data()));items.sort((a,b)=>String(b.clientLastSeenAt||"").localeCompare(String(a.clientLastSeenAt||"")));
   deviceList.innerHTML=items.length?items.slice(0,12).map(x=>`<div class="device-item"><div><strong>${escapeHtml(x.label||"端末")}</strong><span>${escapeHtml(x.runtime||"")}</span></div><small>${x.deviceId===deviceId()?"この端末 ・ ":""}最終確認 ${escapeHtml(formatDate(x.lastSeenAt??x.clientLastSeenAt))}</small></div>`).join(""):'<p class="records-note">登録済み端末はありません。</p>';
 }
@@ -270,60 +297,16 @@ async function publishPublicProfile(payload){
   return clean;
 }
 async function searchPlayer(playerId){
-  if(!navigator.onLine){if(onlinePlayerSearchResult)onlinePlayerSearchResult.innerHTML='<p class="records-note">オフラインです。</p>';return}
-  try{
-    const snap=await getDoc(doc(db,"publicProfiles",playerId));
-    if(!snap.exists()){if(onlinePlayerSearchResult)onlinePlayerSearchResult.innerHTML='<p class="records-note">このPlayer IDの公開プロフィールはまだありません。</p>';return}
-    if(onlinePlayerSearchResult&&window.renderRemoteProfileCard)onlinePlayerSearchResult.innerHTML=window.renderRemoteProfileCard(snap.data());
-    else if(onlinePlayerSearchResult)onlinePlayerSearchResult.textContent=JSON.stringify(snap.data());
-  }catch(error){
-    console.error("[Bean Growth] player search failed:",error);
-    if(onlinePlayerSearchResult)onlinePlayerSearchResult.innerHTML=`<p class="records-note">検索に失敗しました：${escapeHtml(error?.message||"")}</p>`;
-  }
+  if(!navigator.onLine){onlinePlayerSearchResult.innerHTML='<p class="records-note">オフラインです。</p>';return}
+  try{const s=await getDoc(doc(db,"publicProfiles",playerId));if(!s.exists()){onlinePlayerSearchResult.innerHTML='<p class="records-note">公開プロフィールがありません。</p>';return}onlinePlayerSearchResult.innerHTML=window.renderRemoteProfileCard?s&&window.renderRemoteProfileCard(s.data()):JSON.stringify(s.data());onlinePlayerSearchResult.querySelectorAll("[data-friend-player]").forEach(b=>b.onclick=()=>sendFriendRequest(b.dataset.friendPlayer));onlinePlayerSearchResult.querySelectorAll("[data-report-player]").forEach(b=>b.onclick=()=>reportPlayer(b.dataset.reportPlayer))}catch(e){onlinePlayerSearchResult.innerHTML=`<p class="records-note">検索失敗：${escapeHtml(e?.message||"")}</p>`}
 }
 async function publishRanking(preview,fingerprint){
-  if(!navigator.onLine)throw new Error("オフラインです。");
-  const user=auth.currentUser||await firebaseUserReady,data=currentLocalObject(),playerId=data?.profile?.playerId;
-  if(!playerId)throw new Error("Player IDがありません。");
-  const current=preview?.current;if(!current?.month)throw new Error("ランキングデータがありません。");
-  await ensurePrivateIdentity(user,playerId);
-  const monthHeight=Object.values(data?.habits||{}).reduce((sum,h)=>{
-    const rows=(h?.history||[]).filter(x=>x?.date?.startsWith(current.month)&&["success","failure"].includes(x.type));
-    return sum+(rows.length?Number(rows[rows.length-1]?.after?.height||0):0);
-  },0);
-  const payload={
-    playerId,
-    nickname:String(data?.profile?.nickname||"Bean Grower").slice(0,20),
-    month:current.month,
-    monthHeight:Math.max(0,Math.round(monthHeight*10)/10),
-    records:Number(current.records||0),
-    success:Number(current.success||0),
-    failure:Number(current.failure||0),
-    resets:Number(current.resets||0),
-    fingerprint:String(fingerprint||"").slice(0,32),
-    schemaVersion:2,
-    appVersion:APP_VERSION,
-    submittedAt:serverTimestamp(),
-    clientSubmittedAt:new Date().toISOString()
-  };
-  await setDoc(doc(db,"rankingBoards",current.month,"players",playerId),payload,{merge:false});
-  setText(onlinePublishStatus,`${current.month} のランキングデータを送信しました。`);
-  await loadRanking(current.month);
+  if(!navigator.onLine)throw new Error("オフラインです。");const user=await currentAuthUser(),data=currentLocalObject(),playerId=data?.profile?.playerId,month=preview?.current?.month;if(!playerId||!month)throw new Error("ランキングデータがありません。");await ensurePrivateIdentity(user,playerId);
+  const payloads=rankingDivisionPayloads(data,preview,fingerprint);for(const p of payloads)await setDoc(doc(db,"rankingBoards",month,"divisions",p.division,"players",playerId),p,{merge:false});setText(onlinePublishStatus,`${month} のランキングを更新しました。`);await loadRanking(month);
 }
 async function loadRanking(month=null){
-  if(!onlineRankingList)return;
-  if(!navigator.onLine){onlineRankingList.innerHTML='<p class="records-note">オフラインです。</p>';return}
-  try{
-    const d=currentLocalObject(),m=month||(()=>{
-      const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`;
-    })();
-    const q=query(collection(db,"rankingBoards",m,"players"),orderBy("monthHeight","desc"),limit(50));
-    const snap=await getDocs(q),rows=[];snap.forEach(x=>rows.push(x.data()));
-    if(window.renderOnlineRanking)window.renderOnlineRanking(rows);
-  }catch(error){
-    console.error("[Bean Growth] ranking load failed:",error);
-    onlineRankingList.innerHTML=`<p class="records-note">ランキング取得に失敗しました：${escapeHtml(error?.message||"")}</p>`;
-  }
+  if(!onlineRankingList)return;if(!navigator.onLine){onlineRankingList.innerHTML='<p class="records-note">オフラインです。</p>';return}
+  try{const m=month||(()=>{const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}`})(),division=divisionFromUI(),q=query(collection(db,"rankingBoards",m,"divisions",division,"players"),orderBy("score","desc"),limit(50)),s=await getDocs(q),rows=[];s.forEach(x=>rows.push(x.data()));window.renderOnlineRanking?.(rows)}catch(e){onlineRankingList.innerHTML=`<p class="records-note">ランキング取得失敗：${escapeHtml(e?.message||"")}</p>`}
 }
 function updateOnlineAuth(user){
   const label=authProviderLabel(user);
@@ -333,6 +316,155 @@ function updateOnlineAuth(user){
     googleConnectButton.disabled=Boolean(user?.providerData?.some(p=>p.providerId==="google.com"));
   }
 }
+
+let pendingGoogleAccountState=null;
+
+let canonicalUnsubscribe=null;
+function canonicalRevision(){return Number(localStorage.getItem(CANONICAL_REVISION_KEY)||0)}
+function setCanonicalRevision(revision,hash=""){localStorage.setItem(CANONICAL_REVISION_KEY,String(Number(revision||0)));if(hash)localStorage.setItem(CANONICAL_HASH_KEY,String(hash))}
+async function saveCanonicalData(user,data,{force=false}={}){
+  if(!user||user.isAnonymous)return null;
+  const ref=doc(db,"users",user.uid,"canonical","main"),localHash=simpleHash(JSON.stringify(data)),known=canonicalRevision();let result=null;
+  await runTransaction(db,async tx=>{
+    const snap=await tx.get(ref),remote=snap.exists()?snap.data():null,rev=Number(remote?.revision||0);
+    if(remote&&!force&&rev>known&&remote.contentHash!==localHash){const e=new Error("別端末に新しい正式データがあります。");e.code="bean-growth/canonical-conflict";throw e}
+    if(remote?.data){const slot=String(rev%BACKUP_SLOT_COUNT);tx.set(doc(db,"users",user.uid,"backupSlots",slot),{revision:rev,data:remote.data,contentHash:remote.contentHash||"",playerId:remote.playerId||null,savedAt:serverTimestamp(),clientSavedAt:new Date().toISOString(),appVersion:remote.appVersion||APP_VERSION})}
+    const next=rev+1;tx.set(ref,{schemaVersion:1,revision:next,playerId:data?.profile?.playerId||null,data,contentHash:localHash,deviceId:deviceId(),appVersion:APP_VERSION,updatedAt:serverTimestamp(),clientUpdatedAt:new Date().toISOString()},{merge:false});result={revision:next,contentHash:localHash};
+  });
+  if(result)setCanonicalRevision(result.revision,result.contentHash);return result;
+}
+async function ensureCanonicalForGoogleUser(user){
+  if(!user||user.isAnonymous)return;
+  const ref=doc(db,"users",user.uid,"canonical","main"),snap=await getDoc(ref);
+  if(!snap.exists()){const data=currentLocalObject();if(data)await saveCanonicalData(user,data,{force:true});return}
+  const c=snap.data();setCanonicalRevision(c.revision,c.contentHash||"");
+}
+function startCanonicalRealtime(user){
+  if(canonicalUnsubscribe){canonicalUnsubscribe();canonicalUnsubscribe=null}
+  if(!user||user.isAnonymous)return;
+  canonicalUnsubscribe=onSnapshot(doc(db,"users",user.uid,"canonical","main"),snap=>{
+    if(!snap.exists())return;const remote=snap.data(),rev=Number(remote.revision||0),known=canonicalRevision();if(rev<=known)return;
+    const local=getLocalDataString()||"",lh=simpleHash(local),last=localStorage.getItem(CANONICAL_HASH_KEY)||"";
+    if(remote.contentHash===lh){setCanonicalRevision(rev,remote.contentHash||"");return}
+    if(last&&lh!==last){setAccountConflictPending(true);openAccountConflict({playerId:remote.playerId,cloudData:remote.data,canonical:remote});return}
+    if(remote.data){const guard=`${rev}:${remote.contentHash}`;if(localStorage.getItem(CANONICAL_RELOAD_GUARD_KEY)===guard)return;localStorage.setItem(CANONICAL_RELOAD_GUARD_KEY,guard);localStorage.setItem(LOCAL_STORAGE_KEY,JSON.stringify(remote.data));setCanonicalRevision(rev,remote.contentHash||"");setTimeout(()=>location.reload(),350)}
+  },e=>console.warn("[Bean Growth] realtime sync:",e));
+}
+async function loadBackupSlots(){
+  if(!backupHistoryList)return;const user=await currentAuthUser();
+  if(!user||user.isAnonymous){backupHistoryList.innerHTML='<p class="records-note">Google連携後に利用できます。</p>';return}
+  const snap=await getDocs(collection(db,"users",user.uid,"backupSlots")),items=[];snap.forEach(d=>items.push({slot:d.id,...d.data()}));items.sort((a,b)=>Number(b.revision||0)-Number(a.revision||0));
+  backupHistoryList.innerHTML=items.length?items.map(x=>`<div class="backup-item"><div><strong>Revision ${Number(x.revision||0)}</strong><small>${escapeHtml(formatDate(x.savedAt??x.clientSavedAt))} ・ ${escapeHtml(x.playerId||"")}</small></div><button class="secondary-button compact-button" data-restore-slot="${escapeHtml(x.slot)}">復元</button></div>`).join(""):'<p class="records-note">まだ復旧ポイントはありません。</p>';
+  backupHistoryList.querySelectorAll("[data-restore-slot]").forEach(b=>b.onclick=()=>restoreBackupSlot(b.dataset.restoreSlot));
+}
+async function restoreBackupSlot(slot){
+  const user=await currentAuthUser(),snap=await getDoc(doc(db,"users",user.uid,"backupSlots",String(slot)));if(!snap.exists()||!snap.data()?.data)return;
+  if(!confirm("この復旧ポイントへ戻しますか？"))return;const cur=getLocalDataString();if(cur)localStorage.setItem(RESTORE_SAFETY_KEY,cur);const data=snap.data().data;localStorage.setItem(LOCAL_STORAGE_KEY,JSON.stringify(data));await saveCanonicalData(user,data,{force:true});setTimeout(()=>location.reload(),350);
+}
+function divisionFromUI(){return rankingDivisionSelect?.value||"overall"}
+function rankingDivisionPayloads(data,preview,fingerprint){
+  const playerId=data?.profile?.playerId,nickname=String(data?.profile?.nickname||"Bean Grower").slice(0,20),current=preview?.current,month=current?.month;if(!playerId||!month)return[];
+  const per=(current.habits||[]).map(s=>({habitId:s.habitId,severity:data.settings?.habitSeverity?.[s.habitId]||"NORMAL",height:Number(data.habits?.[s.habitId]?.height||0),recordRate:Number(s.recordRate||0),records:Number(s.records||0),success:Number(s.success||0),failure:Number(s.failure||0),resets:Number(s.resets||0)}));
+  const mk=(division,arr)=>{const rec=arr.reduce((a,x)=>a+x.records,0),rr=rec?arr.reduce((a,x)=>a+x.recordRate*x.records,0)/rec:0;return{playerId,nickname,month,division,score:Math.max(0,Math.round(arr.reduce((a,x)=>a+x.height,0)*10)/10),recordRate:Math.round(rr*10)/10,records:rec,success:arr.reduce((a,x)=>a+x.success,0),failure:arr.reduce((a,x)=>a+x.failure,0),resets:arr.reduce((a,x)=>a+x.resets,0),fingerprint:String(fingerprint||"").slice(0,32),integrityStatus:"client_checked",schemaVersion:3,appVersion:APP_VERSION,clientSubmittedAt:new Date().toISOString(),submittedAt:serverTimestamp()}}
+  const list=[mk("overall",per)];["LIGHT","NORMAL","HEAVY"].forEach(s=>list.push(mk(`severity-${s}`,per.filter(x=>x.severity===s))));per.forEach(x=>list.push(mk(`habit-${x.habitId}`,[x])));return list;
+}
+function pairKey(a,b){return[a,b].sort().join("__")}
+async function sendFriendRequest(target){
+  const user=await currentAuthUser(),data=currentLocalObject(),me=data?.profile?.playerId;if(!user||user.isAnonymous){alert("フレンド機能にはGoogle連携が必要です。");return}if(!me||!target||me===target)return;
+  await setDoc(doc(db,"friendRequests",target,"incoming",me),{senderPlayerId:me,senderNickname:String(data.profile.nickname||"Bean Grower").slice(0,20),recipientPlayerId:target,status:"pending",createdAt:serverTimestamp(),clientCreatedAt:new Date().toISOString()},{merge:false});alert("フレンド申請を送りました。");
+}
+async function acceptFriendRequest(sender){const me=currentPlayerId();await updateDoc(doc(db,"friendRequests",me,"incoming",sender),{status:"accepted",respondedAt:serverTimestamp()});await setDoc(doc(db,"friendLinks",pairKey(me,sender)),{players:[me,sender],requesterId:sender,recipientId:me,createdAt:serverTimestamp()},{merge:false});await loadFriends()}
+async function rejectFriendRequest(sender){const me=currentPlayerId();await updateDoc(doc(db,"friendRequests",me,"incoming",sender),{status:"rejected",respondedAt:serverTimestamp()});await loadFriends()}
+async function removeFriend(other){const me=currentPlayerId();if(!confirm("このフレンドを解除しますか？"))return;await deleteDoc(doc(db,"friendLinks",pairKey(me,other)));await loadFriends()}
+async function loadFriends(){
+  if(!incomingFriendRequests||!friendList)return;const user=await currentAuthUser(),me=currentPlayerId();if(!user||user.isAnonymous||!me){incomingFriendRequests.innerHTML=friendList.innerHTML='<p class="records-note">Google連携後に利用できます。</p>';return}
+  try{
+    const rs=await getDocs(collection(db,"friendRequests",me,"incoming")),req=[];rs.forEach(d=>{if(d.data().status==="pending")req.push(d.data())});
+    incomingFriendRequests.innerHTML=req.length?req.map(x=>`<div class="friend-request-row"><div><strong>${escapeHtml(x.senderNickname||x.senderPlayerId)}</strong><small>${escapeHtml(x.senderPlayerId)}</small></div><div class="friend-actions"><button class="primary-button" data-accept-friend="${escapeHtml(x.senderPlayerId)}">承認</button><button class="secondary-button" data-reject-friend="${escapeHtml(x.senderPlayerId)}">拒否</button></div></div>`).join(""):'<p class="records-note">新しい申請はありません。</p>';
+    incomingFriendRequests.querySelectorAll("[data-accept-friend]").forEach(b=>b.onclick=()=>acceptFriendRequest(b.dataset.acceptFriend));incomingFriendRequests.querySelectorAll("[data-reject-friend]").forEach(b=>b.onclick=()=>rejectFriendRequest(b.dataset.rejectFriend));
+    const ls=await getDocs(query(collection(db,"friendLinks"),where("players","array-contains",me))),others=[];ls.forEach(d=>{const o=(d.data().players||[]).find(x=>x!==me);if(o)others.push(o)});
+    const profiles=await Promise.all(others.map(async id=>{const s=await getDoc(doc(db,"publicProfiles",id));return s.exists()?s.data():{playerId:id,nickname:id}}));
+    friendList.innerHTML=profiles.length?profiles.map(x=>`<div class="friend-row"><div><strong>${escapeHtml(x.nickname||x.playerId)}</strong><small>${escapeHtml(x.playerId)}</small></div><div class="friend-actions"><button class="secondary-button" data-view-friend="${escapeHtml(x.playerId)}">見る</button><button class="secondary-button" data-remove-friend="${escapeHtml(x.playerId)}">解除</button></div></div>`).join(""):'<p class="records-note">まだフレンドはいません。</p>';
+    friendList.querySelectorAll("[data-view-friend]").forEach(b=>b.onclick=()=>{const i=document.getElementById("onlinePlayerSearchInput");if(i)i.value=b.dataset.viewFriend;searchPlayer(b.dataset.viewFriend)});friendList.querySelectorAll("[data-remove-friend]").forEach(b=>b.onclick=()=>removeFriend(b.dataset.removeFriend));
+  }catch(e){incomingFriendRequests.innerHTML=friendList.innerHTML=`<p class="records-note">取得失敗：${escapeHtml(e?.message||"")}</p>`}
+}
+async function reportPlayer(target){const user=await currentAuthUser(),me=currentPlayerId();if(!user||!me||!target)return;if(!confirm("この公開プロフィールを通報しますか？"))return;await setDoc(doc(db,"reports",`${Date.now().toString(36)}_${me.replace(/-/g,"")}`),{reporterPlayerId:me,targetPlayerId:target,reason:"profile_content",createdAt:serverTimestamp(),appVersion:APP_VERSION});alert("通報を受け付けました。")}
+async function unlinkGoogleSafely(){const user=await currentAuthUser(),providers=user?.providerData?.map(p=>p.providerId).filter(Boolean)||[];if(providers.length<=1){alert("Googleが唯一のログイン手段のため解除できません。");return}if(!providers.includes("google.com"))return;await unlink(user,"google.com");refreshAccountControls()}
+function refreshAccountControls(){const u=auth.currentUser,p=u?.providerData?.map(x=>x.providerId).filter(Boolean)||[];if(googleUnlinkButton){const can=p.includes("google.com")&&p.length>1;googleUnlinkButton.disabled=!can;if(googleUnlinkHelp)googleUnlinkHelp.textContent=p.includes("google.com")?(can?"別のログイン手段があるため解除できます。":"Googleが唯一のログイン手段のため解除できません。"):"Google未連携"}}
+
+async function readGoogleAccountState(user){
+  if(!user)return null;
+  const [i,u,c]=await Promise.all([getDoc(doc(db,"users",user.uid,"publicIdentity","main")),getDoc(doc(db,"users",user.uid)),getDoc(doc(db,"users",user.uid,"canonical","main"))]);
+  const identity=i.exists()?i.data():null,backup=u.exists()?u.data()?.cloudBackup:null,canonical=c.exists()?c.data():null;if(canonical)setCanonicalRevision(canonical.revision,canonical.contentHash||"");
+  const cloudData=canonical?.data||(backup?.data&&typeof backup.data==="object"?backup.data:null);return{uid:user.uid,playerId:canonical?.playerId||identity?.playerId||cloudData?.profile?.playerId||null,identity,backup,canonical,cloudData};
+}
+function setAlignmentStatus(text,kind=""){
+  if(!accountAlignmentStatus)return;
+  accountAlignmentStatus.textContent=text;accountAlignmentStatus.classList.remove("warning","ok");if(kind)accountAlignmentStatus.classList.add(kind);
+}
+function openAccountConflict(state){
+  pendingGoogleAccountState=state;setAccountConflictPending(true);
+  const localData=currentLocalObject();
+  if(accountConflictLocalSummary)accountConflictLocalSummary.innerHTML=summaryHtml(summarizeGameData(localData));
+  if(accountConflictCloudSummary){
+    accountConflictCloudSummary.innerHTML=state?.cloudData
+      ?summaryHtml(summarizeGameData(state.cloudData))
+      :`<dl class="sync-summary-list"><div><dt>Player ID</dt><dd>${escapeHtml(state?.playerId||"不明")}</dd></div><div><dt>クラウド記録</dt><dd>バックアップなし</dd></div></dl>`;
+  }
+  if(accountUseGoogleButton)accountUseGoogleButton.disabled=!state?.cloudData;
+  accountConflictOverlay?.classList.remove("hidden");
+  setAlignmentStatus("⚠ Googleアカウント側とこの端末のBean Growthデータが異なります。選択が必要です。","warning");
+  setText(cloudBackupStatus,"アカウントデータの選択が終わるまでクラウド保存を停止しています。");
+}
+function closeAccountConflict(){accountConflictOverlay?.classList.add("hidden")}
+async function checkGoogleAccountAlignment(user,{openWhenConflict=true}={}){
+  if(!user||user.isAnonymous){setAccountConflictPending(false);setAlignmentStatus("ゲスト利用中。Google連携後に複数端末のデータを確認します。");return{status:"guest"}}
+  const state=await readGoogleAccountState(user),local=currentLocalObject(),localPlayerId=local?.profile?.playerId||null;
+  const remotePlayerId=state?.playerId||null,cloudPlayerId=state?.cloudData?.profile?.playerId||null;
+  const mismatch=Boolean((remotePlayerId&&localPlayerId&&remotePlayerId!==localPlayerId)||(cloudPlayerId&&localPlayerId&&cloudPlayerId!==localPlayerId));
+  if(mismatch){
+    setAccountConflictPending(true);
+    if(openWhenConflict)openAccountConflict(state);else setAlignmentStatus("⚠ Googleアカウント側とこの端末でPlayer IDが異なります。データ選択が必要です。","warning");
+    return{status:"conflict",state};
+  }
+  setAccountConflictPending(false);
+  if(localPlayerId&&!remotePlayerId)await ensurePrivateIdentity(user,localPlayerId);
+  setAlignmentStatus("✓ Googleアカウントとこの端末のPlayer IDは一致しています。","ok");
+  return{status:"aligned",state};
+}
+async function finalizeGoogleLogin(user){
+  updateOnlineAuth(user);updateAccountPlanStatus(user);refreshAccountControls();setText(accountLoginStatus,authProviderLabel(user));setText(accountFirebaseUid,shortUid(user.uid));
+  const a=await checkGoogleAccountAlignment(user,{openWhenConflict:true});if(a.status==="conflict"){setText(onlinePublishStatus,"正式データの選択が必要です。");return}
+  const pid=currentPlayerId();if(pid)await ensurePrivateIdentity(user,pid);await ensureCanonicalForGoogleUser(user);startCanonicalRealtime(user);setText(onlinePublishStatus,"Googleアカウントの正式データに接続しました。");await getCloudBackupInfo();await refreshDeviceList();await loadBackupSlots().catch(()=>{});
+}
+async function chooseGoogleAccountData(){
+  const state=pendingGoogleAccountState||await readGoogleAccountState(await currentAuthUser());
+  if(!state?.cloudData){alert("Googleアカウント側に復元できるクラウドバックアップがありません。");return}
+  if(!confirm("Googleアカウント側のBean Growthデータをこの端末で使いますか？\n\n現在の端末データは安全用コピーとして残します。"))return;
+  accountUseGoogleButton&&(accountUseGoogleButton.disabled=true);accountUseLocalButton&&(accountUseLocalButton.disabled=true);
+  try{
+    const currentLocal=getLocalDataString();if(currentLocal)localStorage.setItem(RESTORE_SAFETY_KEY,currentLocal);
+    const restored=JSON.stringify(state.cloudData);localStorage.setItem(LOCAL_STORAGE_KEY,restored);
+    latestCloudBackupString=restored;latestCloudMeta=state.backup;localStorage.setItem(LAST_SYNC_HASH_KEY,simpleHash(restored));localStorage.removeItem(PENDING_SYNC_KEY);
+    setAccountConflictPending(false);
+    const pid=state.cloudData?.profile?.playerId||state.playerId;if(pid)await ensurePrivateIdentity(await currentAuthUser(),pid);
+    closeAccountConflict();setAlignmentStatus("✓ Googleアカウント側のBean Growthデータに統一しました。","ok");
+    setText(cloudBackupStatus,"Googleアカウント側のデータを採用しました。画面を更新します...");setTimeout(()=>location.reload(),650);
+  }catch(error){console.error(error);alert(`Google側データの適用に失敗しました：${error?.message||error}`)}
+  finally{accountUseGoogleButton&&(accountUseGoogleButton.disabled=false);accountUseLocalButton&&(accountUseLocalButton.disabled=false)}
+}
+async function chooseLocalAccountData(){
+  const local=currentLocalObject(),pid=local?.profile?.playerId;if(!pid){alert("この端末のPlayer IDを確認できません。");return}
+  if(!confirm("この端末のBean GrowthデータをGoogleアカウントの正式データとして使いますか？\n\nGoogleアカウント側のクラウドバックアップとPlayer IDは、この端末の内容で置き換わります。"))return;
+  accountUseLocalButton&&(accountUseLocalButton.disabled=true);accountUseGoogleButton&&(accountUseGoogleButton.disabled=true);
+  try{
+    const user=await currentAuthUser();await ensurePrivateIdentity(user,pid);setAccountConflictPending(false);await backupBeanGrowthToCloud({force:true});
+    closeAccountConflict();setAlignmentStatus("✓ この端末のBean GrowthデータをGoogleアカウントに統一しました。","ok");
+    setText(cloudBackupStatus,"この端末のデータをGoogleアカウント側へ保存しました。");pendingGoogleAccountState=null;
+  }catch(error){setAccountConflictPending(true);console.error(error);alert(`この端末データの採用に失敗しました：${error?.message||error}`)}
+  finally{accountUseLocalButton&&(accountUseLocalButton.disabled=false);accountUseGoogleButton&&(accountUseGoogleButton.disabled=false)}
+}
+
 async function connectGoogle(){
   if(window.Capacitor?.isNativePlatform?.()){
     if(!navigator.onLine){alert("Google連携にはインターネット接続が必要です。");return}
@@ -357,11 +489,7 @@ async function connectGoogle(){
         result=await signInWithCredential(auth,credential);
       }
       const user=result.user;
-      updateOnlineAuth(user);updateAccountPlanStatus(user);
-      setText(accountLoginStatus,authProviderLabel(user));setText(accountFirebaseUid,shortUid(user.uid));
-      const playerId=currentPlayerId();if(playerId)await ensurePrivateIdentity(user,playerId);
-      setText(onlinePublishStatus,"AndroidでGoogleアカウントに連携しました。クラウド状態を確認してください。");
-      await getCloudBackupInfo();await refreshDeviceList();
+      await finalizeGoogleLogin(user);
       return;
     }catch(error){
       console.error("[Bean Growth] Android Google auth failed:",error);
@@ -386,11 +514,7 @@ async function connectGoogle(){
       }
     }else result=await signInWithPopup(auth,provider);
     const user=result.user;
-    updateOnlineAuth(user);updateAccountPlanStatus(user);
-    setText(accountLoginStatus,authProviderLabel(user));setText(accountFirebaseUid,shortUid(user.uid));
-    const playerId=currentPlayerId();if(playerId)await ensurePrivateIdentity(user,playerId);
-    setText(onlinePublishStatus,"Googleアカウントでログインしました。クラウド状態を確認してください。");
-    await getCloudBackupInfo();await refreshDeviceList();
+    await finalizeGoogleLogin(user);
   }catch(error){
     console.error("[Bean Growth] Google auth failed:",error);
     const msg=error?.code==="auth/popup-closed-by-user"?"Googleログインをキャンセルしました。":`Googleログインに失敗しました：${error?.message||error}`;
@@ -403,7 +527,12 @@ window.BeanGrowthOnline={
   searchPlayer,
   publishRanking:async(preview,fingerprint)=>{try{await publishRanking(preview,fingerprint)}catch(e){console.error(e);setText(onlinePublishStatus,`ランキング送信失敗：${e?.message||e}`)}},
   loadRanking,
-  refreshAuth:()=>updateOnlineAuth(auth.currentUser)
+  refreshAuth:()=>updateOnlineAuth(auth.currentUser),
+  refreshAccountAlignment:()=>checkGoogleAccountAlignment(auth.currentUser,{openWhenConflict:false}).catch(error=>console.warn("[Bean Growth] account alignment check skipped:",error)),
+  loadFriends,
+  loadBackups:loadBackupSlots,
+  refreshAccountControls,
+  unlinkGoogleSafely
 };
 
 export const firebaseUserReady = new Promise((resolve,reject)=>{
@@ -414,22 +543,22 @@ async function writeAnalyticsContribution(user, parsedData){
   const ref=doc(db,"analyticsContributions",user.uid); await setDoc(ref,{...buildAnalyticsContribution(parsedData),updatedAt:serverTimestamp()},{merge:false});
 }
 export async function backupBeanGrowthToCloud({silent=false,force=false}={}){
-  if(!navigator.onLine)throw new Error("オフラインのためクラウド保存できません。再接続後に自動保存できます。");
-  if(!force&&(latestSyncState==="cloud-newer"||latestSyncState==="conflict"))throw new Error("クラウド側にも変更があります。状態を再確認し、上書きする側を選んでください。");
-  const user=await firebaseUserReady,localDataString=getLocalDataString(),parsedData=parseLocalData(),userDocRef=doc(db,"users",user.uid),clientBackedUpAt=new Date().toISOString(),contentHash=simpleHash(localDataString),localChange=localUpdatedAt(parsedData);
+  if(!navigator.onLine)throw new Error("オフラインのためクラウド保存できません。");
+  if(accountConflictPending()&&!force)throw new Error("正式データの選択が未完了です。");
+  const user=await currentAuthUser(),localDataString=getLocalDataString(),parsedData=parseLocalData(),userDocRef=doc(db,"users",user.uid),clientBackedUpAt=new Date().toISOString(),contentHash=simpleHash(localDataString),localChange=localUpdatedAt(parsedData);
+  if(!user.isAnonymous){try{await saveCanonicalData(user,parsedData,{force})}catch(e){if(e?.code==="bean-growth/canonical-conflict"){openAccountConflict(await readGoogleAccountState(user));throw new Error("別端末に新しい正式データがあります。")}throw e}}
   await setDoc(userDocRef,{cloudBackup:{schemaVersion:parsedData.schemaVersion??null,appVersion:APP_VERSION,data:parsedData,contentHash,localUpdatedAt:localChange,clientBackedUpAt,backedUpAt:serverTimestamp()}},{merge:true});
-  try{await writeAnalyticsContribution(user,parsedData)}catch(error){console.warn("[Bean Growth] Analytics contribution skipped:",error)}
-  latestCloudBackupString=localDataString;latestCloudMeta={contentHash,localUpdatedAt:localChange,clientBackedUpAt};lastAutoBackedUpLocalString=localDataString;localStorage.setItem(LAST_SYNC_HASH_KEY,contentHash);localStorage.removeItem(PENDING_SYNC_KEY);setText(cloudLastBackup,formatDate(clientBackedUpAt));updateSyncState();
-  console.log("[Bean Growth] Cloud backup complete:",user.uid);if(!silent)setText(cloudBackupStatus,"クラウド保存が完了しました。");return true;
+  try{await writeAnalyticsContribution(user,parsedData)}catch(e){}
+  latestCloudBackupString=localDataString;latestCloudMeta={contentHash,localUpdatedAt:localChange,clientBackedUpAt};lastAutoBackedUpLocalString=localDataString;localStorage.setItem(LAST_SYNC_HASH_KEY,contentHash);localStorage.removeItem(PENDING_SYNC_KEY);setText(cloudLastBackup,formatDate(clientBackedUpAt));updateSyncState();if(!silent)setText(cloudBackupStatus,user.isAnonymous?"クラウド保存完了":"正式クラウドデータ保存完了");return true;
 }
 export async function getCloudBackupInfo(){
-  if(!navigator.onLine){updateNetworkState();return null}const user=await firebaseUserReady,snapshot=await getDoc(doc(db,"users",user.uid));
+  if(!navigator.onLine){updateNetworkState();return null}const user=await currentAuthUser(),snapshot=await getDoc(doc(db,"users",user.uid));
   if(!snapshot.exists()){latestCloudBackupString=null;latestCloudMeta=null;setText(cloudLastBackup,"まだ保存されていません");updateSyncState();return null}
   const backup=snapshot.data()?.cloudBackup;if(!backup?.data||typeof backup.data!=="object"){latestCloudBackupString=null;latestCloudMeta=null;setText(cloudLastBackup,"まだ保存されていません");updateSyncState();return null}
   latestCloudBackupString=JSON.stringify(backup.data);latestCloudMeta=backup;setText(cloudLastBackup,formatDate(backup.backedUpAt??backup.clientBackedUpAt));updateSyncState();return backup;
 }
 export async function restoreBeanGrowthFromCloud(){
-  if(!navigator.onLine)throw new Error("オフラインのためクラウド復元できません。");const user=await firebaseUserReady,snapshot=await getDoc(doc(db,"users",user.uid));if(!snapshot.exists())throw new Error("クラウド上にユーザーデータが見つかりません。");const backup=snapshot.data()?.cloudBackup,cloudData=backup?.data;if(!cloudData||typeof cloudData!=="object")throw new Error("クラウドバックアップが見つかりません。");
+  if(!navigator.onLine)throw new Error("オフラインのためクラウド復元できません。");const user=await currentAuthUser(),snapshot=await getDoc(doc(db,"users",user.uid));if(!snapshot.exists())throw new Error("クラウド上にユーザーデータが見つかりません。");const backup=snapshot.data()?.cloudBackup,cloudData=backup?.data;if(!cloudData||typeof cloudData!=="object")throw new Error("クラウドバックアップが見つかりません。");
   const currentLocalData=getLocalDataString();if(currentLocalData)localStorage.setItem(RESTORE_SAFETY_KEY,currentLocalData);const restoredString=JSON.stringify(cloudData);localStorage.setItem(LOCAL_STORAGE_KEY,restoredString);latestCloudBackupString=restoredString;latestCloudMeta=backup;lastAutoBackedUpLocalString=restoredString;localStorage.setItem(LAST_SYNC_HASH_KEY,simpleHash(restoredString));localStorage.removeItem(PENDING_SYNC_KEY);updateUndoButtonState();updateSyncState();console.log("[Bean Growth] Cloud restore complete:",user.uid);return true;
 }
 export function undoLastCloudRestore(){const safetyData=localStorage.getItem(RESTORE_SAFETY_KEY);if(!safetyData)throw new Error("復元前の安全用データがありません。");localStorage.setItem(LOCAL_STORAGE_KEY,safetyData);localStorage.removeItem(RESTORE_SAFETY_KEY);updateUndoButtonState();console.log("[Bean Growth] Cloud restore undo complete");return true}
@@ -442,7 +571,8 @@ async function publishGlobalAnalytics(){try{const payload=await loadGlobalAnalyt
 function isAutoBackupEnabled(){return localStorage.getItem(AUTO_BACKUP_KEY)==="true"}
 function setAutoBackupEnabled(enabled){localStorage.setItem(AUTO_BACKUP_KEY,enabled?"true":"false");if(cloudAutoBackupToggle)cloudAutoBackupToggle.checked=enabled;restartAutoBackupTimer()}
 async function runAutoBackupCheck(){
-  if(!isAutoBackupEnabled()||autoBackupRunning)return;const localString=getLocalDataString();if(!localString)return;
+  if(!isAutoBackupEnabled()||autoBackupRunning)return;
+  if(accountConflictPending()){setText(cloudBackupStatus,"Googleアカウントのデータ選択が未完了のため、自動保存を停止しています。");return}const localString=getLocalDataString();if(!localString)return;
   if(!navigator.onLine){localStorage.setItem(PENDING_SYNC_KEY,"true");setText(cloudBackupStatus,"変更を端末に保存しました。オンライン復帰後にクラウド同期します。");return}
   if(localString===lastAutoBackedUpLocalString){updateSyncState();return}
   updateSyncState();if(latestSyncState==="cloud-newer"||latestSyncState==="conflict"){setText(cloudBackupStatus,"クラウド側にも変更があるため、自動保存を保留しました。");return}
@@ -452,7 +582,7 @@ function scheduleAutoBackup(){if(!isAutoBackupEnabled())return;if(autoBackupDebo
 function restartAutoBackupTimer(){if(autoBackupTimer){clearInterval(autoBackupTimer);autoBackupTimer=null}if(isAutoBackupEnabled())autoBackupTimer=setInterval(runAutoBackupCheck,AUTO_BACKUP_INTERVAL_MS)}
 
 export async function runFirebaseDiagnostics(){
-  if(!navigator.onLine)throw new Error("オフラインです。");const user=await firebaseUserReady,token=`diag-${Date.now()}`,ref=doc(db,"users",user.uid);await setDoc(ref,{diagnostics:{token,appVersion:APP_VERSION,runtime:runtimeLabel(),checkedAt:serverTimestamp()}},{merge:true});const snap=await getDoc(ref);if(snap.data()?.diagnostics?.token!==token)throw new Error("Firestoreの読み書き確認に失敗しました。");return{uid:user.uid,runtime:runtimeLabel(),firebase:true,firestore:true,online:navigator.onLine};
+  if(!navigator.onLine)throw new Error("オフラインです。");const user=await currentAuthUser(),token=`diag-${Date.now()}`,ref=doc(db,"users",user.uid);await setDoc(ref,{diagnostics:{token,appVersion:APP_VERSION,runtime:runtimeLabel(),checkedAt:serverTimestamp()}},{merge:true});const snap=await getDoc(ref);if(snap.data()?.diagnostics?.token!==token)throw new Error("Firestoreの読み書き確認に失敗しました。");return{uid:user.uid,runtime:runtimeLabel(),firebase:true,firestore:true,online:navigator.onLine};
 }
 
 window.backupBeanGrowthToCloud=backupBeanGrowthToCloud;window.restoreBeanGrowthFromCloud=restoreBeanGrowthFromCloud;window.undoLastCloudRestore=undoLastCloudRestore;window.getCloudBackupInfo=getCloudBackupInfo;window.runFirebaseDiagnostics=runFirebaseDiagnostics;
@@ -468,6 +598,10 @@ window.addEventListener("bean-growth:sync-attention",()=>{if(latestSyncState==="
 if(refreshDevicesButton)refreshDevicesButton.addEventListener("click",async()=>{refreshDevicesButton.disabled=true;try{await refreshDeviceList()}catch(error){if(deviceList)deviceList.innerHTML=`<p class="records-note">端末一覧の取得に失敗しました。 ${escapeHtml(error?.message||"")}</p>`}finally{refreshDevicesButton.disabled=false}});
 if(syncConflictLaterButton)syncConflictLaterButton.addEventListener("click",closeConflictDialog);
 if(syncConflictOverlay)syncConflictOverlay.addEventListener("click",e=>{if(e.target===syncConflictOverlay)closeConflictDialog()});
+if(accountUseGoogleButton)accountUseGoogleButton.addEventListener("click",chooseGoogleAccountData);
+if(accountUseLocalButton)accountUseLocalButton.addEventListener("click",chooseLocalAccountData);
+if(accountConflictLaterButton)accountConflictLaterButton.addEventListener("click",()=>{closeAccountConflict();setAlignmentStatus("⚠ Googleアカウントのデータ選択は保留中です。クラウド自動保存は停止しています。","warning")});
+if(accountConflictOverlay)accountConflictOverlay.addEventListener("click",e=>{if(e.target===accountConflictOverlay)closeAccountConflict()});
 if(useLocalDataButton)useLocalDataButton.addEventListener("click",async()=>{useLocalDataButton.disabled=true;useCloudDataButton&&(useCloudDataButton.disabled=true);setText(cloudBackupStatus,"この端末のデータをクラウドへ保存中...");try{await backupBeanGrowthToCloud({force:true});closeConflictDialog();setText(cloudBackupStatus,"この端末のデータを採用し、クラウドへ保存しました。")}catch(error){setText(cloudBackupStatus,`保存に失敗しました。 ${error?.message||""}`)}finally{useLocalDataButton.disabled=false;useCloudDataButton&&(useCloudDataButton.disabled=false)}});
 if(useCloudDataButton)useCloudDataButton.addEventListener("click",async()=>{if(!confirm("クラウドのデータをこの端末に採用しますか？\\n復元前の端末データは安全用コピーとして残します。"))return;useCloudDataButton.disabled=true;useLocalDataButton&&(useLocalDataButton.disabled=true);setText(cloudBackupStatus,"クラウドデータをこの端末へ復元中...");try{await restoreBeanGrowthFromCloud();closeConflictDialog();setText(cloudBackupStatus,"クラウドデータを採用しました。画面を更新します...");setTimeout(()=>location.reload(),650)}catch(error){setText(cloudBackupStatus,`復元に失敗しました。 ${error?.message||""}`);useCloudDataButton.disabled=false;useLocalDataButton&&(useLocalDataButton.disabled=false)}});
 window.addEventListener("bean-growth:data-saved",()=>{localStorage.setItem(PENDING_SYNC_KEY,"true");scheduleAutoBackup();updateSyncState()});
@@ -486,5 +620,8 @@ function updateAccountPlanStatus(user=null){
   updateOnlineAuth(user);
 }
 
-async function initializeCloudPanel(){updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();try{const user=await firebaseUserReady;updateAccountPlanStatus(user);setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));await registerCurrentDevice(user);await getCloudBackupInfo();await refreshDeviceList();lastAutoBackedUpLocalString=latestCloudBackupString;if(localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(error){console.error("[Bean Growth] Cloud panel initialization failed:",error);setText(cloudSyncState,"クラウド状態を取得できませんでした")}}
+async function initializeCloudPanel(){
+  updateUndoButtonState();updateNetworkState();restartAutoBackupTimer();
+  try{const user=await currentAuthUser();updateAccountPlanStatus(user);refreshAccountControls();setText(cloudUserId,shortUid(user.uid));setText(accountFirebaseUid,shortUid(user.uid));setText(accountLoginStatus,authProviderLabel(user));await registerCurrentDevice(user);const a=await checkGoogleAccountAlignment(user,{openWhenConflict:true});if(!user.isAnonymous&&a.status!=="conflict"){await ensureCanonicalForGoogleUser(user);startCanonicalRealtime(user)}await getCloudBackupInfo();await refreshDeviceList();await loadBackupSlots().catch(()=>{});lastAutoBackedUpLocalString=latestCloudBackupString;if(a.status!=="conflict"&&localStorage.getItem(PENDING_SYNC_KEY)==="true")scheduleAutoBackup()}catch(e){console.error("[Bean Growth] Cloud panel initialization failed:",e);setText(cloudSyncState,"クラウド状態を取得できませんでした")}
+}
 initializeCloudPanel();

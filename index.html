@@ -13,7 +13,7 @@
       <div>
         <p class="app-subtitle">CONTINUE. GROW. CLIMB.</p>
         <h1>Bean Growth</h1>
-        <p class="version-label">Version 5.1.1</p>
+        <p class="version-label">Version 5.9.2</p>
       </div>
       <div class="header-actions">
         <button id="settingsButton" class="icon-button" type="button" aria-label="設定">⚙️</button>
@@ -265,13 +265,34 @@
 
       <section class="records-section">
         <div class="section-header">
-          <div><p class="section-label">MONTHLY RANKING BETA</p><h3>今月のランキング</h3></div>
+          <div><p class="section-label">MONTHLY RANKING</p><h3 id="onlineRankingTitle">今月のランキング：総合</h3></div>
           <button id="refreshOnlineRankingButton" class="small-outline-button" type="button">更新</button>
         </div>
-        <div id="onlineRankingList" class="online-ranking-list">
-          <p class="records-note">ランキングを取得中...</p>
+        <label class="ranking-division-field">部門
+          <select id="rankingDivisionSelect">
+            <option value="overall">総合</option>
+            <option value="severity-LIGHT">LIGHT</option><option value="severity-NORMAL">NORMAL</option><option value="severity-HEAVY">HEAVY</option>
+            <option value="habit-noMasturbation">🌱 オナ禁</option><option value="habit-noAlcohol">🍺 禁酒</option>
+            <option value="habit-noSmoking">🚭 禁煙</option><option value="habit-noGambling">🎰 ギャンブル禁</option>
+            <option value="habit-noSNS">💬 SNS禁</option><option value="habit-noShortVideos">🎞️ ショート動画禁</option>
+            <option value="habit-noGaming">🎮 ゲーム禁</option><option value="habit-noImpulseBuying">🛒 衝動買い禁</option>
+            <option value="habit-noSnacking">📺 娯楽動画禁</option><option value="habit-noCaffeine">☕ カフェイン禁</option>
+            <option value="habit-noAdultContent">成人向けコンテンツ禁</option><option value="habit-noJunkFood">ジャンクフード禁</option>
+          </select>
+        </label>
+        <div id="onlineRankingList" class="online-ranking-list"><p class="records-note">ランキングを取得中...</p></div>
+        <p class="records-note">記録率を併記します。v5.9ではクライアント整合性検査まで実装し、サーバー履歴再計算は将来の信頼できるバックエンドで有効化します。</p>
+      </section>
+
+      <section class="records-section">
+        <div class="section-header">
+          <div><p class="section-label">FRIENDS</p><h3>フレンド</h3></div>
+          <button id="refreshFriendsButton" class="small-outline-button" type="button">更新</button>
         </div>
-        <p class="records-note">v5.0のランキングはオンラインβ版です。現在はクライアントから送信した整合性情報付きデータを表示します。サーバー側で履歴を再計算する完全な不正対策は次段階で実装します。</p>
+        <div class="friends-columns">
+          <div><h4>申請</h4><div id="incomingFriendRequests"><p class="records-note">確認中...</p></div></div>
+          <div><h4>フレンド一覧</h4><div id="friendList"><p class="records-note">確認中...</p></div></div>
+        </div>
       </section>
     </div>
   </div>
@@ -317,12 +338,22 @@
             <div class="google-link-actions">
               <button id="googleConnectButton" class="google-connect-button" type="button">G　Googleと連携 / ログイン</button>
               <span id="googleLinkStatus" class="account-plan-badge">状態を確認中...</span>
-              <span id="accountTypeBadge" class="settings-count">GUEST</span>
+              <span id="accountTypeBadge" class="settings-count">GUEST</span><div id="accountAlignmentStatus" class="account-alignment-status">アカウント整合性を確認中...</div>
+              <div class="account-control-actions">
+                <button id="googleUnlinkButton" class="secondary-button compact-button" type="button" disabled>Google連携を解除</button>
+                <small id="googleUnlinkHelp">Googleが唯一のログイン手段の場合は解除できません。</small>
+              </div>
             </div>
             <p class="records-note">Android版はv5.1でCredential ManagerによるGoogle連携に対応します。初回のみAndroid側セットアップが必要です。</p>
           </div>
           <div id="profileOnlineFoundation" class="foundation-preview profile-online-foundation"></div>
         </section>
+      </section>
+
+      <section class="records-section profile-section">
+        <p class="section-label">DATA RECOVERY</p><h3>データ復旧</h3>
+        <p class="records-note">Google連携済みアカウントでは、正式データ更新前の状態を直近5世代まで循環保存します。</p>
+        <div id="backupHistoryList" class="backup-history-list"><p class="records-note">復旧ポイントを確認中...</p></div>
       </section>
 
       <section class="records-section profile-section">
@@ -608,6 +639,33 @@
         <strong>非表示にしても記録は保持されます</strong>
         <p>高さ、連続成功、累計成功、図鑑、カレンダーなどは削除されません。少なくとも1種類は表示される仕様です。</p>
       </section>
+    </div>
+  </div>
+
+
+  <div id="accountConflictOverlay" class="modal-overlay hidden">
+    <div class="modal sync-conflict-modal account-conflict-modal">
+      <div class="modal-icon">🔐</div>
+      <p class="section-label">GOOGLE ACCOUNT DATA</p>
+      <h2>同じGoogleアカウントに別のBean Growthデータがあります</h2>
+      <p class="modal-description">Googleログインは成功していますが、この端末とGoogleアカウント側でPlayer IDまたは記録が異なります。自動では統合・上書きしません。</p>
+      <div class="sync-compare-grid">
+        <section class="sync-compare-card local">
+          <span class="sync-source-label">📱 この端末</span>
+          <div id="accountConflictLocalSummary"></div>
+          <button id="accountUseLocalButton" class="primary-button" type="button">この端末のデータを使う</button>
+        </section>
+        <section class="sync-compare-card cloud">
+          <span class="sync-source-label">☁️ Googleアカウント側</span>
+          <div id="accountConflictCloudSummary"></div>
+          <button id="accountUseGoogleButton" class="primary-button" type="button">Google側のデータを使う</button>
+        </section>
+      </div>
+      <div class="account-conflict-warning">
+        <strong>選択するまでクラウド自動保存を停止します</strong>
+        <p>「この端末」を選ぶとGoogle側クラウドをこの端末の内容で置き換えます。「Google側」を選ぶと現在の端末データを安全用コピーに残してからGoogle側データを読み込みます。</p>
+      </div>
+      <button id="accountConflictLaterButton" class="primary-close secondary" type="button">あとで決める</button>
     </div>
   </div>
 

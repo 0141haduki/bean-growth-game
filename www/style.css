@@ -434,3 +434,27 @@
   .online-ranking-row{grid-template-columns:30px minmax(0,1fr) auto}
   .online-rank-records{grid-column:2/4}
 }
+
+/* v5.1.2 Google account data alignment */
+.account-alignment-status{margin-top:9px;padding:8px 10px;border-radius:11px;background:#eef7f0;color:#245b35;font-size:.64rem;font-weight:900}
+.account-alignment-status.warning{background:#fff5df;color:#795400}
+.account-alignment-status.ok{background:#eaf7ee;color:#1f6738}
+.account-conflict-modal{max-width:760px}
+.account-conflict-warning{margin:12px 0 8px;padding:11px 12px;border-radius:13px;background:#fff7e8;border:1px solid #ecd19a}
+.account-conflict-warning strong{display:block;font-size:.7rem;color:#775300}
+.account-conflict-warning p{margin:5px 0 0;font-size:.64rem;line-height:1.55;color:#665632}
+
+/* v5.9 */
+.account-control-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.account-control-actions small{font-size:.58rem;color:var(--muted)}
+.backup-history-list{display:grid;gap:7px;margin-top:10px}
+.backup-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 11px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.backup-item strong{display:block;font-size:.7rem}.backup-item small{font-size:.56rem;color:var(--muted)}
+.ranking-division-field{display:grid;gap:5px;margin:10px 0;font-size:.64rem;font-weight:900}
+.ranking-division-field select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:11px;background:#fff;font:inherit}
+.remote-profile-actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+.friends-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}.friends-columns h4{margin:0 0 7px;font-size:.72rem}
+.friend-row,.friend-request-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--border);border-radius:11px;background:#fff;margin-bottom:6px}
+.friend-row strong,.friend-request-row strong{font-size:.68rem}.friend-row small,.friend-request-row small{display:block;font-size:.53rem;color:var(--muted)}
+.friend-actions{display:flex;gap:5px}.friend-actions button{padding:6px 8px;font-size:.58rem}
+@media(max-width:620px){.friends-columns{grid-template-columns:1fr}.backup-item{grid-template-columns:1fr}.remote-profile-actions{grid-template-columns:1fr 1fr}}
