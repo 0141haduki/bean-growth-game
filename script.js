@@ -1,6 +1,6 @@
 "use strict";
 
-const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="5.9",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
+const STORAGE_KEY="beanGrowthGame_v1",APP_VERSION="6.8",OFFICIAL_RELEASE_DATE="2026-08-31",MILESTONES=(window.BEAN_MILESTONES||[]).slice().sort((a,b)=>a.height-b.height);
 const HABITS={
 noMasturbation:{id:"noMasturbation",name:"オナ禁",englishName:"NO MASTURBATION",icon:"🌱",description:"自慰をしない"},
 noAlcohol:{id:"noAlcohol",name:"禁酒",englishName:"NO ALCOHOL",icon:"🍺",description:"飲酒をしない"},
@@ -308,7 +308,7 @@ function validPlayerId(v){return /^BG-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/.test
 function normalizeNickname(v){return String(v??"").trim().replace(/\s+/g," ").slice(0,20)}
 function validNickname(v){const s=normalizeNickname(v);return s.length>=1&&s.length<=20}
 function initialHabit(){return{height:0,currentStreak:0,totalSuccess:0,consecutiveFailures:0,lastActionDate:null,lastActionType:null,history:[],startedAt:null,startSeverity:null,moonBlessing:false,moonBlessingEarned:false,unlockedMilestones:[],unlockedTitles:["seed"],selectedTitleId:"seed",stats:{maxHeight:0,maxStreak:0,weekendSuccess:0,eventApplications:{wind:0,storm:0,miracle:0}}}}
-function initialData(){const habits={};const visibleHabits={},habitSeverity={},severityReservations={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true;habitSeverity[id]="NORMAL"});return{version:APP_VERSION,schemaVersion:20,profile:{localId:makeLocalId(),playerId:makePlayerId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString(),account:{mode:"guest",googleLinked:false},publicProfile:{representativeHabitId:"noMasturbation",shareHeight:true,shareStreak:true,shareEncyclopedia:true,shareSeverity:true,goal:""},onlineFoundation:{rankingVersion:3,profileVersion:3,friendVersion:2,integrityVersion:1,googleAuthReady:true,lastRankingSubmissionAt:null,lastPublicProfileAt:null},titleInventory:{modifiers:{},nouns:{}},selectedTitle:{modifierId:null,nounId:"bean_challenger"},titleHistory:[],missionRewards:[],dataRevision:36,lastMigratedAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits,habitOrder:Object.keys(HABITS),habitPaused:{},habitSeverity,severityReservations,rewardEditUnlockedDates:{}},ranking:{finalizedMonths:{},pendingSubmissions:{}},habits}}
+function initialData(){const habits={};const visibleHabits={},habitSeverity={},severityReservations={};Object.keys(HABITS).forEach(id=>{habits[id]=initialHabit();visibleHabits[id]=true;habitSeverity[id]="NORMAL"});return{version:APP_VERSION,schemaVersion:22,profile:{localId:makeLocalId(),playerId:makePlayerId(),nickname:"BEAN-"+Math.floor(10000+Math.random()*90000),createdAt:new Date().toISOString(),account:{mode:"guest",googleLinked:false},publicProfile:{representativeHabitId:"noMasturbation",shareHeight:true,shareStreak:true,shareEncyclopedia:true,shareSeverity:true,goal:""},onlineFoundation:{rankingVersion:3,profileVersion:3,friendVersion:2,integrityVersion:1,googleAuthReady:true,lastRankingSubmissionAt:null,lastPublicProfileAt:null},titleInventory:{modifiers:{},nouns:{}},selectedTitle:{modifierId:null,nounId:"bean_challenger"},titleHistory:[],missionRewards:[],dataRevision:45,lastMigratedAt:new Date().toISOString()},settings:{calendarStartSunday:true,visibleHabits,habitOrder:Object.keys(HABITS),habitPaused:{},habitSeverity,severityReservations,rewardEditUnlockedDates:{}},ranking:{finalizedMonths:{},pendingSubmissions:{}},habits}}
 
 function makeLocalId(){return "local-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9)}
 function migrateData(data){
@@ -343,7 +343,7 @@ function migrateData(data){
   if(!data.profile.selectedTitle)data.profile.selectedTitle={modifierId:null,nounId:"bean_challenger"};
   if(!Array.isArray(data.profile.titleHistory))data.profile.titleHistory=[];
   if(!Array.isArray(data.profile.missionRewards))data.profile.missionRewards=[];
-  if(!data.profile.dataRevision)data.profile.dataRevision=1;data.profile.dataRevision=Math.max(Number(data.profile.dataRevision||1),36);
+  if(!data.profile.dataRevision)data.profile.dataRevision=1;data.profile.dataRevision=Math.max(Number(data.profile.dataRevision||1),45);
   if(!data.profile.lastMigratedAt)data.profile.lastMigratedAt=new Date().toISOString();
   if(!data.settings)data.settings={};
   if(!Array.isArray(data.settings.habitOrder))data.settings.habitOrder=Object.keys(HABITS);
@@ -354,7 +354,7 @@ function migrateData(data){
   if(!data.settings.severityReservations)data.settings.severityReservations={};
   if(!data.settings.rewardEditUnlockedDates||typeof data.settings.rewardEditUnlockedDates!=="object")data.settings.rewardEditUnlockedDates={};
   if(!data.habits)data.habits={};
-  data.schemaVersion=Math.max(Number(data.schemaVersion||0),20);
+  data.schemaVersion=Math.max(Number(data.schemaVersion||0),22);
   Object.keys(HABITS).forEach(id=>{
     if(!data.habits[id])data.habits[id]=initialHabit();
     if(typeof data.settings.visibleHabits[id]!=="boolean")data.settings.visibleHabits[id]=true;
@@ -373,7 +373,7 @@ function migrateData(data){
 function loadData(){const r=localStorage.getItem(STORAGE_KEY);if(!r)return initialData();try{return migrateData(mergeData(JSON.parse(r)))}catch(e){console.error(e);return initialData()}}
 function mergeData(s){const i=initialData(),m={...i,...s,version:APP_VERSION,settings:{...i.settings,...(s.settings||{}),visibleHabits:{...i.settings.visibleHabits,...(s.settings?.visibleHabits||{})},habitPaused:{...i.settings.habitPaused,...(s.settings?.habitPaused||{})},habitSeverity:{...i.settings.habitSeverity,...(s.settings?.habitSeverity||{})},severityReservations:{...i.settings.severityReservations,...(s.settings?.severityReservations||{})},rewardEditUnlockedDates:{...i.settings.rewardEditUnlockedDates,...(s.settings?.rewardEditUnlockedDates||{})}},habits:{...i.habits}};Object.keys(HABITS).forEach(id=>m.habits[id]={...i.habits[id],...(s.habits?.[id]||{})});return m}
 function updateStats(d,event=null,dateKey=todayKey()){if(!d.stats)d.stats={maxHeight:0,maxStreak:0,weekendSuccess:0,eventApplications:{wind:0,storm:0,miracle:0}};if(!d.stats.eventApplications)d.stats.eventApplications={wind:0,storm:0,miracle:0};d.stats.maxHeight=Math.max(Number(d.stats.maxHeight||0),Number(d.height||0));d.stats.maxStreak=Math.max(Number(d.stats.maxStreak||0),Number(d.currentStreak||0));if(event&&GUERRILLA_EVENTS[event.type])d.stats.eventApplications[event.type]=Number(d.stats.eventApplications[event.type]||0)+1;if(isWeekendDate(dateKey))d.stats.weekendSuccess=Number(d.stats.weekendSuccess||0)+1;}
-function saveData(){const before=pendingTitleUnlocks.length;syncGlobalTitleUnlocks();appData.version=APP_VERSION;appData.schemaVersion=Math.max(Number(appData.schemaVersion||0),20);appData.profile.lastLocalChangeAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(appData));window.dispatchEvent(new CustomEvent("bean-growth:data-saved",{detail:{updatedAt:appData.profile.lastLocalChangeAt}}));if(pendingTitleUnlocks.length>before)setTimeout(showNextTitleUnlock,120)}function clone(v){return JSON.parse(JSON.stringify(v))}function $(id){return document.getElementById(id)}
+function saveData(){const before=pendingTitleUnlocks.length;syncGlobalTitleUnlocks();appData.version=APP_VERSION;appData.schemaVersion=Math.max(Number(appData.schemaVersion||0),22);appData.profile.lastLocalChangeAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(appData));window.dispatchEvent(new CustomEvent("bean-growth:data-saved",{detail:{updatedAt:appData.profile.lastLocalChangeAt}}));if(pendingTitleUnlocks.length>before)setTimeout(showNextTitleUnlock,120)}function clone(v){return JSON.parse(JSON.stringify(v))}function $(id){return document.getElementById(id)}
 function todayKey(){const d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${day}`}
 function fmt(v,max=1){return Number(v).toLocaleString("ja-JP",{maximumFractionDigits:max})}function fmtH(m){m=Number(m);return m<1000?`${fmt(m)}m`:m<1000000?`${fmt(m/1000,2)}km`:`${fmt(m/1000,1)}km`}function round1(v){return Math.round(v*10)/10}function floor1(v){return Math.floor(v*10)/10}
 let appData=loadData(),currentHabitId=null,pendingAction=null,developerMode=false,developerData=null,developerOriginalData=null,developerForcedEvent="auto",encyclopediaCategory="すべて",encyclopediaQuery="",encyclopediaUnlockFilter="all",encyclopediaSort="asc",toastTimer=null,calendarHabitId="noMasturbation",calendarCursor=new Date(),recordsHabitId="noMasturbation";
@@ -987,9 +987,8 @@ function rankingFinalizeInfo(base=new Date()){
 function monthlyRankingSnapshot(habitId,base){
   const d=appData.habits[habitId],start=new Date(base.getFullYear(),base.getMonth(),1,12),end=new Date(base.getFullYear(),base.getMonth()+1,0,12);
   const rows=normalizedHistoryRows(d).filter(x=>{const dt=dateFromKey(x.date);return dt>=start&&dt<=end});
-  const success=rows.filter(x=>x.type==="success").length,failure=rows.filter(x=>x.type==="failure").length,resets=rows.filter(isResetHistoryRow).length;
-  const rr=recordRateForMonth(d,base);
-  return{habitId,month:currentMonthKey(base),severity:severityOf(habitId),success,failure,resets,records:success+failure,recordRate:rr.rate,maxHeight:allTimeMaxHeight(d),maxStreak:allTimeMaxStreak(d),generatedAt:new Date().toISOString()};
+  const success=rows.filter(x=>x.type==="success").length,failure=rows.filter(x=>x.type==="failure").length,resets=rows.filter(isResetHistoryRow).length,rr=recordRateForMonth(d,base);
+  return{habitId,month:currentMonthKey(base),severity:severityOf(habitId),success,failure,resets,records:success+failure,recordRate:rr.rate,maxHeight:allTimeMaxHeight(d),maxStreak:allTimeMaxStreak(d),currentStreak:Number(d.currentStreak||0),generatedAt:new Date().toISOString()};
 }
 function ensureRankingFoundation(){
   if(!appData.ranking)appData.ranking={finalizedMonths:{},pendingSubmissions:{}};
@@ -1053,17 +1052,8 @@ function personalOverallStats(d){
 
 function publicProfilePayload(){
   const pub=appData.profile.publicProfile||{},repId=HABITS[pub.representativeHabitId]?pub.representativeHabitId:"noMasturbation",rep=appData.habits[repId],title=equippedTitle();
-  const payload={
-    schemaVersion:2,
-    playerId:appData.profile.playerId,
-    nickname:appData.profile.nickname,
-    goal:String(pub.goal||"").slice(0,80),
-    firstRecordDate:firstEverRecordDate(),
-    representativeHabitId:repId,
-    representativeHabitName:HABITS[repId].name,
-    title:{icon:title.icon,text:title.text},
-    updatedAt:appData.profile.lastLocalChangeAt||new Date().toISOString()
-  };
+  const activeHabits=visibleHabitIds().map(id=>{const d=appData.habits[id];return{habitId:id,name:HABITS[id].name,icon:HABITS[id].icon,maxStreak:pub.shareStreak===false?null:allTimeMaxStreak(d),severity:pub.shareSeverity===false?null:severityOf(id)}});
+  const payload={schemaVersion:4,playerId:appData.profile.playerId,nickname:appData.profile.nickname,goal:String(pub.goal||"").slice(0,80),firstRecordDate:firstEverRecordDate(),representativeHabitId:repId,representativeHabitName:HABITS[repId].name,title:{icon:title.icon,text:title.text},activeHabits,updatedAt:appData.profile.lastLocalChangeAt||new Date().toISOString()};
   if(pub.shareSeverity!==false)payload.severity=severityOf(repId);
   if(pub.shareHeight!==false)payload.maxHeight=allTimeMaxHeight(rep);
   if(pub.shareStreak!==false)payload.maxStreak=allTimeMaxStreak(rep);
@@ -1081,6 +1071,18 @@ function friendFoundationSummary(){
     googleLinked:Boolean(appData.profile.account?.googleLinked)
   };
 }
+function releasePeriodHabitSnapshot(habitId){
+  const d=appData.habits[habitId],release=dateFromKey(OFFICIAL_RELEASE_DATE),rows=normalizedHistoryRows(d).filter(x=>dateFromKey(x.date)>=release);
+  const success=rows.filter(x=>x.type==="success").length,failure=rows.filter(x=>x.type==="failure").length,resets=rows.filter(isResetHistoryRow).length;
+  const baseline=Number(rows[0]?.before?.height??d.height??0),heights=rows.flatMap(x=>[Number(x.before?.height??baseline),Number(x.after?.height??baseline)]);
+  const releaseGrowth=Math.max(0,(heights.length?Math.max(...heights):baseline)-baseline),eligible=Math.max(1,Math.floor((new Date()-release)/86400000)+1);
+  return{habitId,severity:severityOf(habitId),success,failure,resets,records:success+failure,recordRate:Math.min(100,Math.round((success+failure)/eligible*1000)/10),maxHeight:releaseGrowth,maxStreak:allTimeMaxStreak(d),currentStreak:Number(d.currentStreak||0),releaseDate:OFFICIAL_RELEASE_DATE,generatedAt:new Date().toISOString()};
+}
+function allTimeRankingSnapshot(){
+  const rows=Object.keys(HABITS).map(releasePeriodHabitSnapshot);
+  return{month:"all-time",period:"all-time",releaseDate:OFFICIAL_RELEASE_DATE,playerId:appData.profile.playerId,totalHeight:rows.reduce((s,x)=>s+Number(x.maxHeight||0),0),records:rows.reduce((s,x)=>s+Number(x.records||0),0),success:rows.reduce((s,x)=>s+Number(x.success||0),0),failure:rows.reduce((s,x)=>s+Number(x.failure||0),0),resets:rows.reduce((s,x)=>s+Number(x.resets||0),0),habits:rows,generatedAt:new Date().toISOString()};
+}
+
 function rankingOverallSnapshot(base=new Date()){
   const rows=Object.keys(HABITS).map(id=>monthlyRankingSnapshot(id,base));
   return{
@@ -1097,14 +1099,7 @@ function rankingOverallSnapshot(base=new Date()){
 }
 function rankingSubmissionPreview(){
   const now=new Date(),current=rankingOverallSnapshot(now),prevBase=previousMonthBase(now),previous=rankingOverallSnapshot(prevBase),info=rankingFinalizeInfo(now);
-  return{
-    schemaVersion:2,
-    playerId:appData.profile.playerId,
-    current,
-    previous,
-    previousFinalized:info.finalized,
-    previousFinalizeDate:info.finalizeDate
-  };
+  return{schemaVersion:3,playerId:appData.profile.playerId,current,previous,allTime:allTimeRankingSnapshot(),previousFinalized:info.finalized,previousFinalizeDate:info.finalizeDate,releaseDate:OFFICIAL_RELEASE_DATE};
 }
 function integrityFingerprint(){
   const summary={
@@ -1164,12 +1159,23 @@ function renderReleaseReadiness(){
 function refreshV499Diagnostics(){renderReleaseReadiness();renderIntegrityStatus();renderRankingSubmissionPreview();toast("v4.99総合診断を更新しました。")}
 
 
+function initializeRankingSelectors(){
+  const y=$("rankingYearSelect"),m=$("rankingMonthSelect"),p=$("rankingPeriodSelect");if(!y||!m||!p)return;
+  const now=new Date(),start=Number(OFFICIAL_RELEASE_DATE.slice(0,4));
+  if(!y.options.length){for(let n=now.getFullYear();n>=start;n--){const o=document.createElement("option");o.value=String(n);o.textContent=`${n}年`;y.appendChild(o)}}
+  if(!p.dataset.initialized){p.dataset.initialized="1";p.value="all-time";y.value=String(now.getFullYear());m.value=String(now.getMonth()+1)}
+  const disabled=p.value==="all-time";y.disabled=disabled;m.disabled=disabled;
+}
 function openOnline(){
+  initializeRankingSelectors();
   $("onlineOverlay").classList.remove("hidden");
   renderOnlineLocalSummary();
   window.BeanGrowthOnline?.refreshAuth?.();
   window.BeanGrowthOnline?.loadRanking?.();
   window.BeanGrowthOnline?.loadFriends?.();
+  window.BeanGrowthOnline?.loadSelfRank?.();
+  window.BeanGrowthOnline?.loadGlobalEvent?.();
+  window.BeanGrowthOnline?.loadNotifications?.();
 }
 function closeOnline(){$("onlineOverlay").classList.add("hidden")}
 function renderOnlineLocalSummary(){
@@ -1189,23 +1195,9 @@ function normalizePlayerIdInput(value){
 }
 function renderRemoteProfileCard(data){
   if(!data)return'<p class="records-note">公開プロフィールが見つかりません。</p>';
-  const title=data.title||{},goal=data.goal||"目標は未設定です。";
-  const stats=[
-    ["記録開始",data.firstRecordDate?formatDateKeyJa(data.firstRecordDate):"未開始"],
-    ["代表禁欲",data.representativeHabitName||"—"],
-    ["深刻度",data.severity||"非公開"],
-    ["最高高度",data.maxHeight==null?"非公開":fmtH(data.maxHeight)],
-    ["最高連続",data.maxStreak==null?"非公開":`${data.maxStreak}日`],
-    ["図鑑",data.encyclopediaUnlocked==null?"非公開":`${data.encyclopediaUnlocked}件`]
-  ];
-  return `<article class="remote-profile-card">
-    <p class="section-label">PUBLIC PROFILE</p>
-    <h3>${escapeHtml(data.nickname||"Bean Grower")}　${escapeHtml(title.icon||"🌱")} ${escapeHtml(title.text||"豆の挑戦者")}</h3>
-    <p class="remote-player-id">${escapeHtml(data.playerId||"")}</p>
-    <div class="remote-goal"><small>目標</small><p>${escapeHtml(goal)}</p></div>
-    <div class="remote-stats">${stats.map(([k,v])=>`<div><small>${escapeHtml(k)}</small><strong>${escapeHtml(v)}</strong></div>`).join("")}</div>
-    ${data.playerId===appData.profile.playerId?"":`<div class="remote-profile-actions"><button class="primary-button" type="button" data-friend-player="${escapeHtml(data.playerId||"")}">フレンド申請</button><button class="secondary-button" type="button" data-report-player="${escapeHtml(data.playerId||"")}">通報</button></div>`}
-  </article>`;
+  const goal=data.goal||"目標は未設定です。",active=Array.isArray(data.activeHabits)?data.activeHabits:[];
+  const habitHtml=active.length?active.map(h=>`<div class="player-active-habit"><span>${escapeHtml(h.icon||"🌱")} ${escapeHtml(h.name||"禁欲")}</span><strong>${h.maxStreak==null?"最長非公開":`最長 ${Number(h.maxStreak)}日`}</strong></div>`).join(""):'<p class="records-note">現在取り組んでいる禁欲は公開されていません。</p>';
+  return `<article class="remote-profile-card player-detail-card"><p class="section-label">PLAYER</p><h3>${escapeHtml(data.nickname||"Bean Grower")}</h3><p class="remote-player-id">${escapeHtml(data.playerId||"")}</p><div class="remote-goal"><small>目標</small><p>${escapeHtml(goal)}</p></div><div class="player-active-habits"><small>現在取り組んでいる禁欲</small>${habitHtml}</div>${data.playerId===appData.profile.playerId?"":`<div class="remote-profile-actions"><button class="primary-button" type="button" data-friend-player="${escapeHtml(data.playerId||"")}">フレンド申請</button><button class="secondary-button" type="button" data-report-player="${escapeHtml(data.playerId||"")}">通報</button></div>`}</article>`;
 }
 function onlineSearchPlayer(){
   const input=$("onlinePlayerSearchInput"),id=normalizePlayerIdInput(input?.value);
@@ -1217,26 +1209,97 @@ function onlineSearchPlayer(){
 function publishOnlineProfile(){
   window.BeanGrowthOnline?.publishPublicProfile?.(publicProfilePayload());
 }
+window.BeanGrowthRankingBridge={getSubmission:()=>({preview:rankingSubmissionPreview(),fingerprint:integrityFingerprint(),publicProfile:publicProfilePayload()}),releaseDate:OFFICIAL_RELEASE_DATE};
 function publishOnlineRanking(){
   window.BeanGrowthOnline?.publishRanking?.(rankingSubmissionPreview(),integrityFingerprint());
 }
-function rankingDivisionLabel(key){
-  if(key==="overall")return"総合";
-  if(key.startsWith("severity-"))return key.replace("severity-","")+" 部門";
-  if(key.startsWith("habit-")){const id=key.replace("habit-","");return HABITS[id]?`${HABITS[id].icon} ${HABITS[id].name}`:key}
-  return key;
+function rankingHabitLabel(key){if(key==="all")return"全禁欲総合";return HABITS[key]?`${HABITS[key].icon} ${HABITS[key].name}`:key}
+function rankingSeverityLabel(key){if(key==="all")return"全深刻度";if(key==="LIGHT")return"LIGHT";if(key==="NORMAL")return"NORMAL";if(key==="HEAVY")return"HARD";return key}
+function goldCrownSvg(){return `<svg class="rank-crown-svg" viewBox="0 0 64 48" aria-label="1位の王冠" role="img"><path d="M7 13l13 10L31 7l12 16 14-10-5 27H12L7 13z"/><rect x="12" y="39" width="40" height="6" rx="3"/></svg>`}
+
+function renderAccountDataComparison(localSummary,cloudSummary){
+  const localEl=$("accountConflictLocalSummary"),cloudEl=$("accountConflictCloudSummary"),diffEl=$("accountConflictDifferenceSummary");
+  if(!localEl||!cloudEl)return;
+  const row=(label,a,b,format=v=>String(v??"—"))=>{
+    const av=format(a),bv=format(b),different=av!==bv;
+    return `<div class="account-compare-row ${different?"is-different":""}">
+      <span>${escapeHtml(label)}</span><strong>${escapeHtml(av)}</strong><strong>${escapeHtml(bv)}</strong>
+    </div>`;
+  };
+  const fDate=v=>v?formatDate(v):"—";
+  const fNum=v=>Number(v||0).toLocaleString("ja-JP");
+  const local=localSummary||{},cloud=cloudSummary||{};
+  const rows=[
+    row("Player ID",local.playerId,cloud.playerId),
+    row("ニックネーム",local.nickname,cloud.nickname),
+    row("最終変更",local.updatedAt,cloud.updatedAt,fDate),
+    row("合計の高さ",local.totalHeight,cloud.totalHeight,v=>`${fNum(v)}m`),
+    row("記録数",local.records,cloud.records,v=>`${fNum(v)}件`),
+    row("最高連続",local.maxStreak,cloud.maxStreak,v=>`${fNum(v)}日`),
+    row("データ版",local.schemaVersion,cloud.schemaVersion,v=>v?`Schema ${v}`:"—")
+  ].join("");
+  const header=`<div class="account-compare-header"><span>項目</span><strong>📱 この端末</strong><strong>☁️ クラウド正式データ</strong></div>`;
+  localEl.innerHTML=header+rows;
+  cloudEl.innerHTML="";
+  if(diffEl){
+    const differences=[
+      local.playerId!==cloud.playerId?"Player ID":"",
+      Number(local.totalHeight||0)!==Number(cloud.totalHeight||0)?"高さ":"",
+      Number(local.records||0)!==Number(cloud.records||0)?"記録数":"",
+      local.updatedAt!==cloud.updatedAt?"最終変更時刻":""
+    ].filter(Boolean);
+    diffEl.textContent=differences.length
+      ?`差があります：${differences.join("・")}`
+      :"主要項目は一致しています。";
+  }
 }
+
+
+function renderSyncControlStatus(info={}){
+  const rev=$("canonicalRevisionDisplay"),sync=$("canonicalLastSyncDisplay"),device=$("canonicalDeviceDisplay"),state=$("canonicalStateDisplay");
+  if(rev)rev.textContent=info.revision!=null?`Revision ${Number(info.revision)}`:"—";
+  if(sync)sync.textContent=info.updatedAt?formatDate(info.updatedAt):"—";
+  if(device)device.textContent=info.deviceLabel||info.deviceId||"—";
+  if(state)state.textContent=info.state||"確認中";
+}
+function renderSelfRankingCard(info=null){
+  const el=$("selfRankingCard");if(!el)return;
+  if(!info){el.innerHTML='<p class="records-note">自分の順位を確認できませんでした。</p>';return}
+  el.innerHTML=`<div><span>あなたの順位</span><strong>${info.rank?`${Number(info.rank).toLocaleString("ja-JP")}位`:"未参加"}</strong></div>
+    <div><span>スコア</span><strong>${Number(info.score||0).toLocaleString("ja-JP",{maximumFractionDigits:1})}m</strong></div>
+    <div><span>記録率</span><strong>${Number(info.recordRate||0).toFixed(1)}%</strong></div>`;
+}
+function renderNotificationBadge(count=0){
+  const b=$("notificationBadge");if(!b)return;
+  b.textContent=String(Math.min(99,Number(count||0)));b.classList.toggle("hidden",!count);
+}
+function renderGlobalEventCard(event=null,progress=null){
+  const box=$("globalEventCard"),contrib=$("eventContributionStatus");if(!box)return;
+  if(!event){box.innerHTML='<p class="records-note">現在開催中のオンラインイベントはありません。</p>';if(contrib)contrib.textContent="";return}
+  const target=Math.max(1,Number(event.targetPoints||1)),points=Math.max(0,Number(progress?.points||0)),pct=Math.min(100,points/target*100);
+  const boss=event.kind==="worldBoss";
+  box.innerHTML=`<article class="global-event-card">
+    <div class="global-event-head"><span>${escapeHtml(event.icon||"🌍")}</span><div><small>${boss?"WORLD BOSS":"GLOBAL EVENT"}</small><h3>${escapeHtml(event.title||"Bean Growth Event")}</h3></div></div>
+    <p>${escapeHtml(event.description||"")}</p>
+    <div class="event-progress-line"><span style="width:${pct.toFixed(2)}%"></span></div>
+    <div class="event-progress-numbers"><strong>${points.toLocaleString("ja-JP")} / ${target.toLocaleString("ja-JP")}</strong><span>${pct.toFixed(1)}%</span></div>
+    ${boss?`<p class="records-note">残りHP ${Math.max(0,target-points).toLocaleString("ja-JP")}</p>`:""}
+    <small>${event.endsAtText?`終了 ${escapeHtml(event.endsAtText)}`:""}</small>
+  </article>`;
+  if(contrib)contrib.textContent=progress?.mine!=null?`あなたの貢献：${Number(progress.mine).toLocaleString("ja-JP")}pt`:"";
+}
+function renderAdminAccess(isAdmin=false){
+  const btn=$("adminButton");if(btn)btn.classList.toggle("hidden",!isAdmin);
+}
+
 function renderOnlineRanking(rows=[]){
   const el=$("onlineRankingList");if(!el)return;
-  const division=$("rankingDivisionSelect")?.value||"overall";
-  if($("onlineRankingTitle"))$("onlineRankingTitle").textContent=`今月のランキング：${rankingDivisionLabel(division)}`;
-  if(!rows.length){el.innerHTML='<p class="records-note">この部門にはまだランキングデータがありません。</p>';return}
-  el.innerHTML=rows.map((x,i)=>`<button class="online-ranking-row" type="button" data-player-id="${escapeHtml(x.playerId||"")}">
-    <span class="online-rank">${i+1}</span>
-    <span class="online-rank-name"><strong>${escapeHtml(x.nickname||x.playerId||"Player")}</strong><small>${escapeHtml(x.playerId||"")}</small></span>
-    <span class="online-rank-value">${Number(x.score||0).toLocaleString("ja-JP",{maximumFractionDigits:1})}m</span>
-    <span class="online-rank-records">記録率 ${Number(x.recordRate||0).toFixed(1)}% ・ ${Number(x.records||0)}記録</span>
-  </button>`).join("");
+  const habit=$("rankingHabitSelect")?.value||"all",severity=$("rankingSeveritySelect")?.value||"all",period=$("rankingPeriodSelect")?.value||"all-time";
+  const year=$("rankingYearSelect")?.value||String(new Date().getFullYear()),month=Number($("rankingMonthSelect")?.value||new Date().getMonth()+1);
+  const periodText=period==="all-time"?`全期間（${OFFICIAL_RELEASE_DATE.replaceAll("-","/")}〜）`:`${year}年${month}月`;
+  if($("onlineRankingTitle"))$("onlineRankingTitle").textContent=`${periodText}：${rankingHabitLabel(habit)} / ${rankingSeverityLabel(severity)}`;
+  if(!rows.length){el.innerHTML='<p class="records-note">この条件にはまだランキングデータがありません。</p>';return}
+  el.innerHTML=rows.map((x,i)=>{const streakName=habit==="all"&&x.streakHabitName?`${x.streakHabitName} `:"";return `<button class="online-ranking-row ${i===0?"rank-first":""}" type="button" data-player-id="${escapeHtml(x.playerId||"")}"><span class="online-rank">${i===0?goldCrownSvg():""}<b>${i+1}</b></span><span class="online-rank-name"><strong>${escapeHtml(x.nickname||x.playerId||"Player")}</strong><small>${escapeHtml(x.playerId||"")}</small><em>${escapeHtml(streakName)}${Number(x.currentStreak||0)}日間継続！</em></span><span class="online-rank-value">${Number(x.score||0).toLocaleString("ja-JP",{maximumFractionDigits:1})}m</span><span class="online-rank-records">記録率 ${Number(x.recordRate||0).toFixed(1)}% ・ ${Number(x.records||0)}記録</span></button>`}).join("");
   el.querySelectorAll("[data-player-id]").forEach(b=>b.onclick=()=>{$("onlinePlayerSearchInput").value=b.dataset.playerId||"";onlineSearchPlayer()});
 }
 
@@ -1256,6 +1319,8 @@ function renderProfile(){
   window.BeanGrowthOnline?.refreshAccountAlignment?.();
   window.BeanGrowthOnline?.loadBackups?.();
   window.BeanGrowthOnline?.refreshAccountControls?.();
+  window.BeanGrowthOnline?.refreshSyncControlStatus?.();
+  window.BeanGrowthOnline?.loadNotifications?.();
   const repId=HABITS[pub.representativeHabitId]?pub.representativeHabitId:"noMasturbation",rep=appData.habits[repId],rh=HABITS[repId];
   $("profilePublicPreview").innerHTML=`<p class="section-label">PUBLIC VIEW</p><h4>${escapeHtml(appData.profile.nickname)}　${title.icon} ${escapeHtml(title.text)}</h4>
   <p class="profile-goal-preview"><span>目標</span>${pub.goal?escapeHtml(pub.goal):"まだ目標は設定されていません。"}</p>
@@ -1523,9 +1588,28 @@ $("onlinePlayerSearchInput").onkeydown=e=>{if(e.key==="Enter")onlineSearchPlayer
 $("publishOnlineProfileButton").onclick=publishOnlineProfile;
 $("publishOnlineRankingButton").onclick=publishOnlineRanking;
 $("refreshOnlineRankingButton").onclick=()=>window.BeanGrowthOnline?.loadRanking?.();
-$("rankingDivisionSelect").onchange=()=>window.BeanGrowthOnline?.loadRanking?.();
+$("rankingHabitSelect").onchange=()=>{window.BeanGrowthOnline?.loadRanking?.();window.BeanGrowthOnline?.loadSelfRank?.()};
+$("rankingSeveritySelect").onchange=()=>{window.BeanGrowthOnline?.loadRanking?.();window.BeanGrowthOnline?.loadSelfRank?.()};
 $("refreshFriendsButton").onclick=()=>window.BeanGrowthOnline?.loadFriends?.();
 $("googleUnlinkButton").onclick=()=>window.BeanGrowthOnline?.unlinkGoogleSafely?.();
+$("compareDataButton").onclick=()=>window.BeanGrowthOnline?.openManualDataComparison?.();
+$("syncRetryButton").onclick=()=>window.BeanGrowthOnline?.retrySync?.();
+$("rankingPeriodSelect").onchange=()=>{initializeRankingSelectors();window.BeanGrowthOnline?.loadRanking?.();window.BeanGrowthOnline?.loadSelfRank?.()};
+$("rankingYearSelect").onchange=()=>{window.BeanGrowthOnline?.loadRanking?.();window.BeanGrowthOnline?.loadSelfRank?.()};
+$("rankingMonthSelect").onchange=()=>{window.BeanGrowthOnline?.loadRanking?.();window.BeanGrowthOnline?.loadSelfRank?.()};
+$("refreshSelfRankButton").onclick=()=>window.BeanGrowthOnline?.loadSelfRank?.();
+$("submitEventContributionButton").onclick=()=>window.BeanGrowthOnline?.submitEventContribution?.();
+$("notificationButton").onclick=()=>{window.BeanGrowthOnline?.loadNotifications?.();$("notificationOverlay").classList.remove("hidden")};
+$("notificationCloseButton").onclick=()=>$("notificationOverlay").classList.add("hidden");
+$("notificationOverlay").onclick=e=>{if(e.target===$("notificationOverlay"))$("notificationOverlay").classList.add("hidden")};
+$("requestNotificationPermissionButton").onclick=()=>window.BeanGrowthOnline?.requestNotificationPermission?.();
+$("markNotificationsReadButton").onclick=()=>window.BeanGrowthOnline?.markNotificationsRead?.();
+$("adminButton").onclick=()=>{window.BeanGrowthOnline?.loadAdminDashboard?.();$("adminOverlay").classList.remove("hidden")};
+$("adminCloseButton").onclick=()=>$("adminOverlay").classList.add("hidden");
+$("adminOverlay").onclick=e=>{if(e.target===$("adminOverlay"))$("adminOverlay").classList.add("hidden")};
+$("adminRefreshButton").onclick=()=>window.BeanGrowthOnline?.loadAdminDashboard?.();
+$("adminSaveEventButton").onclick=()=>window.BeanGrowthOnline?.adminSaveEvent?.();
+
 $("googleConnectButton").onclick=()=>window.BeanGrowthOnline?.connectGoogle?.();$("exportDataButton").onclick=exportBackup;$("importDataButton").onclick=requestImportBackup;$("importDataInput").onchange=e=>importBackupFile(e.target.files?.[0]);
 
 migrateLegacyTitleSelection();

@@ -1,38 +1,30 @@
-Bean Growth v5.9
+Bean Growth v6.8
 
-v5.2: 1 Googleアカウント = 1正式データ
-- users/{uid}/canonical/main を正式データとして使用。
-- localStorageは端末キャッシュ。
+ランキング
+- 全期間 / 年月指定
+- 全期間は正式リリース日から現在まで
+- OFFICIAL_RELEASE_DATE = 2026-08-31（正式一般公開日が変わる場合は公開前に変更）
+- 禁欲と深刻度を別選択
+- 全深刻度 / LIGHT / NORMAL / HARD
+- 1位だけ金色王冠
+- 選択禁欲の現在継続日数を「○日間継続！」表示
+- 全禁欲総合では現在継続が最長の禁欲名＋日数
+- プレイヤー行から公開プレイヤー情報へ
 
-v5.3: 複数端末同期
-- Firestore realtime listenerで別端末のRevisionを検出。
-- ローカル未変更なら自動同期。
-- 両方変更なら比較画面。
+プレイヤー公開情報
+- ニックネーム
+- 目標（最大80文字）
+- 現在取り組んでいる禁欲
+- 各禁欲の最長継続日数
+- フレンド申請
+- 通報
 
-v5.4: データ復旧
-- 正式データ更新前を5世代循環バックアップ。
-- プロフィールから復元可能。
+ランキング自動同期
+- Google連携済み + オンライン
+- 起動時 / 正式データ更新後 / オンライン復帰時
+- 同一ハッシュは再送信しない
+- 最短15秒スロットル
+- 手動ボタンは「ランキングを再同期」として残す
 
-v5.5: Google管理
-- Googleが唯一の認証手段なら連携解除不可。
-
-v5.6: ランキング
-- 総合 / LIGHT / NORMAL / HEAVY / 12禁欲別。
-- 記録率を表示。
-
-v5.7: 不正対策基盤
-- Canonical Revision / content hash / integrity fingerprint。
-- ランキングは client_checked。
-- サーバー履歴再計算は未実装であることを明示。
-
-v5.8: Player ID / 公開プロフィール
-- 検索、公開情報のみ表示、通報。
-
-v5.9: フレンド
-- 申請、承認、拒否、一覧、閲覧、解除。
-
-schemaVersion 20
-dataRevision 36
-
-必須:
-firebase deploy --only firestore:rules,firestore:indexes
+schemaVersion 22
+dataRevision 45

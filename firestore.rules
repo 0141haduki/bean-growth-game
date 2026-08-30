@@ -2,6 +2,12 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    function myPlayerId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)/publicIdentity/main).data.playerId;
+    }
     match /users/{userId} {
       allow read, write: if request.auth != null
                          && request.auth.uid == userId;
@@ -36,6 +42,10 @@ service cloud.firestore {
         && request.resource.data.playerId == playerId
         && request.resource.data.month == month
         && request.resource.data.division == division
+        && request.resource.data.habit is string
+        && request.resource.data.severity is string
+        && division == ('habit-' + request.resource.data.habit + '__severity-' + request.resource.data.severity)
+        && request.resource.data.currentStreak >= 0
         && request.resource.data.score >= 0
         && request.resource.data.recordRate >= 0
         && request.resource.data.recordRate <= 100;
@@ -54,7 +64,8 @@ service cloud.firestore {
       allow update: if request.auth != null
         && get(/databases/$(database)/documents/users/$(request.auth.uid)/publicIdentity/main).data.playerId == recipientPlayerId
         && request.resource.data.status in ['accepted','rejected'];
-      allow delete: if request.auth != null;
+      allow delete: if request.auth != null
+        && (myPlayerId() == recipientPlayerId || myPlayerId() == senderPlayerId);
     }
 
     match /friendLinks/{pairKey} {
@@ -70,8 +81,26 @@ service cloud.firestore {
 
     match /reports/{reportId} {
       allow create: if request.auth != null
-        && request.resource.data.reporterPlayerId == get(/databases/$(database)/documents/users/$(request.auth.uid)/publicIdentity/main).data.playerId;
-      allow read, update, delete: if false;
+        && request.resource.data.reporterPlayerId == myPlayerId();
+      allow read, update, delete: if isAdmin();
+    }
+
+
+    // v6.4-v6.5 global events / world boss.
+    // Event definitions are written only by administrators.
+    match /globalEvents/{eventId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /globalEvents/{eventId}/contributions/{playerId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && myPlayerId() == playerId
+        && request.resource.data.playerId == playerId
+        && request.resource.data.points >= 0
+        && request.resource.data.integrityStatus == 'client_checked';
+      allow delete: if request.auth != null && (myPlayerId() == playerId || isAdmin());
     }
 
     // v4.69: raw daily records are NOT published here.
